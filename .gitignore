@@ -1,0 +1,16 @@
+# Ignore the following files and folders
+
+# Parameters file (every user should have their own parameters.m file, based upon parameters_template.m)
+parameters.m
+
+# Default location for saved data
+Data/
+
+# Offline documentation
+Doc/
+
+# Windows default autosave extension
+*.asv
+
+# Windows generated files
+Thumbs.db
