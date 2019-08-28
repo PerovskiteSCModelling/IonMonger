@@ -32,28 +32,27 @@ mid = ceil((N+1)/2); % the midpoint of the perovskite layer
 J = @(mid,y) Kn./dx(mid).*(y(2*N+3+mid)-y(2*N+2+mid)-(y(2*N+3+mid)+y(2*N+2+mid)).*(y(N+2+mid)-y(N+1+mid))./2) ...
             -Kp./dx(mid).*(y(3*N+4+mid)-y(3*N+3+mid)+(y(3*N+4+mid)+y(3*N+3+mid)).*(y(N+2+mid)-y(N+1+mid))./2);
 function [value,isterminal,direction] = Voc_event(t,y,direction)
-    value = J(mid,y)-(t.^2-(atol^2+1).*t/atol+1).*(t<atol);
-                      % to exclude unrealistic initial state
+    value = J(mid,y); % event is when current density equals zero
     isterminal = 1; % stop at open-circuit
     % direction = -1 for an increasing voltage and 1 for decreasing
 end
 
 % Try to locate the open-circuit voltage
-try % increasing the voltage by ~1.5V
-    if Verbose
-        disp('Attempting to find Voc between Vbi and Vbi+0.5V');
-    end
-    options.Events = @(t,y) Voc_event(t,y,-1);
-    [~,~,~,ye,~] = ode15s(@(t,u) RHS(t,u,@(t) -t,params,vectors,matrices), ...
-        [0 75],sol_init,options);
-    if isempty(ye), error('No open-circuit events found.'); end
-    sol_init = ye(end,:)';
-catch % then try decreasing the voltage by ~1.5V
+try % decreasing the voltage by ~1.5V
     if Verbose
         disp('Attempting to find Voc between Vbi and Vbi-1.5V');
     end
     options.Events = @(t,y) Voc_event(t,y,1);
     [~,~,~,ye,~] = ode15s(@(t,u) RHS(t,u,@(t) t,params,vectors,matrices), ...
+        [0 75],sol_init,options);
+    if isempty(ye), error('No open-circuit events found.'); end
+    sol_init = ye(end,:)';  
+catch % then try increasing the voltage by ~1.5V
+    if Verbose
+        disp('Attempting to find Voc between Vbi and Vbi+0.5V');
+    end
+    options.Events = @(t,y) Voc_event(t,y,-1);
+    [~,~,~,ye,~] = ode15s(@(t,u) RHS(t,u,@(t) -t,params,vectors,matrices), ...
         [0 75],sol_init,options);
     if isempty(ye), error('No open-circuit events found.'); end
     sol_init = ye(end,:)';
