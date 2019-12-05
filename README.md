@@ -25,7 +25,7 @@ This code was first created at the University of Southampton in 2016. See [AUTHO
 
 # How to Cite this Code
 
-Please cite the release paper published in the [Journal of Computational Electronics](https://link.springer.com/journal/10825) by using the [citation.bib](citation.bib) file.
+Please cite the release paper published in the [Journal of Computational Electronics](https://link.springer.com/article/10.1007/s10825-019-01396-2) by using the [citation.bib](citation.bib) file.
 
 
 # Technical Features

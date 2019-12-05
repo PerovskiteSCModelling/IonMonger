@@ -66,12 +66,12 @@ The solution structure `sol` contains both the input (`params`, `vectors`) and o
 
 # Example Solutions
 
-Three example solutions are included in the release paper published in the [Journal of Computational Electronics](https://link.springer.com/journal/10825). To view more results produced using an equivalent code, please refer to our paper in [Energy & Environmental Science](https://doi.org/10.1039/C8EE01576G).
+Three example solutions are included in the release paper published in the [Journal of Computational Electronics](https://link.springer.com/article/10.1007/s10825-019-01396-2). To view more results produced using an equivalent code, please refer to our paper in [Energy & Environmental Science](https://doi.org/10.1039/C8EE01576G).
 
 
 # Details of Model
 
-The model is described in the release paper in the [Journal of Computational Electronics](https://link.springer.com/journal/10825). A detailed analysis of the performance of different solution methods, in terms of speed and numerical accuracy, is given for a comparable, single-layer model in our paper in [Applied Mathematical Modelling](https://doi.org/10.1016/j.apm.2018.06.051).
+The model is described in the release paper in the [Journal of Computational Electronics](https://link.springer.com/article/10.1007/s10825-019-01396-2). A detailed analysis of the performance of different solution methods, in terms of speed and numerical accuracy, is given for a comparable, single-layer model in our paper in [Applied Mathematical Modelling](https://doi.org/10.1016/j.apm.2018.06.051).
 
 
 # How to Edit the Input File
@@ -156,4 +156,4 @@ If you encounter a different problem, please create an Issue on the GitHub websi
 
 # How to Cite this Code
 
-Please cite the release paper published in the [Journal of Computational Electronics](https://link.springer.com/journal/10825) by using the [citation.bib](citation.bib) file.
+Please cite the release paper published in the [Journal of Computational Electronics](https://link.springer.com/article/10.1007/s10825-019-01396-2) by using the [citation.bib](citation.bib) file.
