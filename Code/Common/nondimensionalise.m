@@ -25,8 +25,12 @@ lam2    = lambda^2;             % Debye length parameter squared
 ni      = sqrt(gc*gv)*exp(-Eg/(2*VT)); % intrinsic carrier density (m-3)
 delta   = dE/N0;          % ratio of typical electron and ion densities
 chi     = dH/dE;          % ratio of typical hole and electron densities
-Tion    = b/DI*sqrt(VT*epsp/(q*N0));   % characteristic ionic timescale (s)
 G0      = (Fph./b).*(1-exp(-alpha*b)); % typical rate of photogeneration (m-3s-1)
+if nnz(DI) % the ion diffusion coefficient is non-zero
+    Tion = b/DI*sqrt(VT*epsp/(q*N0));  % characteristic ionic timescale (s)
+else
+    Tion = dE/G0;                      % characteristic electronic timescale (s)
+end
 sigma   = dE/(G0*Tion);   % ratio of carrier and ionic timescales
 Kp      = Dp*dH/(G0*b^2); % hole current parameter
 Kn      = Dn*dE/(G0*b^2); % electron current parameter
