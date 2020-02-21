@@ -59,39 +59,44 @@ p0 = kH*dH; % typical hole density in perovskite (m-3)
 ni2   = ni^2/(dE*dH);  % non-dim. n_i^2
 brate = beta*dE*dH/G0; % rate constant for bimolecular recombination
 if tp>0 && tn>0
-    gamma   = dH/(tp*G0); % rate constant for hole-dominated recombination
+    gamma   = dH/(tp*G0); % rate constant for SRH recombination
     tor     = tn*dH/(tp*dE); % ratio of SRH carrier lifetimes
     tor3    = (tn+tp)*ni/(tp*dE); % constant from deep trap approximation
 else
-    [gamma, tor, tor3] = deal(0); % no bulk recombination
+    [gamma, tor, tor3] = deal(0); % no bulk SRH
 end
-% Bulk recombination rate
-R = @(n,p,AP) brate*(n.*p-ni2) ... % bimolecular
-            + gamma*(p.*n-ni2)./(n+tor*p+tor3); % SRH
+% SRH recombination rate (written in a way that should reduce numerical inaccuracy)
+SRH = @(n,p,gamma,ni2,tor,tor3) ...
+        gamma*(p-ni2./n)./(1+tor*p./n+tor3./n).*(n>=tor*p).*(n>=tor3) ...
+      + gamma/tor*(n-ni2./p)./(n/tor./p+1+tor3/tor./p).*(tor*p>n).*(tor*p>tor3) ...
+      + gamma/tor3*(p.*n-ni2)./(n/tor3+tor*p/tor3+1).*(tor3>n).*(tor3>=tor*p);
+% Total bulk recombination rate
+R = @(n,p,P) brate*(n.*p-ni2) ... % bimolecular
+           + SRH(n,p,gamma,ni2,tor,tor3); % SRH recombination via trap states
 
 % Interface recombination parameters
 brateE = betaE*dE*dH/(b*G0); % rate constant for bimolecular recombination
 brateH = betaH*dE*dH/(b*G0); % rate constant for bimolecular recombination
 if vpE>0 && vnE>0
-    gammaE = dH*vpE/(b*G0); % rate constant for hole-dominated recombination
+    gammaE = dH*vpE/(b*G0); % rate constant for SRH recombination
     torE   = dH*vpE/(dE*vnE); % ratio of SRH carrier lifetimes
     torE3  = (1/kE+vpE/vnE)*ni/dE; % constant from deep trap state approximation
 else
     [gammaE, torE, torE3] = deal(0); % no ETL/perovskite interface recombination
 end
 if vnH>0 && vpH>0
-    gammaH = dE*vnH/(b*G0); % rate constant for hole-dominated recombination
+    gammaH = dE*vnH/(b*G0); % rate constant for SRH recombination
     torH   = dE*vnH/(dH*vpH); % ratio of SRH carrier lifetimes
     torH3  = (1/kH+vnH/vpH)*ni/dH; % constant from deep trap state approximation
 else
     [gammaH, torH, torH3] = deal(0); % no perovskite/HTL interface recombination
 end
-% ETL/perovskite interface recombination rate
+% Total ETL/perovskite interface recombination rate
 Rl = @(nE,p) brateE*(nE.*p-ni2/kE) ... % bimolecular
-           + gammaE*(p.*nE-ni2/kE)./(nE+torE*p+torE3); % SRH
-% perovskite/HTL interface recombination rate
+           + SRH(nE,p,gammaE,ni2/kE,torE,torE3); % SRH
+% Total perovskite/HTL interface recombination rate
 Rr = @(n,pH) brateH*(n.*pH-ni2/kH) ... % bimolecular
-           + gammaH*(pH.*n-ni2/kH)./(pH+torH*n+torH3); % SRH
+           + SRH(pH,n,gammaH,ni2/kH,torH,torH3); % SRH
 
 % Spatial grid parameters (consistent with the choice of N above)
 X = 0.2; % percentage of grid points within an ionic Debye length of the interface
