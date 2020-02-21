@@ -8,13 +8,16 @@ function dudt = RHS(t,u,psi,params,vectors,matrices,flag)
 % open-circuit conditions.
 
 % Input parameters and arrays
-[chi, delta, G, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, rE, NH, lamH2, KH, kH, rH] ...
-    = struct2array(params,{'chi','delta','G','R','lambda','lam2','Rr','Rl','N','Kn','Kp', ...
-                           'NE','lamE2','KE','kE','rE','NH','lamH2','KH','kH','rH'});
+[chi, delta, G, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, ...
+    rE, NH, lamH2, KH, kH, rH, DI] ...
+    = struct2array(params,{'chi','delta','G','R','lambda','lam2','Rr', ...
+                           'Rl','N','Kn','Kp','NE','lamE2','KE','kE', ...
+                           'rE','NH','lamH2','KH','kH','rH','DI'});
 [x, dx, dxE, dxH] ...
     = struct2array(vectors,{'x','dx','dxE','dxH'});
 [dudt, Av, AvE, AvH, Lo, LoE, LoH, Dx, DxE, DxH, NN, ddE, ddH] ...
-    = struct2array(matrices,{'dudt','Av','AvE','AvH','Lo','LoE','LoH','Dx','DxE','DxH','NN','ddE','ddH'});
+    = struct2array(matrices,{'dudt','Av','AvE','AvH','Lo','LoE','LoH', ...
+                             'Dx','DxE','DxH','NN','ddE','ddH'});
 
 % Adjust for vectorisation
 dudt = repmat(dudt,[1,size(u,2)]);
@@ -33,7 +36,7 @@ pH   = [p(end,:)/kH; u(4*N+2*NE+NH+5:4*N+2*NE+2*NH+4,:)];
 mE = Dx*phi; % negative electric field
 mEE = DxE*phiE; % negative electric field in ETL
 mEH = DxH*phiH; % negative electric field in HTL
-FP = lambda*(Dx*P+mE.*(Av*P)); % negative anion vacancy flux
+FP = nnz(DI)*lambda*(Dx*P+mE.*(Av*P)); % negative anion vacancy flux
 cd = NN-Lo*P+delta*(Lo*n-chi*Lo*p); % charge density
 cdE = LoE*nE-ddE; % charge density in ETL
 cdH = ddH-LoH*pH; % charge density in HTL
