@@ -31,8 +31,8 @@ J78 = J77; J78(NH,NH) = 0;
 % Combine the blocks to define the sparse matrix
 JJJ = sparse([  J11 J11 J13 J13 J15 J15 J17 J17; ... % P equation
                 J11 J11 J11 J11 J25 J25 J27 J27; ... % phi equation
-                J13 J11 J11 J11 J25 J25 J17 J17; ... % n equation
-                J13 J11 J11 J11 J15 J15 J27 J27; ... % p equation
+                J11 J11 J11 J11 J25 J25 J17 J17; ... % n equation
+                J11 J11 J11 J11 J15 J15 J27 J27; ... % p equation
                 J51 J52 J52 J51 J55 J56 J57 J57; ... % phiE equation
                 J51 J52 J52 J51 J56 J55 J57 J57; ... % nE equation
                 J71 J72 J71 J72 J75 J75 J77 J78; ... % phiH equation
