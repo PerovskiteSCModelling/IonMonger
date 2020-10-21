@@ -78,6 +78,10 @@ bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
 
+% Metal contact parameters
+Ect   = -4.1;    % cathode workfunction (eV)
+Ean   = -5.0;    % anode workfunction (eV)
+
 % Bulk recombination
 tn    = 3e-9;    % electron pseudo-lifetime for SRH (s)
 tp    = 3e-7;    % hole pseudo-lifetime for SRH (s)

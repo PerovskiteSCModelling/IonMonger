@@ -5,16 +5,19 @@ function params = nondimensionalise(params)
 % Parameter input
 [N, q, Fph, kB, T, b, epsp, alpha, Ec, Ev, Dn, Dp, gc, gv, N0, DI, EcE, dE, ...
     gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, betaE, betaH, ...
-    vnE, vpE, vnH, vpH] = struct2array(params, ...
+    vnE, vpE, vnH, vpH, Ect, Ean] = struct2array(params, ...
     {'N','q','Fph','kB','T','b','epsp','alpha','Ec','Ev','Dn','Dp','gc', ...
     'gv','N0','DI','EcE','dE','gcE','bE','epsE','DE','EvH','dH','gvH','bH', ...
-    'epsH','DH','tn','tp','beta','betaE','betaH','vnE','vpE','vnH','vpH'});
+    'epsH','DH','tn','tp','beta','betaE','betaH','vnE','vpE','vnH','vpH', ...
+    'Ect','Ean'});
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
 EfE = EcE-VT*log(gcE/dE); % workfunction of ETL (eV)
 EfH = EvH+VT*log(gvH/dH); % workfunction of HTL (eV)
-Vbi = EfE-EfH; % built-in voltage (V)
+if ~any(Ect), Ect = EfE; end % cathode workfunction (eV)
+if ~any(Ean), Ean = EfH; end % anode workfunction (eV)
+Vbi = Ect-Ean; % built-in voltage (V)
 pbi = Vbi/VT;  % non-dim. built-in voltage
 
 % Perovskite parameters
@@ -58,6 +61,10 @@ kE = gc/gcE*exp((EcE-Ec)/VT); % ratio between electron densities across ETL/pero
 kH = gv/gvH*exp((Ev-EvH)/VT); % ratio between hole densities across perovskite/HTL interface
 n0 = kE*dE; % typical electron density in perovskite (m-3)
 p0 = kH*dH; % typical hole density in perovskite (m-3)
+
+% Contact parameters
+nc = gcE*exp((Ect-EcE)/VT)/dE; % non-dim. electron density at cathode interface
+pc = gvH*exp((EvH-Ean)/VT)/dH; % non-dim. hole density at anode interface
 
 % Bulk recombination parameters
 ni2   = ni^2/(dE*dH);  % non-dim. n_i^2
