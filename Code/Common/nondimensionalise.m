@@ -4,11 +4,12 @@ function params = nondimensionalise(params)
 
 % Parameter input
 [N, q, Fph, kB, T, b, epsp, alpha, Ec, Ev, Dn, Dp, gc, gv, N0, DI, EcE, dE, ...
-    gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, betaE, betaH, ...
-    vnE, vpE, vnH, vpH] = struct2array(params, ...
+    gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, Augn, Augp, ...
+    betaE, betaH, vnE, vpE, vnH, vpH] = struct2array(params, ...
     {'N','q','Fph','kB','T','b','epsp','alpha','Ec','Ev','Dn','Dp','gc', ...
     'gv','N0','DI','EcE','dE','gcE','bE','epsE','DE','EvH','dH','gvH','bH', ...
-    'epsH','DH','tn','tp','beta','betaE','betaH','vnE','vpE','vnH','vpH'});
+    'epsH','DH','tn','tp','beta','Augn','Augp','betaE','betaH','vnE','vpE', ...
+    'vnH','vpH'});
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
@@ -62,6 +63,8 @@ p0 = kH*dH; % typical hole density in perovskite (m-3)
 % Bulk recombination parameters
 ni2   = ni^2/(dE*dH);  % non-dim. n_i^2
 brate = beta*dE*dH/G0; % rate constant for bimolecular recombination
+Cn = Augn*dE^2*dH/G0; % Auger recombination coefficient
+Cp = Augp*dE*dH^2/G0; % Auger recombination coefficient
 if tp>0 && tn>0
     gamma   = dH/(tp*G0); % rate constant for SRH recombination
     tor     = tn*dH/(tp*dE); % ratio of SRH carrier lifetimes
@@ -69,6 +72,8 @@ if tp>0 && tn>0
 else
     [gamma, tor, tor3] = deal(0); % no bulk SRH
 end
+% Auger recombination rate
+Auger = @(n,p,Cn,Cp,ni2) (Cn*n+Cp*p).*(n.*p-ni2);
 % SRH recombination rate (written in a way that should reduce numerical inaccuracy)
 SRH = @(n,p,gamma,ni2,tor,tor3) ...
         gamma*(p-ni2./n)./(1+tor*p./n+tor3./n).*(n>=tor*p).*(n>=tor3) ...
@@ -76,6 +81,7 @@ SRH = @(n,p,gamma,ni2,tor,tor3) ...
       + gamma*(p.*n-ni2)./(n+tor*p+tor3).*(tor3>n).*(tor3>=tor*p);
 % Total bulk recombination rate
 R = @(n,p,P) brate*(n.*p-ni2) ... % bimolecular
+           + Auger(n,p,Cn,Cp,ni2) ... % Auger recombination
            + SRH(n,p,gamma,ni2,tor,tor3); % SRH recombination via trap states
 
 % Interface recombination parameters

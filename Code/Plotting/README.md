@@ -5,3 +5,4 @@ This folder contains scripts for plotting the solution, after the solution struc
 
 For example:
 - plot_sections.m can be used to plot a J-V curve
+- plot_recombination.m plots the rates of different types of bulk recombination
