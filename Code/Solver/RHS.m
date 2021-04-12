@@ -9,10 +9,11 @@ function dudt = RHS(t,u,psi,params,vectors,matrices,flag)
 
 % Input parameters and arrays
 [chi, delta, G, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, ...
-    rE, NH, lamH2, KH, kH, rH, DI] ...
+    rE, NH, lamH2, KH, kH, rH, DI, nc, pc] ...
     = struct2array(params,{'chi','delta','G','R','lambda','lam2','Rr', ...
                            'Rl','N','Kn','Kp','NE','lamE2','KE','kE', ...
-                           'rE','NH','lamH2','KH','kH','rH','DI'});
+                           'rE','NH','lamH2','KH','kH','rH','DI','nc', ...
+                           'pc'});
 [x, dx, dxE, dxH] ...
     = struct2array(vectors,{'x','dx','dxE','dxH'});
 [dudt, Av, AvE, AvH, Lo, LoE, LoH, Dx, DxE, DxH, NN, ddE, ddH] ...
@@ -75,7 +76,7 @@ dudt(4*N+5,:) = phiE(1,:)-psi(t);
 dudt(4*N+6:4*N+NE+4,:) = mEE(2:NE,:)-mEE(1:NE-1,:)-cdE/lamE2;
 
 % nE equation
-dudt(4*N+NE+5,:) = nE(1,:)-1;
+dudt(4*N+NE+5,:) = nE(1,:)-nc;
 dudt(4*N+NE+6:4*N+2*NE+4,:) = fnE(2:NE,:)-fnE(1:NE-1,:);
 
 % phiH equation
@@ -84,7 +85,7 @@ dudt(4*N+2*NE+NH+4,:) = phiH(end,:)+psi(t);
 
 % pH equation
 dudt(4*N+2*NE+NH+5:4*N+2*NE+2*NH+3,:) = fpH(2:NH,:)-fpH(1:NH-1,:);
-dudt(4*N+2*NE+2*NH+4,:) = pH(end,:)-1;
+dudt(4*N+2*NE+2*NH+4,:) = pH(end,:)-pc;
 
 % Perform any additional step requested by the optional input argument flag
 if nargin>6
