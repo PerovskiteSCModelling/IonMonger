@@ -86,6 +86,8 @@ Ean   = -5.0;    % anode workfunction (eV)
 tn    = 3e-9;    % electron pseudo-lifetime for SRH (s)
 tp    = 3e-7;    % hole pseudo-lifetime for SRH (s)
 beta  = 0;       % bimolecular recombination rate (m3s-1)
+Augn  = 0;       % electron-dominated Auger recombination rate (m6s-1)
+Augp  = 0;       % hole-dominated Auger recombination rate (m6s-1)
 
 % Interface recombination (max. velocity ~ 1e5)
 betaE = 0;       % ETL/perovskite bimolecular recombination rate (m3s-1)

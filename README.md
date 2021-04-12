@@ -13,7 +13,7 @@ This code is intended for use by researchers in the field of perovskite solar ce
 - simulating photo-current or photo-voltage transients to investigate the effects of halide ion migration
 - visualising the effects of halide ion migration on the internal electrical state of a PSC
 
-This code is currently being used at the Universities of Southampton, Bath and Portsmouth. This research group recently published an investigation into how material properties of the transport layer affect perovskite solar cell performance in [Energy & Environmental Science](https://doi.org/10.1039/C8EE01576G).
+The authors of this code published an investigation into how material properties of the transport layers affect perovskite solar cell performance in [Energy & Environmental Science](https://doi.org/10.1039/C8EE01576G), while working at the Universities of Southampton, Bath and Portsmouth.
 
 
 # Requirements and Other Information
