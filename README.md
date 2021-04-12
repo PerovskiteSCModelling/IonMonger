@@ -20,7 +20,11 @@ The authors of this code published an investigation into how material properties
 
 Requirements: MATLAB (version R2018b).
 
-This code was first created at the University of Southampton in 2016. See [AUTHORS](AUTHORS.md) for a list of contributors and [LICENSE](LICENSE) for the conditions of use. If you encounter a problem, please create an Issue on the GitHub website, add details of the problem (including the error message and MATLAB version number) and attach the parameters.m file in use when the problem occurred. For other enquiries, please contact N.E.Courtier(at)soton.ac.uk.
+This code was first created at the University of Southampton in 2016. See [AUTHORS](AUTHORS.md) for a list of contributors and [LICENSE](LICENSE) for the conditions of use.
+
+For details of the changes to the code since the first release, see the Changelog on the (IonMonger Wiki)[https://github.com/PerovskiteSCModelling/IonMonger/wiki].
+
+If you encounter a problem or any unexpected results, please create an Issue on the GitHub website, add details of the problem (including the error message and MATLAB version number) and attach the parameters.m file in use when the problem occurred. For other enquiries, please contact N.E.Courtier(at)soton.ac.uk.
 
 
 # How to Cite this Code
