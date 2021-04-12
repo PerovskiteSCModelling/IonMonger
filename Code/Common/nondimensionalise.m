@@ -66,17 +66,18 @@ p0 = kH*dH; % typical hole density in perovskite (m-3)
 nc = gcE*exp((Ect-EcE)/VT)/dE; % non-dim. electron density at cathode interface
 pc = gvH*exp((EvH-Ean)/VT)/dH; % non-dim. hole density at anode interface
 
-% Bulk recombination parameters
-ni2   = ni^2/(dE*dH);  % non-dim. n_i^2
-brate = beta*dE*dH/G0; % rate constant for bimolecular recombination
-if any(Augn) && any(Augp)
-    Cn = Augn*dE^2*dH/G0; % Auger recombination coefficient
-    Cp = Augp*dE*dH^2/G0; % Auger recombination coefficient
-else
-    [Cn, Cp] = deal(0); % no Auger recombination
+% Check for Auger recombination parameters
+if isempty(Augn) && isempty(Augp)
+    [Augn, Augp] = deal(0); % no Auger recombination
     warning(['The parameters for Auger recombination (Augn and Augp) have not' ...
         ' been specified in the parameters file, so they have been set to zero.']);
 end
+
+% Bulk recombination parameters
+ni2   = ni^2/(dE*dH);  % non-dim. n_i^2
+brate = beta*dE*dH/G0; % rate constant for bimolecular recombination
+Cn = Augn*dE^2*dH/G0; % Auger recombination coefficient
+Cp = Augp*dE*dH^2/G0; % Auger recombination coefficient
 if tp>0 && tn>0
     gamma   = dH/(tp*G0); % rate constant for SRH recombination
     tor     = tn*dH/(tp*dE); % ratio of SRH carrier lifetimes
