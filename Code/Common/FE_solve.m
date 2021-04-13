@@ -51,7 +51,11 @@ while count == err_count
         end
         
         % Compute the Jacobian, mass matrix and initial slope and add to options
-        options.JPattern = Jac(params,flag);
+        if exist('AnJac.m','file')
+            options.Jacobian = @(t,u) AnJac(t,u,params,vectors,matrices,flag);
+        else
+        	options.JPattern = Jac(params,flag);
+        end
         options.Mass = mass_matrix(params,vectors,flag);
         options.InitialSlope = RHS(0,sol_init,psi,params,vectors,matrices,flag) ...
                                     \options.Mass;

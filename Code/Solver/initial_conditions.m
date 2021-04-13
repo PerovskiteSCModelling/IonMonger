@@ -38,9 +38,20 @@ fsoptions = optimoptions('fsolve','MaxIterations',20);
 if Verbose, fsoptions.Display = 'iter'; else, fsoptions.Display = 'off'; end
 fsoptions.JacobPattern = Jac(params,'init');
 
-% Use the initial guess to obtain a steady-state solution
-sol_init = fsolve(@(u) RHS(0,u,psi0,params,vectors,matrices,'init'), ...
-    sol_init,fsoptions);
+% Use the initial guess to obtain an approximate steady-state solution
+if exist('AnJac.m','file')
+    fsoptions.SpecifyObjectiveGradient = true;
+    [sol_init,~,exitflag,~] = fsolve(@(u) RHS_AnJac(u,psi0, ...
+        params,vectors,matrices,'init'),sol_init,fsoptions);
+else
+    fsoptions.JacobPattern = Jac(params,'init');
+    [sol_init,~,exitflag,~] = fsolve(@(u) RHS(0,u,psi0, ...
+        params,vectors,matrices,'init'),sol_init,fsoptions);
+end
+if exitflag<1
+    warning(['Steady-state initial conditions could not be found to ' ...
+        'a high degree of accuracy and may be unphysical.']);
+end
 
 % Ensure all the algebraic equations are satisfied as exactly as possible
 sol_init = apply_Poisson(sol_init,params,vectors,matrices);
