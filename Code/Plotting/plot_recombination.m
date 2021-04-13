@@ -7,7 +7,7 @@ function plot_recombination(sol)
 	struct2array(sol.params, {'G0','dE','dH','N0','brate','ni2','gamma', ...
                               'tor','tor3','Cn','Cp','R','SRH','Auger','jay'});
 
-% Unpack the dimensional charge concentrations and time
+% Unpack the dimensional charge concentrations
 [n, p, P] = struct2array(sol.dstrbns, {'n','p','P'});
 
 % Unpack the time and spatial dimension across the perovskite layer

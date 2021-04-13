@@ -4,24 +4,29 @@ function sol_init = initial_conditions(psi0,params,vectors,matrices)
 % vectors and matrices needed by the solver.
 
 % Parameter input
-[chi, kH, kE, Verbose] = struct2array(params, {'chi','kH','kE','Verbose'});
+[chi, kH, kE, nc, pc, Verbose] = ...
+    struct2array(params, {'chi','kH','kE','nc','pc','Verbose'});
 [x, xE, xH] = struct2array(vectors, {'x','xE','xH'});
 
 % Define uniform profiles for the ion vacancy density and electric potential
 P_init    = ones(size(x));
 phi_init  = zeros(size(x));
+phiE_init = zeros(size(xE));
+phiH_init = zeros(size(xH));
 
 % Compute profiles for the carrier concentrations from a quasi-steady BVP
 y_guess = bvpinit(x',@(x) [kH*x+kE*(1-x)/chi; 0*x; chi*kH*x+kE*(1-x); 0*x]);
 sol = bvp4c(@(x,y) yode(x,y,params),@(ya,yb) ybcs(ya,yb,params),y_guess);
 solx = deval(sol,x'); p_init = solx(1,:)'; n_init = solx(3,:)';
 
-% Define uniform profiles for the electric potential and carrier
-% concentrations across the TLs
-phiE_init = zeros(size(xE));
-nE_init   = ones(size(xE));
-phiH_init = zeros(size(xH));
-pH_init   = ones(size(xH));
+% Define linear profiles for the carrier concentrations across the TLs
+if abs(pc-1) > abs(nc-1)
+    nE_init = ones(size(xE));
+    pH_init = ((pc-1)*(xH-1)+xH(end)-1)/(xH(end)-1);
+else
+    nE_init = ((nc-1)*xE+xE(1))/xE(1);
+    pH_init = ones(size(xH));
+end
 
 % Combine the initial conditions into one vector to pass to fsolve
 sol_init  = [P_init; phi_init; n_init; p_init; ... % perovskite
