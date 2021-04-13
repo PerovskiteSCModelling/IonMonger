@@ -8,11 +8,12 @@ function [J, Jl, Jr] = calculate_currents(params,vectors,dstrbns)
 % at each point in time.
 
 % Unpack relevant parameters, vectors and solution variables
-[N, time, Kn, Kp, dpt, dpf, Rl, Rr, kE, kH] ...
+[N, time, Kn, Kp, dpt, dpf, Rl, Rr, kE, kH, ARp] ...
     = struct2array(params,{'N','time','Kn','Kp','dpt','dpf','Rl','Rr', ...
-    'kE','kH'});
+    'kE','kH','ARp'});
 dx  = vectors.dx;
-[P, phi, n, p] = struct2array(dstrbns, {'P','phi','n','p'});
+[P, phiE, phi, phiH, n, p] ...
+    = struct2array(dstrbns, {'P','phiE','phi','phiH','n','p'});
 
 % Define necessary vectors and the indice closest to the mid-point of the
 % perovskite layer
@@ -32,9 +33,10 @@ Jn = jn(TT,mid); % dimensionless electron current density
 Jp = jp(TT,mid); % dimensionless hole current density
 Jd = [NaN; jd(TT(2:end),mid)]; % dimensionless displacement current density
 Jf = jf(TT,mid); % dimensionless ionic flux displacement current density
+Js = (params.pbi-(phiE(TT,1)-phiH(TT,end)))/ARp; % loss due to shunt resistance
 
 % Calculate the total dimensionless photocurrent density
-J = Jn+Jp-Jd-Jf;
+J = Jn+Jp-Jd-Jf-Js;
 
 % Calculate dimensionless losses from interfacial recombination
 Jl = -Rl(n(TT,1)./kE,p(TT,1)); % (negative) current density loss at ETL interface
