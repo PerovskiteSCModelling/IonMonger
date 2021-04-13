@@ -99,7 +99,7 @@ vpH   = 1e5;     % hole recombination velocity for SRH (ms-1)
 
 % Parasitic resistances
 Rs    = 0;       % external series resistance (Ohm)
-Rp    = 1e3;     % parallel or shunt resistance (Ohm) (can choose Inf)
+Rp    = Inf;     % parallel or shunt resistance (Ohm) (can choose Inf)
 Acell = 1;       % cell area (cm2) (only used to scale the series resistance)
 
 
