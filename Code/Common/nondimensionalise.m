@@ -67,7 +67,7 @@ nc = gcE*exp((Ect-EcE)/VT)/dE; % non-dim. electron density at cathode interface
 pc = gvH*exp((EvH-Ean)/VT)/dH; % non-dim. hole density at anode interface
 
 % Check for Auger recombination parameters
-if isempty(Augn) && isempty(Augp)
+if isempty(Augn) || isempty(Augp)
     [Augn, Augp] = deal(0); % no Auger recombination
     warning(['The parameters for Auger recombination (Augn and Augp) have not' ...
         ' been specified in the parameters file, so they have been set to zero.']);
