@@ -79,8 +79,8 @@ epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
 
 % Metal contact parameters (optional)
-Ect   = -4.1;    % cathode workfunction (eV)
-Ean   = -5.0;    % anode workfunction (eV)
+% Ect   = -4.1;    % cathode workfunction (eV)
+% Ean   = -5.0;    % anode workfunction (eV)
 
 % Bulk recombination
 tn    = 3e-9;    % electron pseudo-lifetime for SRH (s)
