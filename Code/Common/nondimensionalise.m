@@ -139,7 +139,7 @@ Vap2psi = @(Vap) (Vbi-Vap)./TkT;
 psi2Vap = @(psi) Vbi-psi.*TkT;
 
 % External parameters
-if ~any(Rs) && Rs~=0, Rs = 0; % default is zero series resistance
+if isempty(Rs), Rs = 0; % default is zero series resistance
     disp('Assumming there is no series resistance.'); end
 if ~any(Rp), Rp = Inf;  % default is infinite shunt resistance
     disp('Assumming there is infinite shunt resistance.'); end
