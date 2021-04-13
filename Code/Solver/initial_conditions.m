@@ -36,7 +36,6 @@ sol_init  = [P_init; phi_init; n_init; p_init; ... % perovskite
 % Define the settings for the call to fsolve
 fsoptions = optimoptions('fsolve','MaxIterations',20);
 if Verbose, fsoptions.Display = 'iter'; else, fsoptions.Display = 'off'; end
-fsoptions.JacobPattern = Jac(params,'init');
 
 % Use the initial guess to obtain an approximate steady-state solution
 if exist('AnJac.m','file')
