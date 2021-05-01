@@ -115,7 +115,7 @@ if exist('AnJac.m','file')
 else
     fsoptions.JacobPattern = Jac(params,'findVoc');
     [sol_init,~,exitflag,~] = fsolve(@(u) RHS(0,u,@(t) 0, ...
-    params,vectors,matrices,'findVoc'),sol_init,fsoptions);
+        params,vectors,matrices,'findVoc'),sol_init,fsoptions);
 end
 if exitflag<1
     warning(['Steady-state initial conditions could not be found to ' ...
