@@ -97,6 +97,11 @@ vpE   = 10;      % hole recombination velocity for SRH (ms-1)
 vnH   = 0.1;     % electron recombination velocity for SRH (ms-1)
 vpH   = 1e5;     % hole recombination velocity for SRH (ms-1)
 
+% Parasitic resistances (optional)
+% Rs    = 0;       % external series resistance (Ohm)
+% Rp    = Inf;     % parallel or shunt resistance (Ohm) (can choose Inf)
+% Acell = 1;       % cell area (cm2) (only used to scale the series resistance)
+
 
 %% Non-dimensionalise model parameters and save all inputs
 

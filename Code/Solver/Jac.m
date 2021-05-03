@@ -39,6 +39,10 @@ JJJ = sparse([  J11 J11 J13 J13 J15 J15 J17 J17; ... % P equation
                 J71 J72 J71 J72 J75 J75 J78 J77; ... % pH equation
                 ]);
 
+% Adjust right-hand potential BC to account for any parasitic resistance
+JJJ(4*N+2*NE+NH+4,:) = [zeros(1,4*N+4), zeros(1,2*NE), ...
+                        zeros(1,NH-2), 1, 1, zeros(1,NH-2), 1, 1];
+
 % Perform any additional step requested by the optional input argument flag
 if nargin>1
     if strcmp(flag,'none')

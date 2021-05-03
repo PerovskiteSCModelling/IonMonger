@@ -36,4 +36,9 @@ matrices = struct('dudt',dudt,'Av',Av,'AvE',AvE,'AvH',AvH, ...
                               'Dx',Dx,'DxE',DxE,'DxH',DxH, ...
                               'NN',NN,'ddE',ddE,'ddH',ddH);
 
+if exist('AnJac.m','file')
+    % Preallocate for the analytic Jacobian and add to structure
+    matrices.JJJ = spalloc(4*N+2*NE+2*NH+4,4*N+2*NE+2*NH+4,42*N+12*NE+12*NH+4);
+end
+
 end

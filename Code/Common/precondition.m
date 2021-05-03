@@ -14,7 +14,11 @@ warnon = warning('error','MATLAB:ode15s:IntegrationTolNotMet');
 
 % Compute the Jacobian, mass matrix and initial slope and add to options
 % Note that the mass matrix is adjusted so ions are as mobile as electrons
-options.JPattern = Jac(params);
+if exist('AnJac.m','file')
+    options.Jacobian = @(t,u) AnJac(t,u,params,vectors,matrices);
+else
+    options.JPattern = Jac(params);
+end
 options.Mass = mass_matrix(params,vectors,'precondition');
 options.InitialSlope = RHS(0,sol_init,@(t) 0,params,vectors,matrices) ...
     \options.Mass;
@@ -33,11 +37,21 @@ warning(warnon);
 % Define the settings for the call to fsolve
 fsoptions = optimoptions('fsolve','MaxIterations',20);
 if Verbose, fsoptions.Display = 'iter'; else, fsoptions.Display = 'off'; end
-fsoptions.JacobPattern = Jac(params,'init');
 
-% Use the initial estimate to obtain a steady-state solution
-sol_init = fsolve(@(u) RHS(0,u,psi,params,vectors,matrices,'init'), ...
-    sol_init,fsoptions);
+% Use the initial estimate to obtain an approximate steady-state solution
+if exist('AnJac.m','file')
+    fsoptions.SpecifyObjectiveGradient = true;
+    [sol_init,~,exitflag,~] = fsolve(@(u) RHS_AnJac(u,psi, ...
+        params,vectors,matrices,'init'),sol_init,fsoptions);
+else
+    fsoptions.JacobPattern = Jac(params,'init');
+    [sol_init,~,exitflag,~] = fsolve(@(u) RHS(0,u,psi, ...
+        params,vectors,matrices,'init'),sol_init,fsoptions);
+end
+if exitflag<1
+    warning(['Steady-state initial conditions could not be found to ' ...
+        'a high degree of accuracy and may be unphysical.']);
+end
 
 % Ensure all the algebraic equations are satisfied as exactly as possible
 sol_init = apply_Poisson(sol_init,params,vectors,matrices);

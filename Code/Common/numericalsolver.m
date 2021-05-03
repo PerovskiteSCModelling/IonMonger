@@ -30,8 +30,9 @@ dstrbns = FE_solve(params,vectors);
 
 %% Re-dimensionalise all outputs
 % including vectors, solution variables, time, voltage and current densities
-[b, N0, VT, dE, dH, tstar2t, psi2Vap, jay] ...
-    = struct2array(params,{'b','N0','VT','dE','dH','tstar2t','psi2Vap','jay'});
+[b, N0, VT, dE, dH, tstar2t, psi2Vap, Vbi, jay] ...
+    = struct2array(params,{'b','N0','VT','dE','dH','tstar2t','psi2Vap', ...
+                           'Vbi','jay'});
 b = b*1e9; % Change the width b in metres to nanometres
 vectors.x    = b*vectors.x;
 vectors.dx   = b*vectors.dx;
@@ -49,6 +50,7 @@ dstrbns.phiH = VT*dstrbns.phiH;
 dstrbns.pH   = dH*dstrbns.pH;
 time         = tstar2t(time);
 V            = psi2Vap(dstrbns.phiE(:,1)/VT);
+Vres         = V-Vbi+dstrbns.phiE(:,1)-dstrbns.phiH(:,end);
 J            = jay.*J;
 Jl           = jay.*Jl;
 Jr           = jay.*Jr;
@@ -61,7 +63,8 @@ timetaken = toc(start_t);
 
 % Package up solution
 solution = struct('vectors',vectors, 'params',params, 'dstrbns',dstrbns, ...
-        'time',time, 'V',V, 'J',J, 'Jl',Jl, 'Jr',Jr, 'timetaken',timetaken);
+        'time',time, 'V',V, 'Vres',Vres, 'J',J, 'Jl',Jl, 'Jr',Jr, ...
+        'timetaken',timetaken);
 
 % If completion tasks are specified, perform them
 if exist('completion_tasks','file'), completion_tasks(solution); end

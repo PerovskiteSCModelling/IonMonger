@@ -5,11 +5,12 @@ function params = nondimensionalise(params)
 % Parameter input
 [N, q, Fph, kB, T, b, epsp, alpha, Ec, Ev, Dn, Dp, gc, gv, N0, DI, EcE, dE, ...
     gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, Augn, Augp, ...
-    betaE, betaH, vnE, vpE, vnH, vpH, Ect, Ean] = struct2array(params, ...
+    betaE, betaH, vnE, vpE, vnH, vpH, Ect, Ean, Rs, Rp, Acell] ...
+    = struct2array(params, ...
     {'N','q','Fph','kB','T','b','epsp','alpha','Ec','Ev','Dn','Dp','gc', ...
     'gv','N0','DI','EcE','dE','gcE','bE','epsE','DE','EvH','dH','gvH','bH', ...
     'epsH','DH','tn','tp','beta','Augn','Augp','betaE','betaH','vnE','vpE', ...
-    'vnH','vpH','Ect','Ean'});
+    'vnH','vpH','Ect','Ean','Rs','Rp','Acell'});
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
@@ -136,6 +137,16 @@ t2tstar = @(t) t./Tion;
 tstar2t = @(tstar) tstar.*Tion;
 Vap2psi = @(Vap) (Vbi-Vap)./TkT;
 psi2Vap = @(psi) Vbi-psi.*TkT;
+
+% External parameters
+if isempty(Rs), Rs = 0; % default is zero series resistance
+    disp('Assumming there is no series resistance.'); end
+if ~any(Rp), Rp = Inf;  % default is infinite shunt resistance
+    disp('Assumming there is infinite shunt resistance.'); end
+if ~any(Acell), Acell = 1; end % default is cell area of 1 cm2
+ARs = Rs*Acell/1e4*q*G0*b/VT; % non-dim. external series resistance x cell area
+ARp = Rp*Acell/1e4*q*G0*b/VT; % non-dim. parallel/shunt resistance x cell area
+Rsp = Rs/Rp; % ratio between series and parallel/shunt resistance
 
 % Compile all parameters into the params structure
 vars = setdiff(who,{'params','vars'});

@@ -41,4 +41,11 @@ xH = xH(2:end); % first point is last point of perovskite layer
 % Package up vectors into a structure
 vectors = struct('x',x,'dx',dx,'xE',xE,'dxE',dxE,'xH',xH,'dxH',dxH);
 
+if exist('AnJac.m','file')
+    % Define reciprocal of spacing and add to structure
+    vectors.xd = 1./dx;
+    vectors.xdE = 1./dxE;
+    vectors.xdH = 1./dxH;
+end
+
 end
