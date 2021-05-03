@@ -4,6 +4,8 @@ A drift-diffusion model for ion migration and charge carrier transport across a 
 
 This code can be used to simulate the internal state of a PSC over time. The three core layers of a PSC, namely the electron transport layer, perovskite absorber layer and hole transport layer, are modelled explicitly in one spatial dimension. The model variables are the electric potential, halide ion vacancies (existing only within the perovskite layer), electrons (within the ETL and perovskite layers) and holes (within the perovskite and HTL). A variety of experimental protocols can be simulated, including changes in the applied voltage and/or illumination intensity that occur over timescales on the order of microseconds to minutes. The code also outputs the current density and voltage which can be used to plot the current-voltage characteristics of a PSC, including current-voltage hysteresis due to the movement of halide ion vacancies. Please read the [GUIDE](GUIDE.md) to get started.
 
+For details of changes to the code since the first release, see the Changelog on the [IonMonger Wiki](https://github.com/PerovskiteSCModelling/IonMonger/wiki).
+
 
 # Use Cases
 
@@ -21,8 +23,6 @@ The authors of this code published an investigation into how material properties
 Requirements: MATLAB (version R2018b).
 
 This code was first created at the University of Southampton in 2016. See [AUTHORS](AUTHORS.md) for a list of contributors and [LICENSE](LICENSE) for the conditions of use.
-
-For details of the changes to the code since the first release, see the Changelog on the [IonMonger Wiki](https://github.com/PerovskiteSCModelling/IonMonger/wiki).
 
 If you encounter a problem or any unexpected results, please create an Issue on the GitHub website, add details of the problem (including the error message and MATLAB version number) and attach the parameters.m file in use when the problem occurred. For other enquiries, please contact N.E.Courtier(at)soton.ac.uk.
 
