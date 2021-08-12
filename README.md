@@ -47,3 +47,5 @@ The Code/ folder contains all subfunctions, including
   - a function to plot current-voltage (`J`-`V`) data as well as the recombination currents (`Jl`, `Jr`)
 
 The solution is saved in dimensional form into one output file, which also contains the input data.
+
+The Tests/ folder is for developers and contains a set of tests to check the consistency of future updates.
