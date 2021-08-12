@@ -27,29 +27,31 @@ LD      = sqrt(VT*epsp/(q*N0)); % Debye length (m)
 lambda  = LD/b;                 % Debye length parameter
 lam2    = lambda^2;             % Debye length parameter squared
 ni      = sqrt(gc*gv)*exp(-Eg/(2*VT)); % intrinsic carrier density (m-3)
-delta   = dE/N0;          % ratio of typical electron and ion densities
-chi     = dH/dE;          % ratio of typical hole and electron densities
+n0      = gc*exp((EfE-Ec)/VT);  % typical electron density in perovskite (m-3)
+p0      = gv*exp((Ev-EfH)/VT);  % typical hole density in perovskite (m-3)
+delta   = n0/N0;          % ratio of typical electron and ion densities
+chi     = p0/n0;          % ratio of typical hole and electron densities
 G0      = (Fph./b).*(1-exp(-alpha*b)); % typical rate of photogeneration (m-3s-1)
 if nnz(DI) % the ion diffusion coefficient is non-zero
     Tion = b/DI*sqrt(VT*epsp/(q*N0));  % characteristic ionic timescale (s)
 else
-    Tion = dE/G0;                      % characteristic electronic timescale (s)
+    Tion = n0/G0;                      % characteristic electronic timescale (s)
 end
-sigma   = dE/(G0*Tion);   % ratio of carrier and ionic timescales
-Kp      = Dp*dH/(G0*b^2); % hole current parameter
-Kn      = Dn*dE/(G0*b^2); % electron current parameter
+sigma   = n0/(G0*Tion);   % ratio of carrier and ionic timescales
+Kp      = Dp*p0/(G0*b^2); % hole current parameter
+Kn      = Dn*n0/(G0*b^2); % electron current parameter
 Upsilon = alpha*b;        % parameter for Beer-Lambert Law photo-generation
 jay     = q*G0*b/10; % rescaling factor for current density to be in mAcm-2
 dpt     = epsp*VT/(q*G0*b^2*Tion); % displacement current density factor
-dpf     = DI*N0/(G0*b^2); % ionic flux displacement current denisty factor
+dpf     = DI*N0/(G0*b^2); % ionic flux displacement current density factor
 
 % Transport layer parameters
-wE = bE/b;      % relative width of ETL
-wH = bH/b;      % relative width of HTL
-KE = DE*Kn/Dn;  % ETL electron current parameter
-KH = DH*Kp/Dp;  % HTL hole current parameter
-rE = epsE/epsp; % relative ETL permittivity
-rH = epsH/epsp; % relative HTL permittivity
+wE = bE/b;             % relative width of ETL
+wH = bH/b;             % relative width of HTL
+KE = DE*dE/(G0*b^2);   % ETL electron current parameter
+KH = DH*dH/(G0*b^2);   % HTL hole current parameter
+rE = epsE/epsp;        % relative ETL permittivity
+rH = epsH/epsp;        % relative HTL permittivity
 lamE2 = rE*N0/dE*lam2; % relative ETL Debye length parameter squared
 lamE  = sqrt(lamE2);   % relative ETL Debye length parameter
 lamH2 = rH*N0/dH*lam2; % relative HTL Debye length parameter squared
@@ -58,10 +60,8 @@ OmegaE = sqrt(N0/(rE*dE)); % ETL charge density parameter
 OmegaH = sqrt(N0/(rH*dH)); % HTL charge density parameter
 
 % Interface parameters
-kE = gc/gcE*exp((EcE-Ec)/VT); % ratio between electron densities across ETL/perovskite interface
-kH = gv/gvH*exp((Ev-EvH)/VT); % ratio between hole densities across perovskite/HTL interface
-n0 = kE*dE; % typical electron density in perovskite (m-3)
-p0 = kH*dH; % typical hole density in perovskite (m-3)
+kE = n0/dE; % ratio between electron densities across ETL/perovskite interface
+kH = p0/dH; % ratio between hole densities across perovskite/HTL interface
 
 % Contact parameters
 nc = gcE*exp((Ect-EcE)/VT)/dE; % non-dim. electron density at cathode interface
@@ -75,14 +75,14 @@ if isempty(Augn) || isempty(Augp)
 end
 
 % Bulk recombination parameters
-ni2   = ni^2/(dE*dH);  % non-dim. n_i^2
-brate = beta*dE*dH/G0; % rate constant for bimolecular recombination
-Cn = Augn*dE^2*dH/G0; % Auger recombination coefficient
-Cp = Augp*dE*dH^2/G0; % Auger recombination coefficient
+ni2   = ni^2/(n0*p0);  % non-dim. n_i^2
+brate = beta*n0*p0/G0; % rate constant for bimolecular recombination
+Cn = Augn*n0^2*p0/G0; % Auger recombination coefficient
+Cp = Augp*n0*p0^2/G0; % Auger recombination coefficient
 if tp>0 && tn>0
-    gamma   = dH/(tp*G0); % rate constant for SRH recombination
-    tor     = tn*dH/(tp*dE); % ratio of SRH carrier lifetimes
-    tor3    = (tn+tp)*ni/(tp*dE); % constant from deep trap approximation
+    gamma   = n0/(tp*G0); % rate constant for SRH recombination
+    tor     = tn*p0/(tp*n0); % ratio of SRH carrier lifetimes
+    tor3    = (tn+tp)*ni/(tp*n0); % constant from deep trap approximation
 else
     [gamma, tor, tor3] = deal(0); % no bulk SRH
 end
@@ -99,19 +99,19 @@ R = @(n,p,P) brate*(n.*p-ni2) ... % bimolecular
            + SRH(n,p,gamma,ni2,tor,tor3); % SRH recombination via trap states
 
 % Interface recombination parameters
-brateE = betaE*dE*dH/(b*G0); % rate constant for bimolecular recombination
-brateH = betaH*dE*dH/(b*G0); % rate constant for bimolecular recombination
+brateE = betaE*dE*p0/(b*G0); % rate constant for bimolecular recombination
+brateH = betaH*n0*dH/(b*G0); % rate constant for bimolecular recombination
 if vpE>0 && vnE>0
-    gammaE = dH*vpE/(b*G0); % rate constant for SRH recombination
-    torE   = dH*vpE/(dE*vnE); % ratio of SRH carrier lifetimes
-    torE3  = (1/kE+vpE/vnE)*ni/dE; % constant from deep trap state approximation
+    gammaE = p0*vpE/(b*G0); % rate constant for SRH recombination
+    torE   = p0*vpE/(dE*vnE); % ratio of SRH carrier lifetimes
+    torE3  = (1/n0+vpE/(dE*vnE))*ni; % constant from deep trap state approximation
 else
     [gammaE, torE, torE3] = deal(0); % no ETL/perovskite interface recombination
 end
 if vnH>0 && vpH>0
-    gammaH = dE*vnH/(b*G0); % rate constant for SRH recombination
-    torH   = dE*vnH/(dH*vpH); % ratio of SRH carrier lifetimes
-    torH3  = (1/kH+vnH/vpH)*ni/dH; % constant from deep trap state approximation
+    gammaH = n0*vnH/(b*G0); % rate constant for SRH recombination
+    torH   = n0*vnH/(dH*vpH); % ratio of SRH carrier lifetimes
+    torH3  = (1/p0+vnH/(dH*vpH))*ni; % constant from deep trap state approximation
 else
     [gammaH, torH, torH3] = deal(0); % no perovskite/HTL interface recombination
 end

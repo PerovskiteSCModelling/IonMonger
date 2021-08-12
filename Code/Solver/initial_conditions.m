@@ -4,8 +4,7 @@ function sol_init = initial_conditions(psi0,params,vectors,matrices)
 % vectors and matrices needed by the solver.
 
 % Parameter input
-[chi, kH, kE, nc, pc, Verbose] = ...
-    struct2array(params, {'chi','kH','kE','nc','pc','Verbose'});
+[chi, nc, pc, Verbose] = struct2array(params, {'chi','nc','pc','Verbose'});
 [x, xE, xH] = struct2array(vectors, {'x','xE','xH'});
 
 % Define uniform profiles for the ion vacancy density and electric potential
@@ -15,18 +14,15 @@ phiE_init = zeros(size(xE));
 phiH_init = zeros(size(xH));
 
 % Compute profiles for the carrier concentrations from a quasi-steady BVP
-y_guess = bvpinit(x',@(x) [kH*x+kE*(1-x)/chi; 0*x; chi*kH*x+kE*(1-x); 0*x]);
+y_guess = bvpinit(x',@(x) [x+(1-x)/chi; 0*x; chi*x+(1-x); 0*x]);
 sol = bvp4c(@(x,y) yode(x,y,params),@(ya,yb) ybcs(ya,yb,params),y_guess);
 solx = deval(sol,x'); p_init = solx(1,:)'; n_init = solx(3,:)';
 
-% Define linear profiles for the carrier concentrations across the TLs
-if abs(pc-1) > abs(nc-1)
-    nE_init = ones(size(xE));
-    pH_init = ((pc-1)*(xH-1)+xH(end)-1)/(xH(end)-1);
-else
-    nE_init = ((nc-1)*xE+xE(1))/xE(1);
-    pH_init = ones(size(xH));
-end
+% Define tanh profiles for the carrier concentrations across the TLs
+stE = 3/xE(1);
+nE_init = nc+(1-nc)*tanh(stE*(xE(1)-xE))/tanh(stE*(xE(1)-xE(end)));
+stH = 3/(xH(end)-1);
+pH_init = pc+(1-pc)*tanh(stH*(xH(end)-xH))/tanh(stH*(xH(end)-xH(1)));
 
 % Combine the initial conditions into one vector to pass to fsolve
 sol_init  = [P_init; phi_init; n_init; p_init; ... % perovskite
@@ -69,9 +65,9 @@ dpdx = [-y(2)/Kp; ...
         -(G(x,0)-R(y(3),y(1),1))];
 end
 function res = ybcs(ya,yb,params)
-[kH, Rl, kE, Rr] = struct2array(params,{'kH','Rl','kE','Rr'});
-res = [yb(1)-kH; ...
+[Rl, Rr] = struct2array(params,{'Rl','Rr'});
+res = [yb(1)-1; ...
        ya(2)+Rl(1,ya(1)); ...
-       ya(3)-kE; ...
+       ya(3)-1; ...
        yb(4)+Rr(yb(3),1)];
 end

@@ -5,6 +5,7 @@ parameters.m
 
 # Default location for saved data
 Data/
+!Code/Tests/Data/
 
 # Offline documentation
 Doc/
