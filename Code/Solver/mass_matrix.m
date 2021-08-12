@@ -9,7 +9,8 @@ function M = mass_matrix(params,vectors,flag)
 % e.g. to simulate open-circuit conditions.
 
 % Parameter input
-[sigma, chi, N, NE, NH, kE, kH] = struct2array(params,{'sigma','chi','N','NE','NH','kE','kH'});
+[sigma, chi, N, NE, NH, kE, kH] = ...
+    struct2array(params,{'sigma','chi','N','NE','NH','kE','kH'});
 [dx, dxE, dxH] = struct2array(vectors,{'dx','dxE','dxH'});
 
 % Define the mass matrix block by block
@@ -18,20 +19,20 @@ M11 = gallery('tridiag',N+1,[dx(1:end-1)/6; dx(end)/6], ...
 M12 = spalloc(N+1,N+1,1);
 M15 = spalloc(N+1,NE,1);
 M17 = spalloc(N+1,NH,1);
-M33 = sigma*M11; M33(1,1) = sigma*(dxE(end)/kE+dx(1))/3;
+M33 = sigma*M11; M33(1,1:2) = kE*M33(1,1:2)+[sigma*dxE(end)/3,0];
 M36 = M15; M36(1,end) = sigma*dxE(end)/6;
-M44 = sigma*chi*M11; M44(end,end) = sigma*chi*(dx(end)+dxH(1)/kH)/3;
+M44 = sigma*chi*M11; M44(end,N:end) = kH*M44(end,N:end)+[0,sigma*chi*dxH(1)/3];
 M48 = M17; M48(end,1) = sigma*chi*dxH(1)/6;
 M51 = spalloc(NE,N+1,1);
-M63 = M51; M63(end,1) = sigma*(dxE(end)/kE)/6;
 M55 = spalloc(NE,NE,1);
 M57 = spalloc(NE,NH,1);
+M63 = M51; M63(end,1) = sigma*dxE(end)/6;
 M66 = sigma*gallery('tridiag',NE,dxE(1:end-1)/6, ...
     [0; (dxE(1:end-1)+dxE(2:end))/3],[0; dxE(2:end-1)/6]);
 M71 = spalloc(NH,N+1,1);
 M75 = spalloc(NH,NE,1);
 M77 = spalloc(NH,NH,1);
-M84 = M71; M84(1,end) = sigma*chi*(dxH(1)/kH)/6;
+M84 = M71; M84(1,end) = sigma*chi*dxH(1)/6;
 M88 = sigma*chi*gallery('tridiag',NH,[dxH(2:end-1)/6; 0], ...
     [(dxH(1:end-1)+dxH(2:end))/3; 0],dxH(2:end)/6);
 

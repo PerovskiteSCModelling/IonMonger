@@ -14,8 +14,7 @@ function dudt = RHS(t,u,psi,params,vectors,matrices,flag)
                            'Rl','N','Kn','Kp','NE','lamE2','KE','kE', ...
                            'rE','NH','lamH2','KH','kH','rH','DI','nc', ...
                            'pc','ARs','Rsp','pbi'});
-[x, dx, dxE, dxH] ...
-    = struct2array(vectors,{'x','dx','dxE','dxH'});
+[x, dx, dxE, dxH] = struct2array(vectors,{'x','dx','dxE','dxH'});
 [dudt, Av, AvE, AvH, Lo, LoE, LoH, Dx, DxE, DxH, NN, ddE, ddH] ...
     = struct2array(matrices,{'dudt','Av','AvE','AvH','Lo','LoE','LoH', ...
                              'Dx','DxE','DxH','NN','ddE','ddH'});
@@ -29,9 +28,9 @@ phi = u(N+2:2*N+2,:);
 n   = u(2*N+3:3*N+3,:);
 p   = u(3*N+4:4*N+4,:);
 phiE = [u(4*N+5:4*N+NE+4,:); phi(1,:)];
-nE   = [u(4*N+NE+5:4*N+2*NE+4,:); n(1,:)/kE];
+nE   = [u(4*N+NE+5:4*N+2*NE+4,:); n(1,:)];
 phiH = [phi(end,:); u(4*N+2*NE+5:4*N+2*NE+NH+4,:)];
-pH   = [p(end,:)/kH; u(4*N+2*NE+NH+5:4*N+2*NE+2*NH+4,:)];
+pH   = [p(end,:); u(4*N+2*NE+NH+5:4*N+2*NE+2*NH+4,:)];
 
 % Compute variables (at the half points)
 mE = Dx*phi; % negative electric field
@@ -42,9 +41,9 @@ cd = NN-Lo*P+delta*(Lo*n-chi*Lo*p); % charge density
 cdE = LoE*nE-ddE; % charge density in ETL
 cdH = ddH-LoH*pH; % charge density in HTL
 fn = Kn*(Dx*n-mE.*(Av*n)); % electron current
-fnE = KE*(DxE*nE-mEE.*(AvE*nE)); % electron current in ETL
+fnE = kE*KE*(DxE*nE-mEE.*(AvE*nE)); % electron current in ETL
 fp = Kp*(Dx*p+mE.*(Av*p)); % negative hole current
-fpH = KH*(DxH*pH+mEH.*(AvH*pH)); % negative hole current in HTL
+fpH = kH*KH*(DxH*pH+mEH.*(AvH*pH)); % negative hole current in HTL
 GR = G(Av*x,t)-R(Av*n,Av*p,Av*P); % generation-recombination
 
 % P equation
@@ -62,14 +61,14 @@ dudt(2*N+2,:) = rH*mEH(1,:)-mE(end,:) ...
     -rH*dxH(1)*(1/2-pH(1,:)/3-pH(2,:)/6)/lamH2; % continuity
 
 % n equation
-dudt(2*N+3,:) = fn(1,:)-fnE(end,:)+(dx(1).*GR(1,:))/2-Rl(nE(end,:),p(1,:)); % continuity
+dudt(2*N+3,:) = kE*fn(1,:)-fnE(end,:)+kE*(dx(1).*GR(1,:)/2-Rl(nE(end,:),p(1,:))); % continuity
 dudt(2*N+4:3*N+2,:) = fn(2:N,:)-fn(1:N-1,:)+(dx(2:N).*GR(2:N,:)+dx(1:N-1).*GR(1:N-1,:))/2;
 dudt(3*N+3,:) = -fn(N,:)+dx(N)*GR(end,:)/2-Rr(n(N+1,:),pH(1,:));
 
 % p equation
 dudt(3*N+4,:) = fp(1,:)+dx(1)*GR(1,:)/2-Rl(nE(end,:),p(1,:));
 dudt(3*N+5:4*N+3,:) = fp(2:N,:)-fp(1:N-1,:)+(dx(2:N).*GR(2:N,:)+dx(1:N-1).*GR(1:N-1,:))/2;
-dudt(4*N+4,:) = fpH(1,:)-fp(end,:)+(dx(end)*GR(end,:))/2-Rr(n(N+1,:),pH(1,:)); % continuity
+dudt(4*N+4,:) = fpH(1,:)-kH*fp(end,:)+kH*(dx(end)*GR(end,:)/2-Rr(n(N+1,:),pH(1,:))); % continuity
 
 % phiE equation
 dudt(4*N+5,:) = phiE(1,:)-psi(t);
@@ -82,7 +81,7 @@ dudt(4*N+NE+6:4*N+2*NE+4,:) = fnE(2:NE,:)-fnE(1:NE-1,:);
 % phiH equation
 dudt(4*N+2*NE+5:4*N+2*NE+NH+3,:) = mEH(2:NH,:)-mEH(1:NH-1,:)-cdH/lamH2;
 dudt(4*N+2*NE+NH+4,:) = phiH(end,:)+psi(t) ...
-                        +(fpH(end,:)*ARs+Rsp*(pbi-2*psi(t)))/(1+Rsp);
+                        +(fpH(end,:)/kH*ARs+Rsp*(pbi-2*psi(t)))/(1+Rsp);
 % Note that the last term in this BC accounts for any parasitic resistance
 % (neglecting the displacement current, which should be small at the contacts)
 

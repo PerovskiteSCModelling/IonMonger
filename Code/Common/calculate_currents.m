@@ -8,9 +8,8 @@ function [J, Jl, Jr] = calculate_currents(params,vectors,dstrbns)
 % at each point in time.
 
 % Unpack relevant parameters, vectors and solution variables
-[N, time, Kn, Kp, dpt, dpf, Rl, Rr, kE, kH, ARp] ...
-    = struct2array(params,{'N','time','Kn','Kp','dpt','dpf','Rl','Rr', ...
-    'kE','kH','ARp'});
+[N, time, Kn, Kp, dpt, dpf, Rl, Rr, ARp] ...
+    = struct2array(params,{'N','time','Kn','Kp','dpt','dpf','Rl','Rr','ARp'});
 dx  = vectors.dx;
 [P, phiE, phi, phiH, n, p] ...
     = struct2array(dstrbns, {'P','phiE','phi','phiH','n','p'});
@@ -39,7 +38,7 @@ Js = (params.pbi-(phiE(TT,1)-phiH(TT,end)))/ARp; % loss due to shunt resistance
 J = Jn+Jp-Jd-Jf-Js;
 
 % Calculate dimensionless losses from interfacial recombination
-Jl = -Rl(n(TT,1)./kE,p(TT,1)); % (negative) current density loss at ETL interface
-Jr = -Rr(n(TT,N+1),p(TT,N+1)./kH); % (negative) current density loss at HTL interface
+Jl = -Rl(n(TT,1),p(TT,1)); % (negative) current density loss at ETL interface
+Jr = -Rr(n(TT,N+1),p(TT,N+1)); % (negative) current density loss at HTL interface
 
 end
