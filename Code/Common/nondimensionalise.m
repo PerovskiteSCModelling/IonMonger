@@ -80,7 +80,7 @@ brate = beta*n0*p0/G0; % rate constant for bimolecular recombination
 Cn = Augn*n0^2*p0/G0; % Auger recombination coefficient
 Cp = Augp*n0*p0^2/G0; % Auger recombination coefficient
 if tp>0 && tn>0
-    gamma   = n0/(tp*G0); % rate constant for SRH recombination
+    gamma   = p0/(tp*G0); % rate constant for SRH recombination
     tor     = tn*p0/(tp*n0); % ratio of SRH carrier lifetimes
     tor3    = (tn+tp)*ni/(tp*n0); % constant from deep trap approximation
 else

@@ -54,7 +54,7 @@ max_diff  = max([P_diff, phi_diff, n_diff, p_diff, ...
                  V_diff, J_diff, Jl_diff, Jr_diff]);
 
 % Check the difference is less than the tolerance
-verifyLessThan(testCase, max_diff, 0.005);
+verifyLessThan(testCase, max_diff, 5e-5);
 
 end
 
