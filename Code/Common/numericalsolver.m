@@ -30,9 +30,9 @@ dstrbns = FE_solve(params,vectors);
 
 %% Re-dimensionalise all outputs
 % including vectors, solution variables, time, voltage and current densities
-[b, N0, n0, p0, VT, dE, dH, tstar2t, psi2Vap, Vbi, jay] ...
+[b, N0, n0, p0, VT, dE, dH, tstar2t, psi2Vap, Vbi, jay, phidisp] ...
     = struct2array(params,{'b','N0','n0','p0','VT','dE','dH','tstar2t', ...
-                           'psi2Vap','Vbi','jay'});
+                           'psi2Vap','Vbi','jay', 'phidisp'});
 b = b*1e9; % Change the width b in metres to nanometres
 vectors.x    = b*vectors.x;
 vectors.dx   = b*vectors.dx;
@@ -41,12 +41,12 @@ vectors.dxE  = b*vectors.dxE;
 vectors.xH   = b*vectors.xH;
 vectors.dxH  = b*vectors.dxH;
 dstrbns.P    = N0*dstrbns.P;
-dstrbns.phi  = VT*dstrbns.phi;
+dstrbns.phi  = VT*(dstrbns.phi-phidisp);
 dstrbns.n    = n0*dstrbns.n;
 dstrbns.p    = p0*dstrbns.p;
-dstrbns.phiE = VT*dstrbns.phiE;
+dstrbns.phiE = VT*(dstrbns.phiE-phidisp);
 dstrbns.nE   = dE*dstrbns.nE;
-dstrbns.phiH = VT*dstrbns.phiH;
+dstrbns.phiH = VT*(dstrbns.phiH-phidisp);
 dstrbns.pH   = dH*dstrbns.pH;
 time         = tstar2t(time);
 V            = psi2Vap(dstrbns.phiE(:,1)/VT);
