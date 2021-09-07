@@ -28,7 +28,7 @@ UseSplits   = true; % set this to false to make a single call to ode15s
 N    = 400; % Number of subintervals, with N+1 being the number of grid points
 rtol = 1e-6; % Relative temporal tolerance for ode15s solver
 atol = 1e-10; % Absolute temporal tolerance for ode15s solver
-
+phidisp = 100; % displacement factor for electric potential (VT) (optional)
 
 %% Parameter input
 
@@ -52,6 +52,7 @@ gv    = 5.8e24;    % valence band density of states (m-3)
 
 % Ion parameters
 N0    = 1.6e25;        % typical density of ion vacancies (m-3)
+Plim  = 3e25;          % optional limiting density of ion vacancies (m-3) (can choose inf)
 D     = @(Dinf, EA) Dinf*exp(-EA/(kB*T)); % diffusivity relation
 DIinf = 6.5e-8;        % high-temp. vacancy diffusion coefficient (m2s-1)
 EAI   = 0.58;          % iodide vacancy activation energy (eV)
@@ -63,28 +64,38 @@ inverted = false; % choose false for a standard architecture cell (light
 % (light entering through the HTL)
 
 % ETL parameters
-dE    = 1e24;    % effective doping density of ETL (m-3) (choose <gcE/20)
+dE    = 1e24;    % effective doping density of ETL (m-3)
+% EfE   = -4.1;    % doped electron quasi-Fermi level in ETL (eV) (optional, overrides dE)
 gcE   = 5e25;    % effective conduction band DoS in ETL (m-3)
-EcE   = -4.0;    % conduction band minimum in ETL (eV)
+EcE   = -4.0;    % conduction band reference energy in ETL (eV)
 bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
 DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
 
 % HTL parameters
-dH    = 1e24;    % effective doping density of HTL (m-3) (choose <gvH/20)
+dH    = 1e24;    % effective doping density of HTL (m-3) 
+% EfH   = -5;    % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
 gvH   = 5e25;    % effective valence band DoS in HTL (m-3)
-EvH   = -5.1;    % valence band maximum in HTL (eV)
+EvH   = -5.1;    % valence band reference energy in HTL (eV)
 bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
+
+% Statistical models (optional)
+stats.ETL.model = 'FermiDirac'; % ETL statistical model
+stats.ETL.Boltzmann = false;    % ETL Boltzmann approximation
+stats.ETL.s = nan;              % ETL Gaussian disorder (only required for GaussFermi model)
+stats.HTL.model = 'GaussFermi'; % HTL statistical model
+stats.HTL.Boltzmann = false;    % HTL Boltzmann approximation
+stats.HTL.s = 2;                % HTL Gaussian disorder (only required for GaussFermi model)
 
 % Metal contact parameters (optional)
 % Ect   = -4.1;    % cathode workfunction (eV)
 % Ean   = -5.0;    % anode workfunction (eV)
 
 % Bulk recombination
-tn    = 3e-9;    % electron pseudo-lifetime for SRH (s)
-tp    = 3e-7;    % hole pseudo-lifetime for SRH (s)
+tn    = 1e-9;    % electron pseudo-lifetime for SRH (s)
+tp    = 1e-7;    % hole pseudo-lifetime for SRH (s)
 beta  = 0;       % bimolecular recombination rate (m3s-1)
 Augn  = 0;       % electron-dominated Auger recombination rate (m6s-1)
 Augp  = 0;       % hole-dominated Auger recombination rate (m6s-1)
@@ -93,15 +104,14 @@ Augp  = 0;       % hole-dominated Auger recombination rate (m6s-1)
 betaE = 0;       % ETL/perovskite bimolecular recombination rate (m3s-1)
 betaH = 0;       % perovskite/HTL bimolecular recombination rate (m3s-1)
 vnE   = 1e5;     % electron recombination velocity for SRH (ms-1)
-vpE   = 10;      % hole recombination velocity for SRH (ms-1)
-vnH   = 0.1;     % electron recombination velocity for SRH (ms-1)
+vpE   = 1e1;      % hole recombination velocity for SRH (ms-1)
+vnH   = 1e-1;     % electron recombination velocity for SRH (ms-1)
 vpH   = 1e5;     % hole recombination velocity for SRH (ms-1)
 
 % Parasitic resistances (optional)
 % Rs    = 0;       % external series resistance (Ohm)
 % Rp    = Inf;     % parallel or shunt resistance (Ohm) (can choose Inf)
 % Acell = 1;       % cell area (cm2) (only used to scale the series resistance)
-
 
 %% Non-dimensionalise model parameters and save all inputs
 
@@ -133,7 +143,8 @@ applied_voltage = ...
     {Vbi, ... % steady-state initial value
     'tanh', 5, 1.2, ... % preconditioning
     'linear', 1.2/0.1, 0, ... % reverse scan
-    'linear', 1.2/0.1, 1.2}; % forward scan
+    'linear', 1.2/0.1, 1.2; % forward scan
+    };
 
 % Choose whether the time points are spaced linearly or logarithmically
 time_spacing = 'lin'; % set equal to either 'lin' (default) or 'log'
