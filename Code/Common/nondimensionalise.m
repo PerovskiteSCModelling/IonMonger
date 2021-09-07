@@ -5,17 +5,39 @@ function params = nondimensionalise(params)
 % Parameter input
 [N, q, Fph, kB, T, b, epsp, alpha, Ec, Ev, Dn, Dp, gc, gv, N0, DI, EcE, dE, ...
     gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, Augn, Augp, ...
-    betaE, betaH, vnE, vpE, vnH, vpH, Ect, Ean, Rs, Rp, Acell] ...
+    betaE, betaH, vnE, vpE, vnH, vpH, Ect, Ean, Rs, Rp, Acell, stats, Plim,...
+    EfE, EfH] ...
     = struct2array(params, ...
     {'N','q','Fph','kB','T','b','epsp','alpha','Ec','Ev','Dn','Dp','gc', ...
     'gv','N0','DI','EcE','dE','gcE','bE','epsE','DE','EvH','dH','gvH','bH', ...
     'epsH','DH','tn','tp','beta','Augn','Augp','betaE','betaH','vnE','vpE', ...
-    'vnH','vpH','Ect','Ean','Rs','Rp','Acell'});
+    'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim', 'EfE', 'EfH'});
+
+% Unpack statistical models
+if ~isfield(stats, 'ETL')
+    stats.ETL.model = 'FermiDirac';
+    stats.ETL.Boltzmann = true;
+end
+if ~isfield(stats, 'HTL')
+    stats.HTL.model = 'FermiDirac';
+    stats.HTL.Boltzmann = true;
+end
+if isempty(Plim), Plim = inf; end % remove ion concentration limit
+stats.P.model = 'Blakemore';
+stats.P.lim = Plim/N0;
+if Plim <= N0
+    error('Limiting ion density must be greater than typical ion density')
+end 
+[SE, SEinv, AE] = create_stats_funcs(stats.ETL);
+[SH, SHinv, AH] = create_stats_funcs(stats.HTL);
+[~,SPinv,~] = create_stats_funcs(stats.P);
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
-EfE = EcE-VT*log(gcE/dE); % workfunction of ETL (eV)
-EfH = EvH+VT*log(gvH/dH); % workfunction of HTL (eV)
+if isfield(params, 'EfE'), dE = gcE*SE((EfE-EcE)/VT); % effective doping density of ETL (m-3)
+else, EfE = EcE+VT*SEinv(dE/gcE); end % workfunction of ETL (eV)
+if isfield(params, 'EfH'), dH = gvH*SH((EvH-EfH)/VT); % effective doping density of HTL (m-3)
+else, EfH = EvH-VT*SHinv(dH/gvH); end % workfunction of HTL (eV)
 if ~any(Ect), Ect = EfE; end % cathode workfunction (eV)
 if ~any(Ean), Ean = EfH; end % anode workfunction (eV)
 Vbi = Ect-Ean; % built-in voltage (V)
@@ -58,14 +80,16 @@ lamH2 = rH*N0/dH*lam2; % relative HTL Debye length parameter squared
 lamH  = sqrt(lamH2);   % relative HTL Debye length parameter
 OmegaE = sqrt(N0/(rE*dE)); % ETL charge density parameter
 OmegaH = sqrt(N0/(rH*dH)); % HTL charge density parameter
+omegaE = dE/gcE;       % effective ETL doping concentration
+omegaH = dH/gvH;       % effective ETL doping concentration
 
 % Interface parameters
 kE = n0/dE; % ratio between electron densities across ETL/perovskite interface
 kH = p0/dH; % ratio between hole densities across perovskite/HTL interface
 
 % Contact parameters
-nc = gcE*exp((Ect-EcE)/VT)/dE; % non-dim. electron density at cathode interface
-pc = gvH*exp((EvH-Ean)/VT)/dH; % non-dim. hole density at anode interface
+nc = gcE*SE((Ect-EcE)/VT)/dE; % non-dim. electron density at cathode interface
+pc = gvH*SH((EvH-Ean)/VT)/dH; % non-dim. hole density at anode interface
 
 % Check for Auger recombination parameters
 if isempty(Augn) || isempty(Augp)
@@ -138,6 +162,13 @@ tstar2t = @(tstar) tstar.*Tion;
 Vap2psi = @(Vap) (Vbi-Vap)./TkT;
 psi2Vap = @(psi) Vbi-psi.*TkT;
 
+% Functions to convert between quasi-Fermi levels and densities
+% (dimensional)
+EfE2nE = @(EfE) gcE*SE((EfE-EcE)/VT);
+EfH2pH = @(EfH) gvH*SH(-(EfH-EvH)/VT);
+nE2EfE = @(nE) EcE+VT*SEinv(nE/gcE);
+pH2EfH = @(pH) EvH-VT*SHinv(pH/gvH);
+
 % External parameters
 if isempty(Rs), Rs = 0; % default is zero series resistance
     disp('Assumming there is no series resistance.'); end
@@ -147,6 +178,11 @@ if ~any(Acell), Acell = 1; end % default is cell area of 1 cm2
 ARs = Rs*Acell/1e4*q*G0*b/VT; % non-dim. external series resistance x cell area
 ARp = Rp*Acell/1e4*q*G0*b/VT; % non-dim. parallel/shunt resistance x cell area
 Rsp = Rs/Rp; % ratio between series and parallel/shunt resistance
+
+
+if ~isfield(params, 'phidisp') % check for electric potential displacement 
+    phidisp = 100; 
+end
 
 % Compile all parameters into the params structure
 vars = setdiff(who,{'params','vars'});
