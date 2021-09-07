@@ -54,8 +54,8 @@ J88 = gallery('tridiag',NH+1,1,1,1);
 % Combine the blocks to define the sparse matrix
 JJJ = sparse([  J11 J11 J13 J13 J15 J16 J17 J18; ... % P equation
                 J11 J11 J11 J11 J25 J26 J27 J28; ... % phi equation
-                J11 J11 J11 J11 J25 J26 J17 J38; ... % n equation
-                J11 J11 J11 J11 J15 J46 J27 J28; ... % p equation
+                J13 J11 J11 J11 J25 J26 J17 J38; ... % n equation
+                J13 J11 J11 J11 J15 J46 J27 J28; ... % p equation
                 J51 J52 J51 J51 J55 J56 J57 J58; ... % phiE equation
                 J61 J62 J63 J61 J65 J66 J67 J68; ... % nE equation
                 J71 J72 J71 J71 J75 J76 J77 J78; ... % phiH equation
