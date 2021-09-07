@@ -7,7 +7,7 @@ function matrices = create_matrices(params,vectors)
 [dx, dxE, dxH] = struct2array(vectors,{'dx','dxE','dxH'});
 
 % Preallocation for dudt
-dudt = spalloc(4*N+2*NE+2*NH+4,1,4*N+2*NE+2*NH+4);
+dudt = spalloc(4*N+2*NE+2*NH+6,1,4*N+2*NE+2*NH+6);
 
 % Define averaging matrices
 Av = gallery('tridiag',N+1,0,1,1)/2; Av = Av(1:N,1:N+1);
@@ -38,7 +38,7 @@ matrices = struct('dudt',dudt,'Av',Av,'AvE',AvE,'AvH',AvH, ...
 
 if exist('AnJac.m','file')
     % Preallocate for the analytic Jacobian and add to structure
-    matrices.JJJ = spalloc(4*N+2*NE+2*NH+4,4*N+2*NE+2*NH+4,42*N+12*NE+12*NH+4);
+    matrices.JJJ = spalloc(4*N+2*NE+2*NH+6,4*N+2*NE+2*NH+6,42*N+12*NE+12*NH+6);
 end
 
 end
