@@ -9,10 +9,10 @@ function [psi, sol_init] = find_Voc(sol_init,psi,params,vectors,matrices,options
 
 % Parameter input
 [N, Kn, Kp, G, time, splits, t2tstar, tstar2t, Vap2psi, psi2Vap, dpf, ...
-    pbi, ARp, Verbose] ...
+    pbi, ARp, Verbose, phidisp] ...
     = struct2array(params, {'N','Kn','Kp','G','time','splits','t2tstar', ...
                             'tstar2t','Vap2psi','psi2Vap','dpf','pbi', ...
-                            'ARp','Verbose'});
+                            'ARp','Verbose', 'phidisp'});
 dx = vectors.dx;
 
 % Temporarily turn the following warning into an error
@@ -83,7 +83,7 @@ else
         options.AbsTol = 1e-14;
         options.InitialSlope = [];
         options.OutputFcn = [];
-        [~,~,~,ze,~] = ode15s(@(t,u) RHS(t,u,@(t) y(end-1,4*N+5)-10*t/search_time, ...
+        [~,~,~,ze,~] = ode15s(@(t,u) RHS(t,u,@(t) y(end-1,4*N+5)-phidisp-10*t/search_time, ...
                         params,vectors,matrices),[0 search_time],y(end-1,:)',options);
         if isempty(ze)
             if Verbose
@@ -98,7 +98,7 @@ else
     catch
     end
 
-end
+end            
 
 % Reset error message to warning
 warning(warnon);
@@ -126,7 +126,7 @@ end
 sol_init = apply_Poisson(sol_init,params,vectors,matrices);
 
 % Extract and output open-circuit voltage from value of potential on left
-psioc = sol_init(4*N+5);
+psioc = sol_init(4*N+5)-phidisp;
 fprintf('Found estimate for Voc of %0.5g V \n\n', params.psi2Vap(psioc));
 
 % Adjust the voltage protocol if one exists
