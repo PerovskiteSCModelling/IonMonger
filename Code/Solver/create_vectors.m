@@ -33,11 +33,6 @@ if params.Verbose
     disp(['min dxH is ' num2str(min(dxH)) ', max dxH is ' num2str(max(dxH))]);
 end
 
-% Redefine the spatial grids for the TLs to remove the points at the
-% interfaces (which are included in the grid for the perovskite layer x)
-xE = xE(1:end-1); % last point is first point of perovskite layer
-xH = xH(2:end); % first point is last point of perovskite layer
-
 % Package up vectors into a structure
 vectors = struct('x',x,'dx',dx,'xE',xE,'dxE',dxE,'xH',xH,'dxH',dxH);
 
