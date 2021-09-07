@@ -13,6 +13,10 @@ function plot_dstrbns(sol,plotindex)
     = struct2array(sol.dstrbns,{'P','phi','n','p','phiE','nE','phiH','pH'});
 [time, J, Jl, Jr] = struct2array(sol,{'time','J','Jl','Jr'});
 
+% Make phiE and phiH the same size as xE and xH
+phiE = [phiE, phi(:,1)];
+phiH = [phi(:,end), phiH];
+
 % Set default figure options
 set(0,'defaultAxesFontSize',10); % Make axes labels smaller
 set(0,'defaultTextInterpreter','latex') % For latex axis labels
@@ -49,14 +53,14 @@ xlabel('Distance (nm)'); ylabel('Electric Potential (V)');
 subplot(2,2,3); hold on;
 for tt = plotindex
     plot(x,n(tt,:),'color',shade(tt)*n_colour);
-    plot([xE; x(1)],[nE(tt,:) n(tt,1)/kE],'color',shade(tt)*n_colour);
+    plot(xE,nE(tt,:),'color',shade(tt)*n_colour);
 end
 xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Electron Concentration (cm$^{-3}$)');
 subplot(2,2,4); hold on;
 for tt = plotindex
     plot(x,p(tt,:),'color',shade(tt)*p_colour);
-    plot([x(end); xH],[p(tt,end)/kH pH(tt,:)],'color',shade(tt)*p_colour);
+    plot(xH,pH(tt,:),'color',shade(tt)*p_colour);
 end
 xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Hole Concentration (cm$^{-3}$)');
