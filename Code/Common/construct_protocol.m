@@ -95,8 +95,8 @@ else
     
 end
 
-% Merge the split times into one vector (which includes the both the first
-%  and last time points)
+% Merge the split times into one vector (which includes both the first
+% and last time points)
 if length(G_splits)==1 && length(V_splits)==1
     error('One of the protocols must include a length of time.');
 elseif length(G_splits)>1 && length(V_splits)>1 && G_splits(end)~=V_splits(end)
