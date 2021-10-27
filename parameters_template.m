@@ -52,7 +52,7 @@ gv    = 5.8e24;    % valence band density of states (m-3)
 
 % Ion parameters
 N0    = 1.6e25;        % typical density of ion vacancies (m-3)
-Plim  = 3e25;          % optional limiting density of ion vacancies (m-3) (can choose inf)
+Plim  = inf;           % limiting density of ion vacancies (m-3) (can choose inf)
 D     = @(Dinf, EA) Dinf*exp(-EA/(kB*T)); % diffusivity relation
 DIinf = 6.5e-8;        % high-temp. vacancy diffusion coefficient (m2s-1)
 EAI   = 0.58;          % iodide vacancy activation energy (eV)
@@ -71,23 +71,20 @@ EcE   = -4.0;    % conduction band reference energy in ETL (eV)
 bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
 DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
+stats.ETL.model = 'FermiDirac'; % ETL statistical model
+stats.ETL.Boltzmann = false; % ETL Boltzmann approximation
 
 % HTL parameters
 dH    = 1e24;    % effective doping density of HTL (m-3) 
 % EfH   = -5;    % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
 gvH   = 5e25;    % effective valence band DoS in HTL (m-3)
-EvH   = -5.1;    % valence band reference energy in HTL (eV)
+EvH   = -5.1;   % valence band reference energy in HTL (eV)
 bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
-
-% Statistical models (optional)
-stats.ETL.model = 'FermiDirac'; % ETL statistical model
-stats.ETL.Boltzmann = false;    % ETL Boltzmann approximation
-stats.ETL.s = nan;              % ETL Gaussian disorder (only required for GaussFermi model)
 stats.HTL.model = 'GaussFermi'; % HTL statistical model
-stats.HTL.Boltzmann = false;    % HTL Boltzmann approximation
-stats.HTL.s = 2;                % HTL Gaussian disorder (only required for GaussFermi model)
+stats.HTL.Boltzmann = false; % HTL Boltzmann approximation
+stats.HTL.s = 2; % HTL Gaussian disorder (only required for GaussFermi model)
 
 % Metal contact parameters (optional)
 % Ect   = -4.1;    % cathode workfunction (eV)
@@ -143,12 +140,20 @@ applied_voltage = ...
     {Vbi, ... % steady-state initial value
     'tanh', 5, 1.2, ... % preconditioning
     'linear', 1.2/0.1, 0, ... % reverse scan
-    'linear', 1.2/0.1, 1.2; % forward scan
+    'linear', 1.2/0.1, 1.2 % forward scan
     };
 
 % Choose whether the time points are spaced linearly or logarithmically
 time_spacing = 'lin'; % set equal to either 'lin' (default) or 'log'
 
+% Optional initial conditions file (overwrites initial voltage in
+% applied_voltage)
+input_filename = 'saved_distribution.mat';
+if exist('input_filename')
+    load(input_filename)
+    applied_voltage{1} = inp_vec.Vapp;
+    clear inp_vec
+end
 
 %% Create the simulation protocol and plot (if Verbose)
 
