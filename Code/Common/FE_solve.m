@@ -33,8 +33,14 @@ end
 % Create matrices for RHS
 matrices = create_matrices(params,vectors);
 
-% Compute consistent initial conditions for a cell preconditioned at Vbi
-sol_start = initial_conditions(@(t) 0, params,vectors,matrices);
+if isfield(params,'input_filename')
+    disp(['Using initial distributions from the saved file ' params.input_filename])
+    load(params.input_filename)
+    sol_start = inp_vec.u0;
+else
+    % Compute consistent initial conditions for a cell preconditioned at Vbi
+    sol_start = initial_conditions(@(t) 0, params,vectors,matrices);
+end
 
 % Initiate cycling through different attempts until solution found
 [count, err_count] = deal(0);
@@ -42,9 +48,10 @@ while count == err_count
     try
         % Always start the solution procedure from steady state at Vbi
         sol_init = sol_start;
-
         % Perform a preconditioning step if requested
-        if findVoc
+        if isfield(params,'input_filename')
+            % do nothing
+        elseif findVoc
             % Precondition the cell at open-circuit
             [psi, sol_init] = find_Voc(sol_init,psi,params,vectors,matrices,options);
         elseif abs(psi(0))>atol
@@ -61,7 +68,7 @@ while count == err_count
         options.Mass = mass_matrix(params,vectors,flag);
         options.InitialSlope = RHS(0,sol_init,psi,params,vectors,matrices,flag) ...
                                     \options.Mass;
-        
+
         %% SOLVE
 
         % Note that to solve without splits and without the loop, it is simply:
@@ -91,7 +98,6 @@ while count == err_count
         end
 
     catch ME % if no solution can be obtained, try again up to 2 more times
-
         err_count = err_count + 1;
         if err_count==3
             disp('Could not obtain solution');
