@@ -148,7 +148,7 @@ time_spacing = 'lin'; % set equal to either 'lin' (default) or 'log'
 
 % Optional initial conditions file (overwrites initial voltage in
 % applied_voltage)
-input_filename = 'saved_distribution.mat';
+% input_filename = 'saved_distribution.mat';
 if exist('input_filename')
     load(input_filename)
     applied_voltage{1} = inp_vec.Vapp;
