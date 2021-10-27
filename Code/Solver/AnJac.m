@@ -50,13 +50,15 @@ RRp = R(Avn,Avp+del/2,AvP);
 RRP = R(Avn,Avp,AvP+del/2);
 EP = SPinv(P)+phi; % ion 'quasi-Fermi level'
 dEP = Dx*EP; % derivative of ion 'quasi-Fermi level'
-dSPinvdP = (SPinv(P+del/2)-SPinv(P-del/2))/del; % derivative of the inverse ion statistical function
 EnE = SEinv(omegaE*nE)-phiE; % ETL quasi-Fermi level
 dEnE = DxE*EnE; % derivative of ETL quasi-Fermi level
-dSEinvdnE = (SEinv(omegaE*(nE+del/2))-SEinv(omegaE*(nE-del/2)))/del;% derivative of the inverse ETL statistical function
 EpH = SHinv(omegaH*pH)+phiH; % HTL quasi-Fermi level
 dEpH = DxH*EpH;
-dSHinvdpH = (SHinv(omegaH*(pH+del/2))-SHinv(omegaH*(pH-del/2)))/del;% derivative of the inverse ETL statistical function
+
+% derivatives of inverse statistical functions
+dSPinvdP = (SPinv(P*(1+del/2))-SPinv(P*(1-del/2)))./(P*del); % derivative of the inverse ion statistical function
+dSEinvdnE = (SEinv(omegaE*(nE*(1+del/2)))-SEinv(omegaE*(nE*(1-del/2))))./(nE*del);% derivative of the inverse ETL statistical function
+dSHinvdpH = (SHinv(omegaH*(pH*(1+del/2)))-SHinv(omegaH*(pH*(1-del/2))))./(pH*del);% derivative of the inverse ETL statistical function
 
 % P equation depends on P    
 JJJ(1:N+1,1:N+1) = nnz(DI)*lambda*gallery('tridiag',N+1, ...
