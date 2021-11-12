@@ -110,6 +110,13 @@ vpH   = 1e5;     % hole recombination velocity for SRH (ms-1)
 % Rp    = Inf;     % parallel or shunt resistance (Ohm) (can choose Inf)
 % Acell = 1;       % cell area (cm2) (only used to scale the series resistance)
 
+%% Option to set initial distributions from a saved solution
+
+% Name of a saved distribution created using 'save_end_state.m'. The
+% initial voltage specified by voltage_protocol will be overwritten with
+% the applied voltage of the saved distribution.
+% input_filename = 'test.mat';
+
 %% Non-dimensionalise model parameters and save all inputs
 
 % Compile all parameters into a convenient structure
@@ -145,15 +152,6 @@ applied_voltage = ...
 
 % Choose whether the time points are spaced linearly or logarithmically
 time_spacing = 'lin'; % set equal to either 'lin' (default) or 'log'
-
-% Optional initial conditions file (overwrites initial voltage in
-% applied_voltage)
-% input_filename = 'saved_distribution.mat';
-if exist('input_filename')
-    load(input_filename)
-    applied_voltage{1} = inp_vec.Vapp;
-    clear inp_vec
-end
 
 %% Create the simulation protocol and plot (if Verbose)
 
