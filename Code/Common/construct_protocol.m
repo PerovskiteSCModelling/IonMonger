@@ -20,6 +20,28 @@ function [light, psi, time, splits, findVoc] = ...
 % Parameter input
 [Vbi, t2tstar, Vap2psi] = struct2array(params, {'Vbi','t2tstar','Vap2psi'});
 
+% check for initial voltage
+if ~ischar(applied_voltage{2})
+    % If second entry is not a character vector, the initial voltage has
+    % been omitted
+
+    if isfield(params,'input_filename')
+        % check for specified initial conditions
+        load(params.input_filename)
+        applied_voltage = {inp_vec.Vapp, applied_voltage{:}}; 
+    else
+        error('applied_voltage did not specify an initial voltage and no specified initial distribution has been found.')
+    end
+else
+    if isfield(params,'input_filename')
+        % initial voltage has been specified but an initial distribution
+        % has also been specified
+        warning('Initial voltage was specified in applied_voltage but a saved initial distribution has also been specified. This value will override the initial voltage.')
+        load(params.input_filename)
+        applied_voltage{1} = inp_vec.Vapp; 
+    end
+end
+
 if length(light_intensity)==1
     
     % If there is only a single input value for the light, set the light
