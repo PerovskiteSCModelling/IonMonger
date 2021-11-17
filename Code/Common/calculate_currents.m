@@ -1,4 +1,4 @@
-function [J, Jl, Jr] = calculate_currents(params,vectors,dstrbns)
+function [J, Jl, Jr, Jd] = calculate_currents(params,vectors,dstrbns)
 % This function computes the values of the total current density J, the
 % current density lost to recombination across the ETL/perovskite interface
 % Jl, and the current density lost to recombination across the
@@ -40,5 +40,8 @@ J = Jn+Jp-Jd-Jf-Js;
 % Calculate dimensionless losses from interfacial recombination
 Jl = -Rl(nE(TT,NE+1),p(TT,1)); % (negative) current density loss at ETL interface
 Jr = -Rr(n(TT,N+1),pH(TT,1)); % (negative) current density loss at HTL interface
+
+Jd = -Jd;
+
 
 end
