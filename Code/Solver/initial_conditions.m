@@ -31,11 +31,11 @@ sol_init  = [P_init; phi_init; n_init; p_init; ... % perovskite
              phiH_init; pH_init]; % hole transport layer
           
 % Define the settings for the call to fsolve
-fsoptions = optimoptions('fsolve','MaxIterations',20);
+fsoptions = optimoptions('fsolve','MaxIterations',1e3);
 if Verbose, fsoptions.Display = 'iter'; else, fsoptions.Display = 'off'; end
 
 % Use the initial guess to obtain an approximate steady-state solution
-if exist('AnJac.m','file')
+if exist('AnJac')
     fsoptions.SpecifyObjectiveGradient = true;
     [sol_init,~,exitflag,~] = fsolve(@(u) RHS_AnJac(u,psi0, ...
         params,vectors,matrices,'init'),sol_init,fsoptions);
