@@ -14,7 +14,7 @@ warnon = warning('error','MATLAB:ode15s:IntegrationTolNotMet');
 
 % Compute the Jacobian, mass matrix and initial slope and add to options
 % Note that the mass matrix is adjusted so ions are as mobile as electrons
-if exist('AnJac.m','file')
+if exist('AnJac')
     options.Jacobian = @(t,u) AnJac(t,u,params,vectors,matrices);
 else
     options.JPattern = Jac(params);
