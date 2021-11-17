@@ -115,7 +115,8 @@ vpH   = 1e5;     % hole recombination velocity for SRH (ms-1)
 % Name of a saved distribution created using 'save_end_state.m'. The
 % initial voltage specified by voltage_protocol will be overwritten with
 % the applied voltage of the saved distribution.
-% input_filename = 'test.mat';
+
+% input_filename = 'SaveFiles/test.mat';
 
 %% Non-dimensionalise model parameters and save all inputs
 
