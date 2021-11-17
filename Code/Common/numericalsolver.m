@@ -25,7 +25,7 @@ if Verbose, disp('Calculating numerical solutions...'); end
 dstrbns = FE_solve(params,vectors);
 
 % Calculate the current density and interfacial losses
-[J, Jl, Jr] = calculate_currents(params, vectors, dstrbns);
+[J, Jl, Jr, Jd] = calculate_currents(params, vectors, dstrbns);
 
 
 %% Re-dimensionalise all outputs
@@ -54,6 +54,7 @@ Vres         = V-Vbi+dstrbns.phiE(:,1)-dstrbns.phiH(:,end);
 J            = jay.*J;
 Jl           = jay.*Jl;
 Jr           = jay.*Jr;
+Jd           = jay.*Jd;
 
 
 %% Final steps
@@ -63,7 +64,7 @@ timetaken = toc(start_t);
 
 % Package up solution
 solution = struct('vectors',vectors, 'params',params, 'dstrbns',dstrbns, ...
-        'time',time, 'V',V, 'Vres',Vres, 'J',J, 'Jl',Jl, 'Jr',Jr, ...
+        'time',time, 'V',V, 'Vres',Vres, 'J',J, 'Jl',Jl, 'Jr',Jr, 'Jd',Jd, ...
         'timetaken',timetaken);
 
 % If completion tasks are specified, perform them
