@@ -10,7 +10,12 @@ reset_path();
 params = parameters();
 
 % Solve the equations
-sol = numericalsolver(params);
+if strcmp(params.applied_voltage{1},'impedance') % check if voltage protocol ...
+% specifies an impedance protocol
+    sol = IS_solver(params);
+else
+    sol = numericalsolver(params);
+end
 
 % Save the data
 save([params.workfolder,'simulation.mat'],'sol');
