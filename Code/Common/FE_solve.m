@@ -34,7 +34,8 @@ end
 matrices = create_matrices(params,vectors);
 
 if isfield(params,'input_filename')
-    disp(['Using initial distributions from the saved file ' params.input_filename])
+    if Verbose, disp(['Using initial distributions from the saved file ' ... 
+            params.input_filename]), end
     load(params.input_filename)
     sol_start = inp_vec.u0;
 else
