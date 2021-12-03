@@ -20,8 +20,25 @@ function [light, psi, time, splits, findVoc] = ...
 % Parameter input
 [Vbi, t2tstar, Vap2psi] = struct2array(params, {'Vbi','t2tstar','Vap2psi'});
 
+if strcmp(applied_voltage{1},'impedance')
+    % If the protocol is an impedance spectrum, create a dummy protocol for
+    % plotting if Verbose
+    
+    V0 = applied_voltage{4};
+    Vp = applied_voltage{5};
+    t = applied_voltage{6};
+    n = applied_voltage{8};
+    applied_voltage = {params.Vbi,'tanh',t,V0};
+    freq = 1; % example frequency (Hz)
+    for i = 1:n
+        applied_voltage{end+1} = 'sin';
+        applied_voltage{end+1} = 1/freq;
+        applied_voltage{end+1} = V0+Vp;
+    end
+end
+    
 % check for initial voltage
-if ~ischar(applied_voltage{2})
+if length(applied_voltage)>1 & ~ischar(applied_voltage{2})
     % If second entry is not a character vector, the initial voltage has
     % been omitted
 
@@ -158,6 +175,9 @@ for i = 1:length(splits)-1
         sprintf('out(idxs) = part_%s',compnts{i}),...
         '(t(idxs), splits(i), splits(i+1), values(i), values(i+1));' ...
         ]);
+    if strcmp(compnts{i},'sin')
+        values(i+1) = values(i);
+    end
 end
 % Afterwards, remain at the final value
 idxs = splits(end)<=t;
@@ -177,6 +197,13 @@ function out = part_cosine(t, t_start, t_end, V_start, V_end)
 % sigmoidal fashion between t_start and t_end
 out = V_start+(V_end-V_start).* ...
     (0.5-0.5.*cos(pi*(t-t_start)./(t_end-t_start)));
+end
+
+function out = part_sin(t, t_start, t_end, V_start, V_end)
+% Uses the sin function between V_start+V_end and V_start-V_end in a
+% single sinusoid between t_start and t_end
+out = V_start+(V_end-V_start).* ...
+    sin(2*pi*(t-t_start)/(t_end-t_start));
 end
 
 function out = part_tanh(t, t_start, t_end, V_start, V_end)
