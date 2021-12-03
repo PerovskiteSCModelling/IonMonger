@@ -151,6 +151,18 @@ applied_voltage = ...
     'linear', 1.2/0.1, 1.2 % forward scan
     };
 
+% applied_voltage = {'impedance', ...
+%     1e-3, ...   % minimum impedance frequency (Hz)
+%     1e6, ...    % maximum impedance frequency (Hz)
+%     Vbi, ...  	% DC voltage (V)
+%     20e-3, ...  % AC voltage amplitude (V)
+%     30, ...     % time held at DC voltage (s)
+%     100, ...     % number of frequencies to sample
+%     5};         % number of sine waves
+
+reduced_output = false; % set to true to reduce the amount of data retained ...
+% in impedance simulations
+
 % Choose whether the time points are spaced linearly or logarithmically
 time_spacing = 'lin'; % set equal to either 'lin' (default) or 'log'
 
@@ -191,6 +203,9 @@ if Verbose
             hold on; plot(0,Vbi,'o','MarkerSize',8);
             title('V(t) except the voltage starts from Voc, not Vbi as shown here');
         end
+        if strcmp(applied_voltage{1},'impedance')
+            title({'example impedance protocol','at a frequency of 1Hz'}); end
+        ylim([min([0,psi2Vap(psi(time))]), ceil(2*max(psi2Vap(psi(time))))/2])
     end
     drawnow;
 end
