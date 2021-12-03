@@ -20,7 +20,7 @@ X = imag(Z);
 
 % make plots
 
-figure(1)
+figure(96)
 T = tiledlayout(2,1);
 ax1 = nexttile;
 plot(ax1,freqs,X,'x-b')
@@ -42,7 +42,7 @@ drawnow;
 
 % Nyquist plot
 
-figure(2)
+figure(97)
 plot(R,-X,'-sr')
 grid on
 set(gca,'TickLabelInterpreter','latex','FontSize',18)
