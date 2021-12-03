@@ -35,7 +35,7 @@ ylabel(ax2,'R / $\Omega$cm$^2$','Interpreter','latex')
 xlabel(ax2,'frequency / Hz','Interpreter','latex')
 title(ax1,['$V_{DC} =$ ' num2str(V0) 'V'],'Interpreter','latex')
 
-set(gcf,'Units','pixels','Position',[2100,200,1300,600])
+set(gcf,'Units','pixels','Position',[200,200,1300,600])
 
 T.TileSpacing = 'compact';
 drawnow;
