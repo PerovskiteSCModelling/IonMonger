@@ -157,7 +157,7 @@ applied_voltage = ...
 %     Vbi, ...  	% DC voltage (V)
 %     20e-3, ...  % AC voltage amplitude (V)
 %     30, ...     % time held at DC voltage (s)
-%     100, ...     % number of frequencies to sample
+%     64, ...     % number of frequencies to sample
 %     5};         % number of sine waves
 
 reduced_output = false; % set to true to reduce the amount of data retained ...
