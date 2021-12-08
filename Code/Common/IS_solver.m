@@ -12,7 +12,7 @@ fprintf('solving for steady state conditions at DC voltage \n')
 params = base_params;
 V0 = base_params.applied_voltage{4};
 t = base_params.applied_voltage{6};
-params.applied_voltage = {params.Vbi,'tanh',t,V0};
+params.applied_voltage = {V0,'tanh',t,V0};
 
 [params.light, params.psi, params.time, params.splits, params.findVoc] = ...
     construct_protocol(params,params.light_intensity,params.applied_voltage,params.time_spacing);
