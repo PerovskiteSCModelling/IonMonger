@@ -6,12 +6,13 @@ function params = nondimensionalise(params)
 [N, q, Fph, kB, T, b, epsp, alpha, Ec, Ev, Dn, Dp, gc, gv, N0, DI, EcE, dE, ...
     gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, Augn, Augp, ...
     betaE, betaH, vnE, vpE, vnH, vpH, Ect, Ean, Rs, Rp, Acell, stats, Plim,...
-    EfE, EfH] ...
+    EfE, EfH,Verbose] ...
     = struct2array(params, ...
     {'N','q','Fph','kB','T','b','epsp','alpha','Ec','Ev','Dn','Dp','gc', ...
     'gv','N0','DI','EcE','dE','gcE','bE','epsE','DE','EvH','dH','gvH','bH', ...
     'epsH','DH','tn','tp','beta','Augn','Augp','betaE','betaH','vnE','vpE', ...
-    'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim', 'EfE', 'EfH'});
+    'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim', 'EfE', 'EfH',...
+    'Verbose'});
 
 % Unpack statistical models
 if ~isfield(stats, 'ETL')
@@ -94,9 +95,13 @@ pc = gvH*SH((EvH-Ean)/VT)/dH; % non-dim. hole density at anode interface
 % Check for Auger recombination parameters
 if isempty(Augn) || isempty(Augp)
     [Augn, Augp] = deal(0); % no Auger recombination
-    warning(['The parameters for Auger recombination (Augn and Augp) have not' ...
-        ' been specified in the parameters file, so they have been set to zero.']);
+    warning('NoAuger:WarnID', ['The parameters for Auger recombination (Augn and Augp) have not' ...
+        ' been specified in the parameters file, so they have been set to zero.'])
 end
+
+% disp('replacing recombination parameters')
+% tn = b/(params.Rtot*(1/(dE*kE)+params.tau_rat/(dH*kH)));
+% tp = params.tau_rat*tn;
 
 % Bulk recombination parameters
 ni2   = ni^2/(n0*p0);  % non-dim. n_i^2
@@ -171,9 +176,9 @@ pH2EfH = @(pH) EvH-VT*SHinv(pH/gvH);
 
 % External parameters
 if isempty(Rs), Rs = 0; % default is zero series resistance
-    disp('Assumming there is no series resistance.'); end
+    if Verbose, disp('Assumming there is no series resistance.'); end ; end
 if ~any(Rp), Rp = Inf;  % default is infinite shunt resistance
-    disp('Assumming there is infinite shunt resistance.'); end
+    if Verbose, disp('Assumming there is infinite shunt resistance.'); end ; end
 if ~any(Acell), Acell = 1; end % default is cell area of 1 cm2
 ARs = Rs*Acell/1e4*q*G0*b/VT; % non-dim. external series resistance x cell area
 ARp = Rp*Acell/1e4*q*G0*b/VT; % non-dim. parallel/shunt resistance x cell area
@@ -181,7 +186,7 @@ Rsp = Rs/Rp; % ratio between series and parallel/shunt resistance
 
 
 if ~isfield(params, 'phidisp') % check for electric potential displacement 
-    phidisp = 100; 
+    phidisp = 100; % set to default value (100)
 end
 
 % Compile all parameters into the params structure
