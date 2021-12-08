@@ -28,7 +28,7 @@ if strcmp(applied_voltage{1},'impedance')
     Vp = applied_voltage{5};
     t = applied_voltage{6};
     n = applied_voltage{8};
-    applied_voltage = {params.Vbi,'tanh',t,V0};
+    applied_voltage = {V0,'tanh',t,V0};
     freq = 1; % example frequency (Hz)
     for i = 1:n
         applied_voltage{end+1} = 'sin';
