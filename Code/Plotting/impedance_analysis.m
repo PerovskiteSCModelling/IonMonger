@@ -33,6 +33,7 @@ set(ax2,'XScale','log','TickLabelInterpreter','latex','FontSize',18)
 ylabel(ax1,'X / $\Omega$cm$^2$','Interpreter','latex')
 ylabel(ax2,'R / $\Omega$cm$^2$','Interpreter','latex')
 xlabel(ax2,'frequency / Hz','Interpreter','latex')
+ylim(ax2,[0 inf])
 title(ax1,['$V_{DC} =$ ' num2str(V0) 'V'],'Interpreter','latex')
 
 set(gcf,'Units','pixels','Position',[200,200,1300,600])
