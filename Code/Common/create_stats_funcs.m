@@ -2,10 +2,9 @@ function [S, Sinv, A] = create_stats_funcs(stats)
 % Creates an efficient and accurate numerical approximation to a statistical
 % function and its inverse. Statistical models are specified by a structure
 % with the fields 'model', 'Boltzmann'. Supported models are 'FermiDirac', 'GaussFermi',
-% 'Blakemore'. The GaussFermi model requires the extra field 's', giving the
-% dimensionless Gaussian disorder of the model. The Blakemore model requires
-% the extra field 'lim' which specifies the (dimensionless) limiting concentration
-% of the model.
+% 'Blakemore' (in which gamma=1). The GaussFermi model requires an extra
+% parameter, 's', giving the dimensionless Gaussian disorder of the
+% relevent band.
 
 [model, Boltzmann, s, lim] = struct2array(stats, {'model', 'Boltzmann', 's', 'lim'});
 
@@ -24,7 +23,14 @@ if isequal(model, 'FermiDirac')
         Sinv=@(c) interp1(FD, xi, c, 'pchip', NaN); % create tabulated inverse function
     end
     A = 1; % Boltzmann approximation constant
+    if ~isempty(s),
+        warning(['The Gaussian disorder parameter was defined but was not ' ...
+            'used for the FermiDirac model.']); end
 elseif isequal(model, 'GaussFermi')
+    if isempty(s)
+        error(['The GaussFermi statistical model requires the Gaussian ' ...
+            'disorder parameter (s). See README.md for more information'])
+    end
     if Boltzmann
         % Boltzmann approximation to Gauss-Fermi statistics
         Sinv = @(x) log(x) - s^2/2;
@@ -47,10 +53,18 @@ elseif isequal(model, 'GaussFermi')
         end
     end
 elseif isequal(model, 'Blakemore')
+    if isempty(lim)
+        error(['The Blakemore statistical model requires the concentration ' ...
+            'limit parameter (lim). See README.md for more information'])
+    end
     gamma = 1/lim;
     Sinv = @(x) BlakemoreInv(x,gamma);
     S = @(x) 1./(exp(-x)+gamma);
     A = 1; % Boltzmann approximation constant
+    
+    if ~isempty(s),
+        warning(['The Gaussian disorder parameter was defined but was not ' ...
+            'used for the Blakemore model.']); end
 end
 
 %% 

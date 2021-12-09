@@ -19,7 +19,7 @@ figure;
 hold on;
 ylim([-15, 30]);
 ylabel('Current density (mA$\cdot$cm$^{-2}$)');
-xlim([0, 1.2]);
+xlim([min([0 ; V]), max(V)]);
 xlabel('Voltage (V)');
 line([0,1.2],[0,0],'Color','k','HandleVisibility','off'); % x-axis, i.e. J=0
 set(gca,'Layer','top');

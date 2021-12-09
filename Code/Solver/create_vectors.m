@@ -6,7 +6,6 @@ function vectors = create_vectors(params)
 % Perov: x  as N +1 tanh-spaced points [  0, 1   ]
 % HTL:   xH as NH+1 tanh-spaced points (  1, 1+bH]
 % dxE, dx, dxH: as mesh spacings of xE, x, xH such that dx(i)=x(i+1)-x(i)
-% Remove xE(end) and xH(1) as these points are x(1) and x(end) respectively
 
 % Parameter input
 [N, NE, NH, wE, wH] ...

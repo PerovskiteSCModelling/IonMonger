@@ -43,5 +43,4 @@ Jr = -Rr(n(TT,N+1),pH(TT,1)); % (negative) current density loss at HTL interface
 
 Jd = -Jd;
 
-
 end

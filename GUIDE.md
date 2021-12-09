@@ -122,6 +122,33 @@ It is also possible to use this code to simulate open-circuit conditions. To sim
 The only mathematical modification required to model open-circuit conditions is to replace the boundary conditions on the electric potential at the metal contacts (all other equations and boundary conditions remain the same) as described in the release paper. These modifications are contained within three scripts in the Code/Solver folder, namely Jac.m, mass_matrix.m and RHS.m.
 
 
+## How to Model Impedance Spectroscopy Measurements
+
+Users can perform impedance spectroscopy simulations by changing the voltage protocol in the parameters file. If the first entry in `applied_voltage` is set to `'impedance'`, `master.m` will call `IS_solver.m`, which automatically creates the sinusoidal voltage protocol for each sample frequency and calls `numericalsolver.m` to obtain the solution. `applied_voltage` requires several more entries (all floating point numbers) to specify the bounds of the impedance measurements. These are, in order, the smallest sample frequency (Hz); the largest sample frequency (Hz); the DC applied voltage (V); the AC applied voltage amplitude (V); time held at DC voltage before measurement (s); the number of frequencies to sample (must be a non-negative integer); the number of complete sine waves to apply at each frequency.
+For example, to make 70 impedance measurements at frequencies between 1mHz and 1MHz, with a DC voltage of 0.8V, AC perturbations of amplitude 20mV,  holding the cell at the DC voltage for 10s before each measurement and performing 6 complete sine waves at each frequency,
+```
+applied_voltage = {'impedance', ...
+    1e-3, ...   % minimum impedance frequency (Hz)
+    1e6, ...    % maximum impedance frequency (Hz)
+    0.8, ...  	% DC voltage (V)
+    20e-3, ...  % AC voltage amplitude (V)
+    10, ...     % time held at DC voltage (s)
+    70, ...     % number of frequencies to sample
+    6};         % number of sine waves
+```
+The sample frequencies will logarithmically spaced between the minimum and maximum frequencies. Once all frequencies have been simulated, `impedance_analysis.m` will analyse the phase of the current output and plot all the data on both a Nyquist plot and a Bode plot.
+
+It is recommended that users maintain a constant light intensity throughout impedance measurements. For example, `light_intensity = {1}` for 1 Sun equivalent light intensity throughout.
+
+By default, `IS_solver.m` will return a 1xN structure array where N is the number of sample frequencies and each entry of the structure array contains the full solution structure of the corresponding simulation. To extract the imaginary and real parts of the impedance from this structure array, use `[X,R] = impedance_analysis(sol)`. This approach can however cause excessively large file sizes. To avoid this, the user can set `reduced_output = true` in the parameter file. The `sol` structure created by `master.m` will in this case contain only the fields `params`, containing the input parameters, `freqs`, containing a list of the sample frequencies, and `X` and `R`, being the imaginary and real parts of the impedance, respectively.
+
+
+
+## How to Change the Statistical Models of Carriers in the Transport Layers
+
+Users can choose to emply degenerate statistical models to carriers in the transport layers, where carrier densities often become high enough that the Boltzmann approximation is innaccurate. The `stats` structure in the parameters file contains all the information necessary to construct the statistical models. This structure has two fields, `ETL` and `HTL`. If either of these fields are missing, the statistical model in that region will be automatically set to be the Boltzmann approximation to Fermi-Dirac statistics and the transport model will be unchanged from v1.4 of IonMonger. To apply a specific statistical model in one of the transport layers, the corresponding field of `stats` must have the field `model` and the field `Boltzmann`. `model` determines which statistical model should be employed. The currently support models are `'FermiDirac'`, `'GaussFermi'`, and `'Blakemore'`. `Boltzmann` can be set to `true` to use the Boltzmann approximation to the statistical model in question or `false` to use the full degenerate model. The Gauss-Fermi model also requires the field `s`, giving the level of Gaussian disorder in units of eV. The Blakemore model requires the additional field `lim` giving the (dimensionless) limiting concentration. If the Blakemore statistical function is written as B(x) = 1/(exp(-x) + gamma), then lim=1/gamma.
+
+
 # How to Analyse the Ouput
 
 The solution is saved in dimensional form into one output file. This output .mat file takes the form of a structure called `sol` that contains:

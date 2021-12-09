@@ -35,12 +35,13 @@ sol_init = numsol(end,:)';
 warning(warnon);
 
 % Define the settings for the call to fsolve
-fsoptions = optimoptions('fsolve','MaxIterations',20);
+fsoptions = optimoptions('fsolve','MaxIterations',40);
 if Verbose, fsoptions.Display = 'iter'; else, fsoptions.Display = 'off'; end
 
 % Use the initial estimate to obtain an approximate steady-state solution
 if exist('AnJac.m','file')
     fsoptions.SpecifyObjectiveGradient = true;
+    fsoptions.MaxIterations = 1e3;
     [sol_init,~,exitflag,~] = fsolve(@(u) RHS_AnJac(u,psi, ...
         params,vectors,matrices,'init'),sol_init,fsoptions);
 else

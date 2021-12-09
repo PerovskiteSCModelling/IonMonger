@@ -21,6 +21,12 @@ function regression_test(testCase)
 load('./Data/simulation_1.0.mat','sol');
 params = sol.params;
 
+% Explicitly add interface points to transport layer distributions
+sol.dstrbns.phiE = [sol.dstrbns.phiE, sol.dstrbns.phi(:,1)];
+sol.dstrbns.phiH = [sol.dstrbns.phi(:,end), sol.dstrbns.phiH];
+sol.dstrbns.nE = [sol.dstrbns.nE, sol.dstrbns.n(:,1)/sol.params.kE];
+sol.dstrbns.pH = [sol.dstrbns.p(:,end)/sol.params.kH, sol.dstrbns.pH];
+
 % Update and import parameters
 params.Verbose = false;
 VT = params.VT;

@@ -10,7 +10,7 @@ t = sol.time(ind)-sol.time(ind(1));
 
 % --- get voltage wave parameters ---
 % V = V0 + Vp*sin(omega*t)
-V0 = sol.params.applied_voltage{3}; % voltage at the start of the first wave
+V0 = sol.V(1); % voltage at the start of the first wave
 Vp = sol.params.applied_voltage{end}-V0; % voltage amplitude
 omega = 2*pi/sol.params.applied_voltage{end-1};
 
