@@ -1,6 +1,11 @@
 function save_end_state(sol, filename)
-% takes the final state of a solution file and prepares a vector
-% for use as the initial condition in other simulations
+% This function takes the final state of a solution file and prepares a
+% dimensionless vector suitable for use as the initial condition in other
+% simulations. The structure `inp_vec` contains the fields `u0`, containing
+% the dimensionless vector of distributions and `Vapp`, containing the
+% applied voltage at which these distributions were saved. This is
+% necessary to ensure that the voltage protocol of the future simulation
+% begins from this voltage.
 
 disp('Saving end state as input vector')
 

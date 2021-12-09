@@ -21,7 +21,7 @@ function [light, psi, time, splits, findVoc] = ...
 [Vbi, t2tstar, Vap2psi] = struct2array(params, {'Vbi','t2tstar','Vap2psi'});
 
 if strcmp(applied_voltage{1},'impedance')
-    % If the protocol is an impedance spectrum, create a dummy protocol for
+    % If the protocol is an impedance spectrum, create a dummy input for
     % plotting if Verbose
     
     V0 = applied_voltage{4};

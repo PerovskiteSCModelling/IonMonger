@@ -1,10 +1,11 @@
 function [S, Sinv, A] = create_stats_funcs(stats)
 % Creates an efficient and accurate numerical approximation to a statistical
 % function and its inverse. Statistical models are specified by a structure
-% with the fields 'model', 'Boltzmann'. Supported models are 'FermiDirac', 'GaussFermi',
-% 'Blakemore' (in which gamma=1). The GaussFermi model requires an extra
-% parameter, 's', giving the dimensionless Gaussian disorder of the
-% relevent band.
+% with the fields 'model' and 'Boltzmann'. Supported models are 'FermiDirac',
+% 'GaussFermi' and 'Blakemore'. The GaussFermi model requires
+% an extra parameter, 's', giving the dimensionless Gaussian disorder of
+% the relevent band. The Blakemore model requires an additional parameter
+% 'lim' that gives the limiting dimensionless concentration. lim = 1/gamma
 
 [model, Boltzmann, s, lim] = struct2array(stats, {'model', 'Boltzmann', 's', 'lim'});
 

@@ -27,7 +27,7 @@ sol_init = numericalsolver(params);
 savestr = 'Data/DC_sol';
 save_end_state(sol_init,savestr)
 
-if isempty(ver('parallel')) % check for parallel computing toolbox
+if ~isempty(ver('parallel')) % check for parallel computing toolbox
     % parallel computing toolbox installed
     pool = gcp;
     fprintf('\nParallel computing toolbox detected \nBeginning impedance measurements on %s workers \n\n', num2str(pool.NumWorkers))

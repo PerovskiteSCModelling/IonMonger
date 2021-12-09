@@ -1,8 +1,12 @@
 function Z = Z_from_J(sol)
+% This function extracts the impedance from the solution to a single
+% impedance measurement. `sol` is the solution structure with a sinusoidal
+% voltage protocol.
 
 nwaves = 2; % number of complete waves to analyse 
 
-ind = (length(sol.J)-nwaves*100):length(sol.J);
+ind = (length(sol.J)-nwaves*100):length(sol.J);     % indices of the timesteps
+                                                    % to be analysed
 
 J = sol.J(ind)*1e-3; % convert to units of Acm-2
 V = sol.V(ind);
@@ -16,12 +20,21 @@ omega = 2*pi/sol.params.applied_voltage{end-1};
 
 % --- get current wave parameters ---
 % J = J0 + Jp*sin(omega*t + theta)
-SineParams = sineFit(t,J');
-J0 = SineParams(1);
-Jp = SineParams(2);
-omega = 2*pi*SineParams(3);
-theta = SineParams(4)+pi; % + pi to account for the negative definition of J
 
-Z = Vp/Jp*exp(-i*theta); % output in units of Ohm cm2
+% Fourier transform
+a0 = 1/t(end)*trapz(t,J');
+a1 = 2/t(end)*trapz(t,J'.*cos(omega*t));
+b1 = 2/t(end)*trapz(t,J'.*sin(omega*t));
+
+J0 = a0;
+Jp = sqrt(a1^2+b1^2);
+if b1>0, theta = atan(a1/b1);
+elseif a1>0, theta = atan(a1/b1)+pi;
+elseif a1<0, theta = atan(a1/b1)-pi;
+else, error('Current phase calculation was unsuccessful'), end
+
+theta = theta + pi; % to account for negative definition of current
+
+Z = Vp/Jp*exp(-i*theta); % output impedance in units of Ohm cm2
 
 end

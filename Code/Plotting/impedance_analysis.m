@@ -1,25 +1,37 @@
 function [X,R] = impedance_analysis(sol)
+% This function calculates the impedance from multiple impedance
+% measurements, decomposes it into its real and imaginary components and
+% plots the results in the form of Nyquist and Bode plots. `sol` is a
+% structure array containing the solutions to multiple impedance
+% measurements where `sol(i)` is the solution structure of the i-th sample
+% frequency. The functionreturns `X`, the imaginary component of impedance
+% at each sample frequency, and `R`, the real component of impedance at
+% each sample frequency.
 
+% extract the impedance protocol
 nf = sol(1).impedance_protocol{7}; % number of frequencies to be sampled
-min_f = sol(1).impedance_protocol{2};
-V0 = sol(1).impedance_protocol{4};
-max_f = sol(1).impedance_protocol{3};
-n_wave = sol(1).impedance_protocol{8};
+min_f = sol(1).impedance_protocol{2}; % minimum sample frequency
+max_f = sol(1).impedance_protocol{3}; % maximum frequency
+V0 = sol(1).impedance_protocol{4}; % DC voltage
+n_wave = sol(1).impedance_protocol{8}; % number of complete sine waves
 
 freqs = logspace(log10(min_f),log10(max_f),nf);
 
-Z = nan(nf,1)+i*nan(nf,1);
+Z = nan(nf,1)+i*nan(nf,1); % preallocate Z
 for j = 1:nf
     try
+        % extract the impedance from each measurement
         Z(j) = Z_from_J(sol(j));
     end
 end
 
+% decompose into real and imaginary components
 R = real(Z);
 X = imag(Z);
 
-% make plots
+% === Plot the data ===
 
+% Bode plot
 figure(96)
 T = tiledlayout(2,1);
 ax1 = nexttile;
