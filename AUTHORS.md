@@ -2,13 +2,13 @@
 
 ## Code Development
 
-Dr Nicola Courtier (University of Southampton, 2016-2020) and
-Dr James Cave (University of Bath, 2016-2018).
+Dr Nicola Courtier (University of Southampton, 2016-2020),
+Dr James Cave (University of Bath, 2016-2018) and
+Will Clarke (University of Southampton 2020-present).
 
 This work was supported by EPSRC-funded studentships from
 the CDT in New and Sustainable Photovoltaics (reference EP/L01551X/1).
 Nicola was subsequently supported by an EPSRC Doctoral Prize (reference EP/R513325/1).
-
 
 ## Method of Solution
 
