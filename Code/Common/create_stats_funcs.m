@@ -30,7 +30,7 @@ if isequal(model, 'FermiDirac')
 elseif isequal(model, 'GaussFermi')
     if isempty(s)
         error(['The GaussFermi statistical model requires the Gaussian ' ...
-            'disorder parameter (s). See README.md for more information'])
+            'disorder parameter (s). See the user guide for more information'])
     end
     if Boltzmann
         % Boltzmann approximation to Gauss-Fermi statistics
@@ -56,12 +56,18 @@ elseif isequal(model, 'GaussFermi')
 elseif isequal(model, 'Blakemore')
     if isempty(lim)
         error(['The Blakemore statistical model requires the concentration ' ...
-            'limit parameter (lim). See README.md for more information'])
+            'limit parameter (lim). See the user guide for more information'])
     end
-    gamma = 1/lim;
-    Sinv = @(x) BlakemoreInv(x,gamma);
-    S = @(x) 1./(exp(-x)+gamma);
-    A = 1; % Boltzmann approximation constant
+    if Boltzmann
+        Sinv = @(x) log(x);
+        S = @(x) exp(x);
+        A = 1; % Boltzmann approximation constant
+    else
+        gamma = 1/lim;
+        Sinv = @(x) BlakemoreInv(x,gamma);
+        S = @(x) 1./(exp(-x)+gamma);
+        A = 1; % Boltzmann approximation constant
+    end
     
     if ~isempty(s),
         warning(['The Gaussian disorder parameter was defined but was not ' ...
