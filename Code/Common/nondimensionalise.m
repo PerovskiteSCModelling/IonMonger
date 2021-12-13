@@ -23,9 +23,15 @@ if ~isfield(stats, 'HTL')
     stats.HTL.model = 'FermiDirac';
     stats.HTL.Boltzmann = true;
 end
-if isempty(Plim), Plim = inf; end % remove ion concentration limit
 stats.P.model = 'Blakemore';
-stats.P.lim = Plim/N0;
+if isempty(Plim) | Plim == inf
+    % if there is no ion limitation, use Boltzmann for efficiency
+    stats.P.Boltzmann = true;
+    stats.P.lim = nan;
+else
+    stats.P.Boltzmann = false;
+    stats.P.lim = Plim/N0;
+end
 if Plim <= N0
     error('Limiting ion density must be greater than typical ion density')
 end 
