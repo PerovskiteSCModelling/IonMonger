@@ -1,4 +1,4 @@
-function params = parameters(iter)
+function params = parameters_template(iter,iter2)
 % This function returns a parameter structure that contains all the inputs
 % required for the simulation(s). In this function, the user should choose
 % the values of the variables in the following sections:
@@ -25,7 +25,7 @@ Verbose     = true; % set this to false to suppress message output,
 UseSplits   = true; % set this to false to make a single call to ode15s
 
 % Resolution and error tolerances
-N    = 400; % Number of subintervals, with N+1 being the number of grid points
+N    = iter2; % Number of subintervals, with N+1 being the number of grid points
 rtol = 1e-6; % Relative temporal tolerance for ode15s solver
 atol = 1e-10; % Absolute temporal tolerance for ode15s solver
 phidisp = 100; % displacement factor for electric potential (VT) (optional)
@@ -72,7 +72,7 @@ bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
 DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
 stats.ETL.model = 'FermiDirac'; % ETL statistical model
-stats.ETL.Boltzmann = false; % ETL Boltzmann approximation
+stats.ETL.Boltzmann = iter; % ETL Boltzmann approximation
 
 % HTL parameters
 dH    = 1e24;    % effective doping density of HTL (m-3) 
@@ -83,7 +83,7 @@ bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
 stats.HTL.model = 'GaussFermi'; % HTL statistical model
-stats.HTL.Boltzmann = false; % HTL Boltzmann approximation
+stats.HTL.Boltzmann = iter; % HTL Boltzmann approximation
 stats.HTL.s = 2; % HTL Gaussian disorder (only required for GaussFermi model)
 
 % Metal contact parameters (optional)
@@ -116,7 +116,7 @@ vpH   = 1e5;     % hole recombination velocity for SRH (ms-1)
 % initial voltage specified by voltage_protocol will be overwritten with
 % the applied voltage of the saved distribution.
 
-% input_filename = 'SaveFiles/test.mat';
+% input_filename = 'SaveFiles/filename.mat';
 
 %% Non-dimensionalise model parameters and save all inputs
 
@@ -147,18 +147,17 @@ light_intensity = {1};
 applied_voltage = ...
     {Vbi, ... % steady-state initial value
     'tanh', 5, 1.2, ... % preconditioning
-    'linear', 1.2/0.1, 0, ... % reverse scan
-    'linear', 1.2/0.1, 1.2 % forward scan
+    'linear', 1.2/1e-1, 0, ... % reverse scan
+    'linear', 1.2/1e-1, 1.2 % forward scan
     };
 
-% applied_voltage = {'impedance', ...
-%     1e-3, ...   % minimum impedance frequency (Hz)
-%     1e6, ...    % maximum impedance frequency (Hz)
-%     Vbi, ...  	% DC voltage (V)
-%     20e-3, ...  % AC voltage amplitude (V)
-%     30, ...     % time held at DC voltage (s)
-%     64, ...     % number of frequencies to sample
-%     5};         % number of sine waves
+applied_voltage = {'impedance', ...
+    1e-4, ...   % minimum impedance frequency (Hz)
+    1e7, ...    % maximum impedance frequency (Hz)
+    0.9, ...  	% DC voltage (V)
+    20e-3, ...  % AC voltage amplitude (V)
+    60, ...     % number of frequencies to sample
+    5};         % number of sine waves
 
 reduced_output = false; % set to true to reduce the amount of data retained ...
 % in impedance simulations
