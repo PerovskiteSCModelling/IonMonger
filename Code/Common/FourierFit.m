@@ -1,9 +1,58 @@
-function fit = FourierFit(t,S)
+function fit = FourierFit(t,S,omega)
 % A function to fit a sinusoidal curve to a signal using the Fourier
 % transform. Here `t` is a time vector and `S` is the signal vector. The
 % function returns a structure, `fit` containing all the information about
 % the fitted curve and the error. Note that this function is only intended
-% to analyse signals where a signal frequency is dominant.
+% to analyse signals where a signal frequency, `omega`, is present. The signal must
+% contain an integer number of complete waves, meaning the interval spanned
+% by `t` must be an integer multiple of the wave period. In IonMonger's
+% output, each period comprises 100 time points, meaning N complete waves
+% should contain 100*N+1 points.
+
+% obtains a fit of the form S = S0+Sp*sin(2*pi*omega*t+theta)
+
+% ===================== example of periodic analysis ======================
+% To analyse the 'impedance' of any periodic variable in the solution
+% structure, use and adapt the following code:
+
+% n = 2; % number of waves to analyse
+% 
+% for j = 1:length(sol)
+%     var = sol(j).dstrbns.phiE(:,end); % isolate a single variable as a function of time
+%     S = var(end-n*100:end); % construct signal from n waves
+%     t = sol(j).time(end-200:end); % construct corresponding time vector
+%     omega(j) = sol(j).freq; % get frequency of input
+%     fit = FourierFit(t,S,omega(j)); % fit the signal
+%     theta(j) = fit.theta; % get phase from fit
+%     
+%     Vp = sol(1).impedance_protocol{5}; % get voltage amplitude
+%     Z(j) = Vp/fit.Sp*exp(-i*theta(j)); % create 'impedance'
+% end
+% 
+% % Nyquist plot
+% 
+% figure()
+% plot(real(Z),-imag(Z),'-sr')
+% grid on
+% ylabel('-X')
+% xlabel('R')
+% title(['V_{DC} = ' num2str(sol(1).impedance_protocol{4}) 'V'])
+% 
+% % Bode plot
+% figure()
+% T = tiledlayout(2,1);
+% ax1 = nexttile;
+% semilogx(ax1,omega,-imag(Z),'x-b')
+% ax2 = nexttile;
+% semilogx(ax2,omega,real(Z),'x-b')
+% 
+% ylabel(ax1,'-X')
+% ylabel(ax2,'R')
+% xlabel(ax2,'frequency / Hz')
+% 
+% title(ax1,['V_{DC} = ' num2str(sol(1).impedance_protocol{4}) 'V'])
+% 
+% =========================================================================
 
 if size(S,1)>1
     % ensure S is a row vector
@@ -14,40 +63,22 @@ if size(t,1)>1
     t = t';
 end
 
-S0 = mean(S);
-S = S-S0;
+a0 = 1/t(end)*trapz(t,S);
+a1 = 2/t(end)*trapz(t,S.*cos(2*pi*omega*t));
+b1 = 2/t(end)*trapz(t,S.*sin(2*pi*omega*t));
 
-L = length(t);
-T = t(2)-t(1); % sample period
-Fs = 1/T; % sample frequency
+S0 = a0;
+Sp = sqrt(a1^2+b1^2);
+if b1>0, theta = atan(a1/b1);
+elseif a1>0, theta = atan(a1/b1)+pi;
+elseif a1<0, theta = atan(a1/b1)-pi;
+else, error('Phase calculation was unsuccessful'), end
 
-Y = fft(S); % perform fast Fourier transform
-
-P2 = abs(Y/L);
-P1 = P2(1:L/2+1);
-P1(2:end-1) = 2*P1(2:end-1);
-
-f = Fs*(0:(L/2))/L; % frequency space
-
-i = (P1/max(P1)>0.1); % indices of frequencies with 10% significance
-[~,i] = maxk(P1,1);
-Sp = P1(i); % amplitudes
-omega = f(i); % frequencies
-theta = angle(Y(i))+pi/2; % phase
-theta(theta>pi) = theta(theta>pi)-2*pi;
-
-X = 0;
-for k = 1:length(omega)
-    X = X + Sp(k)*sin(2*pi*omega(k)*t+theta(k));
-end
-
-% return information such that S = S0+Sp*sin(2*pi*omega*t+theta)
 fit.S = @(t) S0+Sp*sin(2*pi*omega*t+theta);
 fit.omega = omega; % frequency
 fit.S0 = S0; % average signal value
 fit.Sp = Sp; % signal amplitude
 fit.theta = theta; % signal phase
-S = S+S0;
-fit.err = norm(S-fit.S(t),2)/norm(S); % fit error
+fit.err = norm(abs(S-fit.S(t)),2)/norm(abs(S)); % fit error
 
 end

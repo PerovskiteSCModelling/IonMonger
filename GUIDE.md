@@ -124,15 +124,14 @@ The only mathematical modification required to model open-circuit conditions is 
 
 ## How to Model Impedance Spectroscopy Measurements
 
-Users can perform impedance spectroscopy simulations by changing the voltage protocol in the parameters file. If the first entry in `applied_voltage` is set to `'impedance'`, `master.m` will call `IS_solver.m`, which automatically creates the sinusoidal voltage protocol for each sample frequency and calls `numericalsolver.m` to obtain the solution. `applied_voltage` requires several more entries (all floating point numbers) to specify the bounds of the impedance measurements. These are, in order, the smallest sample frequency (Hz); the largest sample frequency (Hz); the DC applied voltage (V); the AC applied voltage amplitude (V); time held at DC voltage before measurement (s); the number of frequencies to sample (must be a non-negative integer); the number of complete sine waves to apply at each frequency.
-For example, to make 70 impedance measurements at frequencies between 1mHz and 1MHz, with a DC voltage of 0.8V, AC perturbations of amplitude 20mV,  holding the cell at the DC voltage for 10s before each measurement and performing 6 complete sine waves at each frequency,
+Users can perform impedance spectroscopy simulations by changing the voltage protocol in the parameters file. If the first entry in `applied_voltage` is set to `'impedance'`, `master.m` will call `IS_solver.m`, which automatically creates the sinusoidal voltage protocol for each sample frequency and calls `numericalsolver.m` to obtain the solution. `applied_voltage` requires several more entries (all floating point numbers) to specify the bounds of the impedance measurements. These are, in order, the smallest sample frequency (Hz); the largest sample frequency (Hz); the DC applied voltage (V); the AC applied voltage amplitude (V); the number of frequencies to sample (must be a non-negative integer); the number of complete sine waves to apply at each frequency.
+For example, to make 70 impedance measurements at frequencies between 1mHz and 1MHz, with a DC voltage of 0.8V, AC perturbations of amplitude 20mV and performing 6 complete sine waves at each frequency,
 ```
 applied_voltage = {'impedance', ...
     1e-3, ...   % minimum impedance frequency (Hz)
     1e6, ...    % maximum impedance frequency (Hz)
     0.8, ...  	% DC voltage (V)
     20e-3, ...  % AC voltage amplitude (V)
-    10, ...     % time held at DC voltage (s)
     70, ...     % number of frequencies to sample
     6};         % number of sine waves
 ```

@@ -26,8 +26,8 @@ if strcmp(applied_voltage{1},'impedance')
     
     V0 = applied_voltage{4};
     Vp = applied_voltage{5};
-    t = applied_voltage{6};
-    n = applied_voltage{8};
+    t = 10; % time spent in steady state (for plotting only)
+    n = applied_voltage{7};
     applied_voltage = {V0,'tanh',t,V0};
     freq = 1; % example frequency (Hz)
     for i = 1:n

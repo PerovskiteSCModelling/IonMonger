@@ -6,7 +6,7 @@ function sol = IS_solver(base_params)
 % The iterative calls to `numericalsolver` will be performed on parallel
 % cores if the parallel computing toolbox is installed.
 
-nf = base_params.applied_voltage{7}; % number of frequencies to be sampled
+nf = base_params.applied_voltage{6}; % number of frequencies to be sampled
 min_f = base_params.applied_voltage{2}; % minimum frequency
 max_f = base_params.applied_voltage{3}; % maximum frequency
 
@@ -17,7 +17,7 @@ freqs = logspace(log10(min_f),log10(max_f),nf);
 fprintf('solving for steady state conditions at DC voltage \n')
 params = base_params;
 V0 = base_params.applied_voltage{4};
-t = base_params.applied_voltage{6};
+t = 100; % time spent in steady state at DC voltage (s)
 params.applied_voltage = {V0,'linear',t,V0};
 
 [params.light, params.psi, params.time, params.splits, params.findVoc] = ...
@@ -58,6 +58,7 @@ end
 
 for j = 1:length(sols)
     sols(j).impedance_protocol = base_params.applied_voltage; % retain overall protocol
+    sols(j).freq = freqs(j);
 end
 
 % analyse output
@@ -90,7 +91,7 @@ function sol = IS_measurement(params,freq,savestr)
     
     V0 = params.applied_voltage{4}; % DC voltage
     Vp = params.applied_voltage{5}; % AC amplitude
-    n_wave = params.applied_voltage{8}; % number of complete sine waves
+    n_wave = params.applied_voltage{7}; % number of complete sine waves
     
     % construct initial wave
     params.applied_voltage = {'sin',1/freq,V0+Vp}; % first sine wave
