@@ -45,7 +45,7 @@ if length(applied_voltage)>1 & ~ischar(applied_voltage{2})
     if isfield(params,'input_filename')
         % check for specified initial conditions
         load(params.input_filename)
-        applied_voltage = {inp_vec.Vapp, applied_voltage{:}}; 
+        applied_voltage = {sol.V(end), applied_voltage{:}}; 
     else
         error('applied_voltage did not specify an initial voltage and no specified initial distribution has been found.')
     end
@@ -55,7 +55,7 @@ else
         % has also been specified
         warning('Initial voltage was specified in applied_voltage but a saved initial distribution has also been specified. This value will override the initial voltage.')
         load(params.input_filename)
-        applied_voltage{1} = inp_vec.Vapp; 
+        applied_voltage{1} = sol.V(end); 
     end
 end
 
