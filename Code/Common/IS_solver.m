@@ -23,9 +23,9 @@ params.applied_voltage = {V0,'linear',t,V0};
 [params.light, params.psi, params.time, params.splits, params.findVoc] = ...
     construct_protocol(params,params.light_intensity,params.applied_voltage,params.time_spacing);
 
-sol_init = numericalsolver(params);
+sol = numericalsolver(params);
 savestr = 'Data/DC_sol';
-save_end_state(sol_init,savestr)
+save(savestr,'sol');
 
 if ~isempty(ver('parallel')) % check for parallel computing toolbox
     % parallel computing toolbox installed

@@ -61,6 +61,8 @@ reset_path; load('Data/simulation.mat');
 
 The solution structure `sol` contains both the input (`params`, `vectors`) and output (`dstrbns`, `J`). To see the contents of a structure, enter e.g. `sol` or `sol.dstrbns` in the command window.
 
+e) To animate the solution and create an MP4 file, use the function `animate_sections`. This requires the arguments `sol`, a solution structure; `sections`, a vector of integers specifying which sections of the protocol to animate; `length`, the video length in seconds and `filename`, a string under which the video will be saved. An additional optional argument can be given that determines the frame rate of the video. The default is 30fps. For example, `animate_sections(sol,[2,3],10,'Videos\example_video')`.
+
 5) To run further simulations, open the parameters.m file and edit as described in the following section entitled How to Edit the Input File. Then repeat the procedure from step 3.
 
 
