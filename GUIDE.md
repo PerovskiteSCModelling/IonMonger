@@ -61,7 +61,10 @@ reset_path; load('Data/simulation.mat');
 
 The solution structure `sol` contains both the input (`params`, `vectors`) and output (`dstrbns`, `J`). To see the contents of a structure, enter e.g. `sol` or `sol.dstrbns` in the command window.
 
-e) To animate the solution and create an MP4 file, use the function `animate_sections`. This requires the arguments `sol`, a solution structure; `sections`, a vector of integers specifying which sections of the protocol to animate; `length`, the video length in seconds and `filename`, a string under which the video will be saved. An additional optional argument can be given that determines the frame rate of the video. The default is 30fps. For example, `animate_sections(sol,[2,3],10,'Videos\example_video')`.
+e) To animate the solution and create an MP4 file, use the function `animate_sections`. This requires the arguments `sol`, a solution structure; `sections`, a vector of integers specifying which sections of the protocol to animate; `length`, the video length in seconds and `filename`, a string under which the video will be saved. Additional optional arguments can be given that determine the frame rate and resolution of the video. The defaults are 30fps and 1920x1080p. For example:
+```
+animate_sections(sol,[2,3],10,'Videos\example_video')
+```
 
 5) To run further simulations, open the parameters.m file and edit as described in the following section entitled How to Edit the Input File. Then repeat the procedure from step 3.
 
@@ -127,17 +130,17 @@ The only mathematical modification required to model open-circuit conditions is 
 ## How to Model Impedance Spectroscopy Measurements
 
 Users can perform impedance spectroscopy simulations by changing the voltage protocol in the parameters file. If the first entry in `applied_voltage` is set to `'impedance'`, `master.m` will call `IS_solver.m`, which automatically creates the sinusoidal voltage protocol for each sample frequency and calls `numericalsolver.m` to obtain the solution. `applied_voltage` requires several more entries (all floating point numbers) to specify the bounds of the impedance measurements. These are, in order, the smallest sample frequency (Hz); the largest sample frequency (Hz); the DC applied voltage (V); the AC applied voltage amplitude (V); the number of frequencies to sample (must be a non-negative integer); the number of complete sine waves to apply at each frequency.
-For example, to make 70 impedance measurements at frequencies between 1mHz and 1MHz, with a DC voltage of 0.8V, AC perturbations of amplitude 20mV and performing 6 complete sine waves at each frequency,
+For example, to make 70 impedance measurements at frequencies between 1mHz and 1MHz, with a DC voltage of 0.8V, AC perturbations of amplitude 20mV and performing 6 complete sine waves at each frequency:
 ```
 applied_voltage = {'impedance', ...
     1e-3, ...   % minimum impedance frequency (Hz)
     1e6, ...    % maximum impedance frequency (Hz)
-    0.8, ...  	% DC voltage (V)
+    0.8, ...    % DC voltage (V)
     20e-3, ...  % AC voltage amplitude (V)
     70, ...     % number of frequencies to sample
     6};         % number of sine waves
 ```
-The sample frequencies will logarithmically spaced between the minimum and maximum frequencies. Once all frequencies have been simulated, `impedance_analysis.m` will analyse the phase of the current output and plot all the data on both a Nyquist plot and a Bode plot.
+The sample frequencies will be logarithmically spaced between the minimum and maximum frequencies. Once all frequencies have been simulated, `impedance_analysis.m` will analyse the phase of the current output and plot all the data on both a Nyquist plot and a Bode plot.
 
 It is recommended that users maintain a constant light intensity throughout impedance measurements. For example, `light_intensity = {1}` for 1 Sun equivalent light intensity throughout.
 
