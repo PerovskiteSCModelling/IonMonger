@@ -6,7 +6,7 @@ function animate_sections(sol,sections,vidlength,filename,NameValueArgs)
 % name the final file when saving. The optional Name-Value pair arguments
 % `FrameRate` and `Size` can be used to specify the frame rate in fps and
 % the size of the image in pixels. Defaults are 30fps and 1920x1080p
-% resolution.
+% resolution. If 
 
 % For example, to make a 5 second video of the reverse and forward sweeps
 % after a preconditioning stage and save as 'sweep_animation' in the folder
@@ -21,6 +21,7 @@ arguments
     filename string
     NameValueArgs.Size (1,2) {mustBeNumeric} = [1920 1080];
     NameValueArgs.FrameRate (1,1) {mustBeNumeric} = 30;
+    NameValueArgs.SupressOutput = false;
 end
 
 tic;
@@ -30,7 +31,16 @@ if isempty(sections)
 end
     
 % create video
-vid = VideoWriter(filename,'MPEG-4');
+try
+    vid = VideoWriter(filename,'MPEG-4');
+catch me
+    if strcmp(me.identifier,'MATLAB:audiovideo:VideoWriter:fileNotWritable')
+        error(['A video file with the same name is currently open in MATLAB''s '...
+            'movie player. Close this window before overwriting the video file.'])
+    else
+        rethrow(me)
+    end
+end
 vid.FrameRate=NameValueArgs.FrameRate;
 vid.Quality=100;
 
@@ -92,12 +102,15 @@ F(N) = struct('cdata',[],'colormap',[]);
 GRpos = [G,R,Rl,Rr]; 
 GRpos(GRpos<=0) = nan;
 
+carriers = [P,n,nE,p,pH];
+
 % predetermine Y limits for plotting
 YLims = [-2, ceil(max(J)/5)*5;
-            0.1*min([P,n,nE,p,pH],[],'all'),10*max([P,n,nE,p,pH],[],'all');
-            min([phiE,phi,phiH],[],'all')-0.1, max([phiE,phi,phiH],[],'all');
-            min([GRpos],[],'all'), 10.^(ceil(max(log10(GRpos),[],'all')))];
+    10.^(floor(min(log10(carriers),[],'all')/2)*2),10.^(ceil(max(log10(carriers),[],'all')/2)*2);
+    min([phiE,phi,phiH],[],'all')-0.1, max([phiE,phi,phiH],[],'all');
+    10.^(floor(min(log10(GRpos),[],'all')/2)*2), 10.^(ceil(max(log10(GRpos),[],'all')/2)*2)];
 
+        
 % package up all the data necessary to create a frame
 dstrbns = struct('P',P,'phi',phi,'n',n,'p',p,'phiE',phiE,'nE',nE,'phiH',phiH,...
     'pH',pH,'R',R,'Rbim',Rbim,'SRH',SRH,'Auger',Auger,'G',G,'Rl_SRH',Rl_SRH, ...
@@ -106,7 +119,6 @@ framedata = struct('sol',sol,'Size',NameValueArgs.Size,'dstrbns',dstrbns,'J',J,'
     sections,'time',time,'YLims',YLims);
 
 % make title frames
-% A = imread('IonMongerLite_logo2.png');
 fig = figure('Position',[0 0 NameValueArgs.Size],'Visible','off');
 ax = axes('Position',[0 0 1 1],'Color','w','Units','normalized');
 imshow('Code/Plotting/IM_logo.png','Parent',ax,'Reduce',false)
@@ -128,14 +140,18 @@ if ~isempty(ver('parallel')) % check for parallel computing toolbox
     fprintf('\nParallel computing toolbox detected \nRendering frames on %s workers \n\n', num2str(pool.NumWorkers))
     parfor i = 1:N
         F(i) = create_frame(framedata,i);
-        fprintf('frame %s of %s \n', num2str(i),num2str(N))
+        if ~NameValueArgs.SupressOutput
+            fprintf('frame %s of %s \n', num2str(i),num2str(N))
+        end
     end
 else
     % parallel computing toolbox not installed
     fprintf('\nParallel computing toolbox not detected \nRendering frames without parallel computing \n\n')
     for i = 1:N
         F(i) = create_frame(framedata,i);
-        fprintf('frame %s of %s \n', num2str(i),num2str(N))
+        if ~NameValueArgs.SupressOutput
+            fprintf('frame %s of %s \n', num2str(i),num2str(N))
+        end
     end
 end
 
@@ -148,6 +164,15 @@ close(vid);
 
 fprintf('animation completed at %s, rendering %s frames in %ss \nvideo saved as %s.mp4 \n', ...
     datestr(now),num2str(N),num2str(toc), filename)
+
+if ~isempty(ver('images')) % check for image processing toolbox
+    str = append(filename,'.mp4');
+    vidhandle = implay(str); % play video file within MATLAB
+    play(vidhandle.DataSource.Controls)
+    vidhandle.Parent.WindowState = 'maximized'; % play in full-screen
+else
+    warning('Image processing toolbox not installed. Video will need to be opened from an external player')
+end
 
 end
 
@@ -252,15 +277,27 @@ function frame = create_frame(framedata,i)
     xlabel(ax4,'$x$ (nm)')
     ylabel(ax4,'recombination rate (m$^{-3}$s$^{-1}$)')
     
-    title(T,['$t =$ ' datestr(seconds(time(i)), 'HH:MM:SS.FFF')],...
-        'FontSize',19,'Interpreter','latex')
+    % add timestamp
+    if log10(time(end)-time(1))<-2 % if time span is small use more precise timestamp
+        prec = ceil(-log10(time(end)-time(1)))+3; % retain three significant figures
+        str = ['$t =$ ' num2str(time(i), prec) 's'];
+    else
+        str = ['$t =$ ' datestr(seconds(time(i)), 'HH:MM:SS.FFF')];
+    end
+    title(T,str,'FontSize',19,'Interpreter','latex')
     
     % legends
     leg2 = legend(ax2,'NumColumns',2,'Location','south');
+    leg2.BoxFace.ColorType='truecoloralpha';
+    leg2.BoxFace.ColorData=uint8(255*[1 1 1 0.5]'); % set transparancy
+    
     % position legend in centre of perovskite layer
     f = (-xE(1)+x(end)/2)/(-xE(1)+xH(end));
     leg2.Position(1) = ax2.Position(1) + f*ax2.Position(3)-leg2.Position(3)/2;
+    
     leg4 = legend(ax4,'NumColumns',2,'Location','south');
+    leg4.BoxFace.ColorType='truecoloralpha';
+    leg4.BoxFace.ColorData=uint8(255*[1 1 1 0.5]'); % set transparancy
     
     % set axis properties
     set(T, 'Padding', 'compact', 'TileSpacing', 'compact')
@@ -359,15 +396,27 @@ function frame = create_initial_frame(framedata)
     xlabel(ax4,'$x$ (nm)')
     ylabel(ax4,'recombination rate (m$^{-3}$s$^{-1}$)')
     
-    title(T,['$t =$ ' datestr(seconds(time(1)), 'HH:MM:SS.FFF')],...
-        'FontSize',19,'Interpreter','latex')
+    % add timestamp
+    if log10(time(end)-time(1))<-2 % if time span is small use more precise timestamp
+        prec = ceil(-log10(time(end)-time(1)))+3; % retain three significant figures
+        str = ['$t =$ ' num2str(time(1), prec) 's'];
+    else
+        str = ['$t =$ ' datestr(seconds(time(1)), 'HH:MM:SS.FFF')];
+    end
+    title(T,str,'FontSize',19,'Interpreter','latex')
     
     % legends
     leg2 = legend(ax2,'NumColumns',2,'Location','south');
+    leg2.BoxFace.ColorType='truecoloralpha';
+    leg2.BoxFace.ColorData=uint8(255*[1 1 1 0.5]'); % set transparancy
+    
     % position legend in centre of perovskite layer
     f = (-xE(1)+x(end)/2)/(-xE(1)+xH(end));
     leg2.Position(1) = ax2.Position(1) + f*ax2.Position(3)-leg2.Position(3)/2;
+    
     leg4 = legend(ax4,'NumColumns',2,'Location','south');
+    leg4.BoxFace.ColorType='truecoloralpha';
+    leg4.BoxFace.ColorData=uint8(255*[1 1 1 0.5]'); % set transparancy
     
     % set axis properties
     set(T, 'Padding', 'compact', 'TileSpacing', 'compact')
