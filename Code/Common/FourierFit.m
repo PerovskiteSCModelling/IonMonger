@@ -13,17 +13,18 @@ function fit = FourierFit(t,S,omega)
 
 % ===================== example of periodic analysis ======================
 % To analyse the 'impedance' of any periodic variable in the solution
-% structure, use and adapt the following code:
-
+% structure, use and adapt the following code. Ensure `reduced_output` is
+% set to `false` in the parameters file.
+% 
 % n = 2; % number of waves to analyse
 % 
 % for j = 1:length(sol)
-%     var = sol(j).dstrbns.phiE(:,end); % isolate a single variable as a function of time
+%     var = sol(j).dstrbns.phi(:,end); % isolate a single variable as a function of time
 %     S = var(end-n*100:end); % construct signal from n waves
-%     t = sol(j).time(end-200:end); % construct corresponding time vector
+%     t = sol(j).time(end-n*100:end); % construct corresponding time vector
 %     omega(j) = sol(j).freq; % get frequency of input
 %     fit = FourierFit(t,S,omega(j)); % fit the signal
-%     theta(j) = fit.theta; % get phase from fit
+%     theta(j) = fit.theta; % get phase from fit (some quantities will require an extra phase offset of pi)
 %     
 %     Vp = sol(1).impedance_protocol{5}; % get voltage amplitude
 %     Z(j) = Vp/fit.Sp*exp(-i*theta(j)); % create 'impedance'
@@ -36,7 +37,6 @@ function fit = FourierFit(t,S,omega)
 % grid on
 % ylabel('-X')
 % xlabel('R')
-% title(['V_{DC} = ' num2str(sol(1).impedance_protocol{4}) 'V'])
 % 
 % % Bode plot
 % figure()
@@ -45,12 +45,9 @@ function fit = FourierFit(t,S,omega)
 % semilogx(ax1,omega,-imag(Z),'x-b')
 % ax2 = nexttile;
 % semilogx(ax2,omega,real(Z),'x-b')
-% 
 % ylabel(ax1,'-X')
 % ylabel(ax2,'R')
 % xlabel(ax2,'frequency / Hz')
-% 
-% title(ax1,['V_{DC} = ' num2str(sol(1).impedance_protocol{4}) 'V'])
 % 
 % =========================================================================
 

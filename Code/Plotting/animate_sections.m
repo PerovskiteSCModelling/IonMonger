@@ -1,4 +1,4 @@
-function animate_sections(sol,sections,vidlength,filename,NameValueArgs)
+ function animate_sections(sol,sections,vidlength,filename,NameValueArgs)
 % A function to animate sections of a solution from IonMonger. `sol` is a
 % solution structure. `sections` is a vector of integers specifying which
 % sections of the protocol should be included. `length` is the length of
@@ -99,7 +99,7 @@ F(N) = struct('cdata',[],'colormap',[]);
 
 % get positive elements of G and R to set correct scales for dark
 % simulations or slightly negative rates
-GRpos = [G,R,Rl,Rr]; 
+GRpos = [G,R,Rl_bim,Rl_SRH,Rr_bim,Rr_SRH]; 
 GRpos(GRpos<=0) = nan;
 
 carriers = [P,n,nE,p,pH];
@@ -256,16 +256,18 @@ function frame = create_frame(framedata,i)
     % recombination plot
     patch(ax4,x([1,end,end,1]),YLims(4,[1,1,2,2]),'y','FaceAlpha',0.15,...
         'EdgeColor','none','HandleVisibility','off')
-    plot(ax4,x,R(i,:),'DisplayName','total recombination rate',...
+    if length(find([any(Rbim>0,'all') any(SRH>0,'all') any(Auger>0,'all')]))>1 % if more than one type of bulk recombination is present
+        plot(ax4,x,R(i,:),'DisplayName','total bulk recombination',...
         'LineWidth',3,'Color',[12,0,120]/256)
-    plot(ax4,x,Rbim(i,:),'m','DisplayName','Bimolecular','LineWidth',2)
-    plot(ax4,x,SRH(i,:),'-','DisplayName','SRH','LineWidth',2,'Color',[255,153,0]/256)
-    plot(ax4,x,Auger(i,:),'-','DisplayName','Auger','LineWidth',2,'Color',[255,25,80]/256)
+    end
+    if any(Rbim>0); plot(ax4,x,Rbim(i,:),'m','DisplayName','Bimolecular','LineWidth',2); end
+    if any(SRH>0); plot(ax4,x,SRH(i,:),'-','DisplayName','SRH','LineWidth',2,'Color',[255,153,0]/256); end
+    if any(Auger>0); plot(ax4,x,Auger(i,:),'-','DisplayName','Auger','LineWidth',2,'Color',[255,25,80]/256); end
     plot(ax4,x,G(i,:),'-','DisplayName','generation rate','LineWidth',2,'Color',[0,120,12]/256)
-    plot(ax4,x(1),Rl_SRH(i),'xb','DisplayName','left surface SRH','LineWidth',1.5,'MarkerSize',10)
-    plot(ax4,x(1),Rl_bim(i),'ob','DisplayName','left surface bim','LineWidth',1.5,'MarkerSize',10)
-    plot(ax4,x(end),Rr_SRH(i),'xr','DisplayName','right surface SRH','LineWidth',1.5,'MarkerSize',10)
-    plot(ax4,x(end),Rr_bim(i),'or','DisplayName','right surface bim','LineWidth',1.5,'MarkerSize',10)
+    if any(Rl_SRH>0); plot(ax4,x(1),Rl_SRH(i),'xb','DisplayName','left surface SRH','LineWidth',1.5,'MarkerSize',10); end
+    if any(Rl_bim>0); plot(ax4,x(1),Rl_bim(i),'ob','DisplayName','left surface bim','LineWidth',1.5,'MarkerSize',10); end
+    if any(Rr_SRH>0); plot(ax4,x(end),Rr_SRH(i),'xr','DisplayName','right surface SRH','LineWidth',1.5,'MarkerSize',10); end
+    if any(Rr_bim>0); plot(ax4,x(end),Rr_bim(i),'or','DisplayName','right surface bim','LineWidth',1.5,'MarkerSize',10); end
     
     % axis labels
     xlabel(ax1,'applied voltage (V)')
@@ -375,16 +377,18 @@ function frame = create_initial_frame(framedata)
     % recombination plot
     patch(ax4,x([1,end,end,1]),YLims(4,[1,1,2,2]),'y','FaceAlpha',0.15,...
         'EdgeColor','none','HandleVisibility','off')
-    plot(ax4,nan,nan,'DisplayName','total recombination rate',...
+    if length(find([any(Rbim>0,'all') any(SRH>0,'all') any(Auger>0,'all')]))>1 % if more than one type of bulk recombination is present
+        plot(ax4,nan,nan,'DisplayName','total bulk recombination',...
         'LineWidth',3,'Color',[12,0,120]/256)
-    plot(ax4,nan,nan,'m','DisplayName','Bimolecular','LineWidth',2)
-    plot(ax4,nan,nan,'-','DisplayName','SRH','LineWidth',2,'Color',[255,153,0]/256)
-    plot(ax4,nan,nan,'-','DisplayName','Auger','LineWidth',2,'Color',[255,25,80]/256)
+    end
+    if any(Rbim>0); plot(ax4,nan,nan,'m','DisplayName','Bimolecular','LineWidth',2); end
+    if any(SRH>0); plot(ax4,nan,nan,'-','DisplayName','SRH','LineWidth',2,'Color',[255,153,0]/256); end
+    if any(Auger>0); plot(ax4,nan,nan,'-','DisplayName','Auger','LineWidth',2,'Color',[255,25,80]/256); end
     plot(ax4,nan,nan,'-','DisplayName','generation rate','LineWidth',2,'Color',[0,120,12]/256)
-    plot(ax4,nan,nan,'xb','DisplayName','left surface SRH','LineWidth',1.5,'MarkerSize',10)
-    plot(ax4,nan,nan,'ob','DisplayName','left surface bim','LineWidth',1.5,'MarkerSize',10)
-    plot(ax4,nan,nan,'xr','DisplayName','right surface SRH','LineWidth',1.5,'MarkerSize',10)
-    plot(ax4,nan,nan,'or','DisplayName','right surface bim','LineWidth',1.5,'MarkerSize',10)
+    if any(Rl_SRH>0); plot(ax4,nan,nan,'xb','DisplayName','left surface SRH','LineWidth',1.5,'MarkerSize',10); end
+    if any(Rl_bim>0); plot(ax4,nan,nan,'ob','DisplayName','left surface bim','LineWidth',1.5,'MarkerSize',10); end
+    if any(Rr_SRH>0); plot(ax4,nan,nan,'xr','DisplayName','right surface SRH','LineWidth',1.5,'MarkerSize',10); end
+    if any(Rr_bim>0); plot(ax4,nan,nan,'or','DisplayName','right surface bim','LineWidth',1.5,'MarkerSize',10); end
     
     % axis labels
     xlabel(ax1,'applied voltage (V)')
@@ -436,4 +440,5 @@ function frame = create_initial_frame(framedata)
     close(fignum)
 
 end
+
 

@@ -38,7 +38,8 @@ for j = 1:nf
         
         Z(j) = Vp/Jp*exp(-i*theta); % output impedance in units of Ohm cm2
     catch me
-        % do nothing
+        warning(['phase analysis of frequency ' num2str(j) ' was unsuccessful'])
+            disp( getReport( me, 'extended', 'hyperlinks', 'on' ) )
     end
 end
 
@@ -48,35 +49,37 @@ X = imag(Z);
 
 % === Plot the data ===
 
-% Bode plot
-figure(96)
-T = tiledlayout(2,1);
-ax1 = nexttile;
-plot(ax1,freqs,X,'x-b')
-ax2 = nexttile;
-plot(freqs,R,'x-b')
+if ~isfield(sol(1).params,'experiment')
+    % Bode plot
+    figure(96)
+    T = tiledlayout(2,1);
+    ax1 = nexttile;
+    plot(ax1,freqs,X,'x-b')
+    ax2 = nexttile;
+    plot(freqs,R,'x-b')
 
-set(ax1,'XScale','log','TickLabelInterpreter','latex','FontSize',18,'YDir','reverse')
-set(ax2,'XScale','log','TickLabelInterpreter','latex','FontSize',18)
+    set(ax1,'XScale','log','TickLabelInterpreter','latex','FontSize',18,'YDir','reverse')
+    set(ax2,'XScale','log','TickLabelInterpreter','latex','FontSize',18)
 
-ylabel(ax1,'X / $\Omega$cm$^2$','Interpreter','latex')
-ylabel(ax2,'R / $\Omega$cm$^2$','Interpreter','latex')
-xlabel(ax2,'frequency / Hz','Interpreter','latex')
-ylim(ax2,[0 inf])
-title(ax1,['$V_{DC} =$ ' num2str(V0) 'V'],'Interpreter','latex')
+    ylabel(ax1,'X / $\Omega$cm$^2$','Interpreter','latex')
+    ylabel(ax2,'R / $\Omega$cm$^2$','Interpreter','latex')
+    xlabel(ax2,'frequency / Hz','Interpreter','latex')
+    ylim(ax2,[0 inf])
+    title(ax1,['$V_{DC} =$ ' num2str(V0) 'V'],'Interpreter','latex')
 
-T.TileSpacing = 'compact';
-drawnow;
+    T.TileSpacing = 'compact';
+    drawnow;
 
-% Nyquist plot
+    % Nyquist plot
 
-figure(97)
-plot(R,-X,'-sr')
-grid on
-set(gca,'TickLabelInterpreter','latex','FontSize',18)
-ylabel('-X / $\Omega$cm$^2$','Interpreter','latex')
-xlabel('R / $\Omega$cm$^2$','Interpreter','latex')
-title(['$V_{DC} =$ ' num2str(V0) 'V'],'Interpreter','latex')
-drawnow;
+    figure(97)
+    plot(R,-X,'-sr')
+    grid on
+    set(gca,'TickLabelInterpreter','latex','FontSize',18,'DataAspectRatio',[1 1 1])
+    ylabel('-X / $\Omega$cm$^2$','Interpreter','latex')
+    xlabel('R / $\Omega$cm$^2$','Interpreter','latex')
+    title(['$V_{DC} =$ ' num2str(V0) 'V'],'Interpreter','latex')
+    drawnow;
+end
 
 end
