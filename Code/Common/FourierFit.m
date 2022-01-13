@@ -3,9 +3,8 @@ function fit = FourierFit(t,S,omega)
 % transform. Here `t` is a time vector and `S` is the signal vector. The
 % function returns a structure, `fit` containing all the information about
 % the fitted curve and the error. Note that this function is only intended
-% to analyse signals where a signal frequency, `omega`, is present. The signal must
-% contain an integer number of complete waves, meaning the interval spanned
-% by `t` must be an integer multiple of the wave period. In IonMonger's
+% to analyse signals where a signal frequency, `omega`, is present. The
+% signal must contain an integer number of complete periods. In IonMonger's
 % output, each period comprises 100 time points, meaning N complete waves
 % should contain 100*N+1 points.
 
@@ -19,12 +18,13 @@ function fit = FourierFit(t,S,omega)
 % n = 2; % number of waves to analyse
 % 
 % for j = 1:length(sol)
-%     var = sol(j).dstrbns.phi(:,end); % isolate a single variable as a function of time
+%     % isolate a single variable as a function of time
+%     var = sol(j).dstrbns.phi(:,end);
 %     S = var(end-n*100:end); % construct signal from n waves
 %     t = sol(j).time(end-n*100:end); % construct corresponding time vector
 %     omega(j) = sol(j).freq; % get frequency of input
 %     fit = FourierFit(t,S,omega(j)); % fit the signal
-%     theta(j) = fit.theta; % get phase from fit (some quantities will require an extra phase offset of pi)
+%     theta(j) = fit.theta; % get phase from fit (some quantities may require an extra phase offset of pi)
 %     
 %     Vp = sol(1).impedance_protocol{5}; % get voltage amplitude
 %     Z(j) = Vp/fit.Sp*exp(-i*theta(j)); % create 'impedance'

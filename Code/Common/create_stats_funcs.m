@@ -5,7 +5,9 @@ function [S, Sinv, A] = create_stats_funcs(stats)
 % 'GaussFermi' and 'Blakemore'. The GaussFermi model requires
 % an extra parameter, 's', giving the dimensionless Gaussian disorder of
 % the relevent band. The Blakemore model requires an additional parameter
-% 'lim' that gives the limiting dimensionless concentration. lim = 1/gamma
+% 'lim' that gives the limiting dimensionless concentration. The outputs
+% are the statistical function S, its inverse Sinv, and the Boltzmann
+% approximation constant A.
 
 [model, Boltzmann, s, lim] = struct2array(stats, {'model', 'Boltzmann', 's', 'lim'});
 

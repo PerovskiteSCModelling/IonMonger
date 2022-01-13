@@ -4,8 +4,9 @@ function sol = IS_solver(base_params)
 % simulation. `base_params` is a parameters structure where
 % `base_params.applied_voltage` specifies an impedance protocol.
 % The iterative calls to `numericalsolver` will be performed on parallel
-% cores if the parallel computing toolbox is installed.
+% cores if the Parallel Computing Toolbox is installed.
 
+% get values from impedance protocol
 nf = base_params.applied_voltage{6}; % number of frequencies to be sampled
 min_f = base_params.applied_voltage{2}; % minimum frequency
 max_f = base_params.applied_voltage{3}; % maximum frequency
@@ -17,20 +18,26 @@ freqs = logspace(log10(min_f),log10(max_f),nf);
 fprintf('solving for steady state conditions at DC voltage \n')
 params = base_params;
 V0 = base_params.applied_voltage{4};
-t = 100; % time spent in steady state at DC voltage (s)
+t = 10; % time spent in steady state at DC voltage (s)
 params.applied_voltage = {V0,'linear',t,V0};
 
 [params.light, params.psi, params.time, params.splits, params.findVoc] = ...
-    construct_protocol(params,params.light_intensity,params.applied_voltage,params.time_spacing);
+    construct_protocol(params,params.light_intensity, ...
+    params.applied_voltage,params.time_spacing);
 
 sol = numericalsolver(params);
+dJdt = (sol.J(end)-sol.J(end-1))./(sol.time(end)-sol.time(end-1));
+if abs(dJdt)>1e-5
+    warning(['Cell may not have reached steady state before impedance ', ...
+        'measurements began']) ; end
 savestr = 'Data/DC_sol';
 save(savestr,'sol');
 
 if ~isempty(ver('parallel')) % check for parallel computing toolbox
     % parallel computing toolbox installed
     pool = gcp;
-    fprintf('\nParallel computing toolbox detected \nBeginning impedance measurements on %s workers \n\n', num2str(pool.NumWorkers))
+    fprintf(['\nParallel computing toolbox detected \nBeginning impedance ',...
+        'measurements on %s workers \n\n'], num2str(pool.NumWorkers))
     parfor j = 1:nf
         starttime = tic;
         try
@@ -40,11 +47,13 @@ if ~isempty(ver('parallel')) % check for parallel computing toolbox
             warning(['frequency ' num2str(j) ' encountered an error'])
             disp( getReport( me, 'extended', 'hyperlinks', 'on' ) )
         end
-        fprintf('frequency %s/%s solved in %ss \n',num2str(j),num2str(nf),num2str(toc(starttime)))
+        fprintf('frequency %s/%s solved in %ss \n',num2str(j),num2str(nf),...
+            num2str(toc(starttime)))
     end
 else
     % parallel computing toolbox not installed
-    fprintf('\nParallel computing toolbox not detected \nBeginning impedance measurements without parallel computing \n\n')
+    fprintf(['\nParallel computing toolbox not detected \nBeginning ',...
+        'impedance measurements without parallel computing \n\n'])
     for j = 1:nf
         starttime = tic;
         try
@@ -54,7 +63,8 @@ else
             warning(['frequency ' num2str(j) ' encountered an error'])
             disp( getReport( me, 'extended', 'hyperlinks', 'on' ) )
         end
-        fprintf('frequency %s/%s solved in %ss \n',num2str(j),num2str(nf),num2str(toc(starttime)))
+        fprintf('frequency %s/%s solved in %ss \n',num2str(j),num2str(nf),...
+            num2str(toc(starttime)))
     end
 end
 
@@ -123,7 +133,8 @@ function sol = IS_measurement(params,freq,savestr)
     
     % replace the experimental protocol
     [params.light, params.psi, params.time, params.splits, params.findVoc] = ...
-    construct_protocol(params,params.light_intensity,params.applied_voltage,params.time_spacing);
+    construct_protocol(params,params.light_intensity,params.applied_voltage,...
+        params.time_spacing);
     
     params.splits = [params.splits(1), params.splits(end)]; % avoid making separate calls to solver
 

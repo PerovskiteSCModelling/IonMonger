@@ -6,11 +6,14 @@
 % name the final file when saving. The optional Name-Value pair arguments
 % `FrameRate` and `Size` can be used to specify the frame rate in fps and
 % the size of the image in pixels. Defaults are 30fps and 1920x1080p
-% resolution. If 
+% resolution. If the Image Processing Toolbox is installed, the video will
+% automatically play in the built-in player. Otherwise, an external player
+% will be required. If the Parallel Computing Toolbox is installed, frames
+% will be rendered on parallel workers.
 
 % For example, to make a 5 second video of the reverse and forward sweeps
 % after a preconditioning stage and save as 'sweep_animation' in the folder
-% 'Videos', type `animate_sections(sol,[2:3],5,'Videos\sweep_animation')`
+% 'Videos', type `animate_sections(sol,[2,3],5,'Videos\sweep_animation')`
 % into the command window.
 
 % check optional Name-Value arguments
@@ -29,7 +32,7 @@ if size(sol,2)>1
     % recieved structure array from IS simulation
     error(['animate_sections was given a solution structure array from an ' ...
     'impedance spectroscopy simulation. To use animate_sections for the n-th '...
-    'sample frequency solution, use `plot_sections(sol(n),...)`'])
+    'sample frequency solution, use `animate_sections(sol(n),...)`'])
 elseif isfield(sol,'X')
     % recieved reduced solution structure from IS simulation
     error(['animate_sections was given a reduced solution structure from an ' ...
@@ -40,6 +43,7 @@ end
 tic;
 
 if isempty(sections)
+    % if sections is empty, all sections will be included
     sections = [1:(length(sol.time)-1)/100];
 end
     
@@ -64,7 +68,7 @@ open(vid);
 % indices of the start and end points
 ind = (100*(sections(1)-1)+1):(100*(sections(end))+1);
 
-% construct vector of frame times
+% construct vector of frame times, linearly spaced
 time = linspace(sol.time(ind(1)),sol.time(ind(end)),N);
 
 % unpack necessary variables
@@ -88,7 +92,7 @@ phiH = interp1(sol.time,sol.dstrbns.phiH,time);
 J = interp1(sol.time,sol.J,time);
 V = interp1(sol.time,sol.V,time);
 
-% calculate recombination rates
+% calculate dimensional recombination rates
 R = sol.params.R(n/(dE*kE),p/(dH*kH),P/N0)*G0;
 Rbim = (brate*(n/(dE*kE).*p/(dH*kH)-ni2))*G0;
 SRH = sol.params.SRH(n/(dE*kE),p/(dH*kH),gamma,ni2,tor,tor3)*G0;
@@ -123,13 +127,15 @@ YLims = [-2, ceil(max(J)/5)*5;
     min([phiE,phi,phiH],[],'all')-0.1, max([phiE,phi,phiH],[],'all');
     10.^(floor(min(log10(GRpos),[],'all')/2)*2), 10.^(ceil(max(log10(GRpos),[],'all')/2)*2)];
 
-        
+playbackspeed = (time(end)-time(1))/(vidlength);
+
 % package up all the data necessary to create a frame
 dstrbns = struct('P',P,'phi',phi,'n',n,'p',p,'phiE',phiE,'nE',nE,'phiH',phiH,...
     'pH',pH,'R',R,'Rbim',Rbim,'SRH',SRH,'Auger',Auger,'G',G,'Rl_SRH',Rl_SRH, ...
     'Rl_bim',Rl_bim,'Rr_SRH',Rr_SRH,'Rr_bim',Rr_bim);
-framedata = struct('sol',sol,'Size',NameValueArgs.Size,'dstrbns',dstrbns,'J',J,'V',V,'Rl',Rl,'Rr',Rr,'sections',...
-    sections,'time',time,'YLims',YLims);
+framedata = struct('sol',sol,'Size',NameValueArgs.Size,'dstrbns',dstrbns, ...
+    'J',J,'V',V,'Rl',Rl,'Rr',Rr,'sections',sections,'time',time,'YLims', ...
+    YLims,'playbackspeed',playbackspeed);
 
 % make title frames
 fig = figure('Position',[0 0 NameValueArgs.Size],'Visible','off');
@@ -191,8 +197,8 @@ end
 
 function frame = create_frame(framedata,i)
     % unpack data
-    [sections,time,J,V,YLims,sol,Rl,Rr,Size] = struct2array(framedata,{'sections','time','J','V','YLims','sol','Rl', ...
-        'Rr','Size'});
+    [sections,time,J,V,YLims,sol,Rl,Rr,Size,playbackspeed] = struct2array(framedata,{'sections','time','J','V','YLims','sol','Rl', ...
+        'Rr','Size','playbackspeed'});
     [xE,x,xH] = struct2array(sol.vectors,{'xE','x','xH'});
     [P,phi,n,p,phiE,nE,phiH,pH,R,Rbim,SRH,Auger,G,Rl_SRH,Rl_bim,Rr_SRH, ...
         Rr_bim] = struct2array(framedata.dstrbns,{'P','phi','n','p','phiE', ...
@@ -293,13 +299,21 @@ function frame = create_frame(framedata,i)
     ylabel(ax4,'recombination rate (m$^{-3}$s$^{-1}$)')
     
     % add timestamp
-    if log10(time(end)-time(1))<-2 % if time span is small use more precise timestamp
+    if log10(time(end)-time(1))<-1 % if time span is small use more precise timestamp
         prec = ceil(-log10(time(end)-time(1)))+3; % retain three significant figures
         str = ['$t =$ ' num2str(time(i), prec) 's'];
     else
         str = ['$t =$ ' datestr(seconds(time(i)), 'HH:MM:SS.FFF')];
     end
     title(T,str,'FontSize',19,'Interpreter','latex')
+    txt = annotation(fig,'textbox', [0.8, 0.9, 0.1, 0.1],...
+        'String', ['playing at $\times$' num2str(playbackspeed,3) ' speed'],...
+        'Interpreter','latex',...
+        'FontSize',18,...
+        'FitBoxToText','on',...
+        'EdgeColor','none',...
+        'HorizontalAlignment','right');
+    txt.Position(1) = 0.95 - txt.Position(3);
     
     % legends
     leg2 = legend(ax2,'NumColumns',2,'Location','south');
@@ -362,7 +376,6 @@ function frame = create_initial_frame(framedata)
     box(ax3,'on')
     box(ax4,'on')
     
-    
     % carrier densities plot
     patch(ax2,xE([1,end,end,1]),YLims(2,[1,1,2,2]),'b','FaceAlpha',0.15,...
         'EdgeColor','none','DisplayName','ETL')
@@ -414,7 +427,7 @@ function frame = create_initial_frame(framedata)
     ylabel(ax4,'recombination rate (m$^{-3}$s$^{-1}$)')
     
     % add timestamp
-    if log10(time(end)-time(1))<-2 % if time span is small use more precise timestamp
+    if log10(time(end)-time(1))<-1 % if time span is small use more precise timestamp
         prec = ceil(-log10(time(end)-time(1)))+3; % retain three significant figures
         str = ['$t =$ ' num2str(time(1), prec) 's'];
     else

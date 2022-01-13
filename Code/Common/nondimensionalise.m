@@ -14,27 +14,26 @@ function params = nondimensionalise(params)
     'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim', 'EfE', 'EfH',...
     'Verbose'});
 
-% Unpack statistical models
+% Check for  statistical models
 if ~isfield(stats, 'ETL')
     stats.ETL.model = 'FermiDirac';
-    stats.ETL.Boltzmann = true;
-end
+    stats.ETL.Boltzmann = true ; end
 if ~isfield(stats, 'HTL')
     stats.HTL.model = 'FermiDirac';
-    stats.HTL.Boltzmann = true;
-end
+    stats.HTL.Boltzmann = true ; end
 stats.P.model = 'Blakemore';
-if isempty(Plim) | Plim == inf
+if isempty(Plim) || Plim == inf
     % if there is no ion limitation, use Boltzmann for efficiency
     stats.P.Boltzmann = true;
     stats.P.lim = nan;
 else
     stats.P.Boltzmann = false;
-    stats.P.lim = Plim/N0;
+    stats.P.lim = Plim/N0; % dimensionless vacancy density limit
 end
-if Plim <= N0
-    error('Limiting ion density must be greater than typical ion density')
-end 
+if Plim <= N0, error(['Limiting ion density must be greater than typical '...
+        'ion density']) ; end 
+
+% Create statistical functions
 [SE, SEinv, AE] = create_stats_funcs(stats.ETL);
 [SH, SHinv, AH] = create_stats_funcs(stats.HTL);
 [~,SPinv,~] = create_stats_funcs(stats.P);
@@ -101,13 +100,10 @@ pc = gvH*SH((EvH-Ean)/VT)/dH; % non-dim. hole density at anode interface
 % Check for Auger recombination parameters
 if isempty(Augn) || isempty(Augp)
     [Augn, Augp] = deal(0); % no Auger recombination
-    warning('NoAuger:WarnID', ['The parameters for Auger recombination (Augn and Augp) have not' ...
-        ' been specified in the parameters file, so they have been set to zero.'])
+    warning('NoAuger:WarnID', ['The parameters for Auger recombination ',...
+        '(Augn and Augp) have not been specified in the parameters file, ',...
+        'so they have been set to zero.'])
 end
-
-% disp('replacing recombination parameters')
-% tn = b/(params.Rtot*(1/(dE*kE)+params.tau_rat/(dH*kH)));
-% tp = params.tau_rat*tn;
 
 % Bulk recombination parameters
 ni2   = ni^2/(n0*p0);  % non-dim. n_i^2
@@ -192,7 +188,7 @@ Rsp = Rs/Rp; % ratio between series and parallel/shunt resistance
 
 
 if ~isfield(params, 'phidisp') % check for electric potential displacement 
-    phidisp = 100; % set to default value (100)
+    phidisp = 100; % set to default value
 end
 
 % Compile all parameters into the params structure

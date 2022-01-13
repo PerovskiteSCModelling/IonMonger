@@ -1,11 +1,11 @@
 function [J, Jl, Jr, Jd] = calculate_currents(params,vectors,dstrbns)
 % This function computes the values of the total current density J, the
 % current density lost to recombination across the ETL/perovskite interface
-% Jl, and the current density lost to recombination across the
-% perovskite/HTL interface Jr. The inputs are structures containing the
-% input paramters, spatial vectors and solution variables. The outputs are
-% three column vectors containing the dimensionless values of J, Jl and Jr
-% at each point in time.
+% Jl, the current density lost to recombination across the perovskite/HTL
+% interface Jr, and the displacement current Jd. The inputs are structures
+% containing the input paramters, spatial vectors and solution variables.
+% The outputs are three column vectors containing the dimensionless values
+% of J, Jl, Jr and Jd at each point in time.
 
 % Unpack relevant parameters, vectors and solution variables
 [N, time, Kn, Kp, dpt, dpf, Rl, Rr, ARp, NE] ...
@@ -41,6 +41,7 @@ J = Jn+Jp-Jd-Jf-Js;
 Jl = -Rl(nE(TT,NE+1),p(TT,1)); % (negative) current density loss at ETL interface
 Jr = -Rr(n(TT,N+1),pH(TT,1)); % (negative) current density loss at HTL interface
 
+% Change sign of displacement current
 Jd = -Jd;
 
 end

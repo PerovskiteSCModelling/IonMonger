@@ -20,7 +20,8 @@ else
         [X,R,freqs] = struct2array(sol,{'X','R','freqs'});
     else
         % recieved non-impedance solution structure
-        error('plot_IS was given a solution structure that was not from an impedance simulation.')
+        error(['plot_IS was given a solution structure that was not from ',...
+            'an impedance simulation.'])
     end
 end
 
@@ -34,7 +35,8 @@ plot(ax1,freqs,X,'x-b')
 ax2 = nexttile;
 plot(freqs,R,'x-b')
 
-set(ax1,'XScale','log','TickLabelInterpreter','latex','FontSize',18,'YDir','reverse')
+set(ax1,'XScale','log','TickLabelInterpreter','latex','FontSize',18,...
+    'YDir','reverse')
 set(ax2,'XScale','log','TickLabelInterpreter','latex','FontSize',18)
 
 ylabel(ax1,'X / $\Omega$cm$^2$','Interpreter','latex')

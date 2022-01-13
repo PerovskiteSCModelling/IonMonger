@@ -6,7 +6,6 @@ function solution = numericalsolver(params)
 % re-dimensionalises the solution variables and finally outputs a structure
 % containing both the output and the input.
 
-
 %% Carry out the solution procedure
 
 % Start stopwatch

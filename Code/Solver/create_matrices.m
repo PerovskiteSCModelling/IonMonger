@@ -13,11 +13,14 @@ dudt = spalloc(4*N+2*NE+2*NH+6,1,4*N+2*NE+2*NH+6);
 Av = gallery('tridiag',N+1,0,1,1)/2; Av = Av(1:N,1:N+1);
 AvE = gallery('tridiag',NE+1,0,1,1)/2; AvE = AvE(1:NE,1:NE+1);
 AvH = gallery('tridiag',NH+1,0,1,1)/2; AvH = AvH(1:NH,1:NH+1);
-Lo = gallery('tridiag',N+1,[dx(1:end-1)/6; 0],[0; (dx(1:end-1)+dx(2:end))/3; 0],[0; dx(2:end)/6]);
+Lo = gallery('tridiag',N+1,[dx(1:end-1)/6; 0],[0; (dx(1:end-1)+...
+    dx(2:end))/3; 0],[0; dx(2:end)/6]);
 Lo = Lo(2:N,1:N+1);
-LoE = gallery('tridiag',NE+1,[dxE(1:end-1)/6; 0],[0; (dxE(1:end-1)+dxE(2:end))/3; 0],[0; dxE(2:end)/6]);
+LoE = gallery('tridiag',NE+1,[dxE(1:end-1)/6; 0],[0; (dxE(1:end-1)+...
+    dxE(2:end))/3; 0],[0; dxE(2:end)/6]);
 LoE = LoE(2:NE,1:NE+1);
-LoH = gallery('tridiag',NH+1,[dxH(1:end-1)/6; 0],[0; (dxH(1:end-1)+dxH(2:end))/3; 0],[0; dxH(2:end)/6]);
+LoH = gallery('tridiag',NH+1,[dxH(1:end-1)/6; 0],[0; (dxH(1:end-1)+...
+    dxH(2:end))/3; 0],[0; dxH(2:end)/6]);
 LoH = LoH(2:NH,1:NH+1);
 
 % Define differencing matrices

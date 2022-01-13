@@ -16,6 +16,10 @@ function [light, psi, time, splits, findVoc] = ...
 % are specified, they must describe the same length of time. The outputs of
 % the function are two functions of time (light and psi), two vectors of
 % time points (time and splits) and the option whether to first findVoc.
+% To create an impedance protocol, begin the applied_voltage cell with the
+% string 'impedance', followed by the necessary protocol parameters (see
+% user guide). In this case, the function will return a dummy protocol for
+% a 1Hz impedance measurement for plotting purposes. 
 
 % Parameter input
 [Vbi, t2tstar, Vap2psi] = struct2array(params, {'Vbi','t2tstar','Vap2psi'});
@@ -24,13 +28,14 @@ if strcmp(applied_voltage{1},'impedance')
     % If the protocol is an impedance spectrum, create a dummy input for
     % plotting if Verbose
     
-    V0 = applied_voltage{4};
-    Vp = applied_voltage{5};
-    t = 10; % time spent in steady state (for plotting only)
-    n = applied_voltage{7};
-    applied_voltage = {V0,'tanh',t,V0};
+    V0 = applied_voltage{4}; % DC voltage
+    Vp = applied_voltage{5}; % AC voltage amplitude
+    t = 10; % time spent in steady state (s)
+    n = applied_voltage{7}; % number of periods to simulate
+    applied_voltage = {V0,'tanh',t,V0}; % protocol for steady state
     freq = 1; % example frequency (Hz)
     for i = 1:n
+        % add n sin functions to the protocol
         applied_voltage{end+1} = 'sin';
         applied_voltage{end+1} = 1/freq;
         applied_voltage{end+1} = V0+Vp;
@@ -41,21 +46,26 @@ end
 if length(applied_voltage)>1 & ~ischar(applied_voltage{2})
     % If second entry is not a character vector, the initial voltage has
     % been omitted
-
     if isfield(params,'input_filename')
         % check for specified initial conditions
         load(params.input_filename)
+        
+        % add the saved voltage to the beginning of the protocol
         applied_voltage = {sol.V(end), applied_voltage{:}}; 
     else
-        error('applied_voltage did not specify an initial voltage and no specified initial distribution has been found.')
+        error(['applied_voltage did not specify an initial voltage and '...
+            'no specified initial distribution has been found.'])
     end
 else
     if isfield(params,'input_filename')
         % initial voltage has been specified but an initial distribution
         % has also been specified
-        warning('Initial voltage was specified in applied_voltage but a saved initial distribution has also been specified. This value will override the initial voltage.')
+        warning(['Initial voltage was specified in applied_voltage but a ' ...
+            'saved initial distribution has also been specified. This ' ...
+            'value will override the initial voltage.'])
         load(params.input_filename)
-        applied_voltage{1} = sol.V(end); 
+        % replace initial voltage with saved voltage 
+        applied_voltage{1} = sol.V(end); % replace initial voltage with saved voltage 
     end
 end
 
@@ -199,10 +209,11 @@ out = V_start+(V_end-V_start).* ...
     (0.5-0.5.*cos(pi*(t-t_start)./(t_end-t_start)));
 end
 
-function out = part_sin(t, t_start, t_end, V_start, V_end)
-% Uses the sin function between V_start+V_end and V_start-V_end in a
-% single sinusoid between t_start and t_end
-out = V_start+(V_end-V_start).* ...
+function out = part_sin(t, t_start, t_end, V_start, V_max)
+% Uses the sin function between V_max and V_start-(V_max-V_start) in a
+% single sinusoid between t_start and t_end.
+% Note that V_end has been replaced by V_max.
+out = V_start+(V_max-V_start).* ...
     sin(2*pi*(t-t_start)/(t_end-t_start));
 end
 
