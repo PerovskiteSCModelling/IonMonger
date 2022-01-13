@@ -2,6 +2,19 @@ function plot_recombination(sol)
 % Plots the rates of different types of bulk recombination as functions of
 % time and space.
 
+% check sol structure
+if size(sol,2)>1
+    % recieved structure array from IS simulation
+    error(['plot_recombination was given a solution structure array from an ' ...
+    'impedance spectroscopy simulation. To use plot_recombination for the n-th '...
+    'sample frequency solution, use `plot_sections(sol(n),...)`'])
+elseif isfield(sol,'X')
+    % recieved reduced solution structure from IS simulation
+    error(['plot_recombination was given a reduced solution structure from an ' ...
+    'impedance spectroscopy simulation. To use plot_recombination with an IS ' ...
+    'solution, ensure reduced_output=false'])
+end
+
 % Retrieve the nondimensional parameter values and recombination functions
 [G0, dE, dH, N0, brate, ni2, gamma, tor, tor3, Cn, Cp, R, SRH, Auger, jay] = ...
 	struct2array(sol.params, {'G0','dE','dH','N0','brate','ni2','gamma', ...

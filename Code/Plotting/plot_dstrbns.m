@@ -4,6 +4,19 @@ function plot_dstrbns(sol,plotindex)
 % desired points in sol.time (for example, plotindex = [1,101,201,301]),
 % and the current density and interfacial recombination losses over time.
 
+% check sol structure
+if size(sol,2)>1
+    % recieved structure array from IS simulation
+    error(['plot_dstrbns was given a solution structure array from an ' ...
+    'impedance spectroscopy simulation. To use plot_dstrbns for the n-th '...
+    'sample frequency solution, use `plot_sections(sol(n),...)`'])
+elseif isfield(sol,'X')
+    % recieved reduced solution structure from IS simulation
+    error(['plot_dstrbns was given a reduced solution structure from an ' ...
+    'impedance spectroscopy simulation. To use plot_dstrbns with an IS ' ...
+    'solution, ensure reduced_output=false'])
+end
+
 % Retrieve the nondimensional parameter values
 [kE, kH] = struct2array(sol.params, {'kE','kH'});
 

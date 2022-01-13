@@ -63,12 +63,12 @@ for j = 1:length(sols)
     sols(j).freq = freqs(j);
 end
 
-% analyse output
-[X,R] = impedance_analysis(sols);
-
 %% decide what information to retain in the impedance sol structure
 
 if base_params.reduced_output
+    [X,R] = impedance_analysis(sols);
+    
+    % extract the steady state DC distributions
     dstrbns = struct('P',sol.dstrbns.P(end,:), ...
         'phi',sol.dstrbns.phi(end,:), ...
         'n',sol.dstrbns.n(end,:), ...
@@ -91,6 +91,7 @@ if base_params.reduced_output
         'R',R, ...
         'X',X);
 else
+    % retain all information
     sol = sols;
 end
 

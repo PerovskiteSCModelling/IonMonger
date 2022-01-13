@@ -5,6 +5,19 @@ function plot_sections(sol,sections)
 % correspond to the reverse and forward scans of a J-V curve (e.g. [2,3]).
 % See GUIDE.md for notes on constructing a suitable simulation protocol.
 
+% check sol structure
+if size(sol,2)>1
+    % recieved structure array from IS simulation
+    error(['plot_sections was given a solution structure array from an ' ...
+    'impedance spectroscopy simulation. To use plot_sections for the n-th '...
+    'sample frequency solution, use `plot_sections(sol(n),...)`'])
+elseif isfield(sol,'X')
+    % recieved reduced solution structure from IS simulation
+    error(['plot_sections was given a reduced solution structure from an ' ...
+    'impedance spectroscopy simulation. To use plot_sections with an IS ' ...
+    'solution, ensure reduced_output=false'])
+end
+
 % Parameter input
 [J, V, Jl, Jr] = struct2array(sol,{'J','V','Jl','Jr'});
 

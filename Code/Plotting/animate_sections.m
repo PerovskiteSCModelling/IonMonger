@@ -24,6 +24,19 @@ arguments
     NameValueArgs.SupressOutput = false;
 end
 
+% check sol structure
+if size(sol,2)>1
+    % recieved structure array from IS simulation
+    error(['animate_sections was given a solution structure array from an ' ...
+    'impedance spectroscopy simulation. To use animate_sections for the n-th '...
+    'sample frequency solution, use `plot_sections(sol(n),...)`'])
+elseif isfield(sol,'X')
+    % recieved reduced solution structure from IS simulation
+    error(['animate_sections was given a reduced solution structure from an ' ...
+    'impedance spectroscopy simulation. To use animate_sections with an IS ' ...
+    'solution, ensure reduced_output=false'])
+end
+
 tic;
 
 if isempty(sections)
