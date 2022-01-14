@@ -1,5 +1,7 @@
 # User Guide for IonMonger
 
+This guide explains how to use IonMonger by editing a parameters.m file and running simulations and analysis from the command window. Users without any MATLAB knowledge can alternatively use IonMonger Lite, a live scipt that serves as an interface to run current-voltage sweep and impedance spectroscopy simulations without the need to edit raw code. Note that IonMonger Lite cannot offer the flexibility or functionality of the full version.
+
 ## Contents
 
 - Quick Start Guide
@@ -19,7 +21,7 @@
 
 # Quick Start Guide
 
-This code can be used to simulate the internal state and current-voltage behaviour of a three-layer planar perovskite solar cell. The computed variables are the ion vacancy density, the electric potential and the charge carrier (electron and hole) concentrations.
+This code can be used to simulate the internal state, current-voltage behaviour, and impedance spectra of a three-layer planar perovskite solar cell. The computed variables are the ion vacancy density, the electric potential and the charge carrier (electron and hole) concentrations.
 
 An example solution may be obtained and plotted using the following procedure.
 
@@ -124,12 +126,12 @@ To describe a more complex experimental protocol, the user can generate their ow
 
 It is also possible to use this code to simulate open-circuit conditions. To simulate a cell that is kept at open-circuit throughout a measurement, the value of the `applied_voltage` (if using construct_protocol.m) must be set equal to `{'open-circuit'}`. In this case, a protocol for the light intensity must be specified, e.g. one can use `{1, 'linear', 1, 1}` for constant illumination for 1 second.
 
-The only mathematical modification required to model open-circuit conditions is to replace the boundary conditions on the electric potential at the metal contacts (all other equations and boundary conditions remain the same) as described in the release paper. These modifications are contained within three scripts in the Code/Solver folder, namely Jac.m, mass_matrix.m and RHS.m.
+The only mathematical modification required to model open-circuit conditions is to replace the boundary conditions on the electric potential at the metal contacts (all other equations and boundary conditions remain the same) as described in the release paper. These modifications are contained within four scripts in the Code/Solver folder, namely Jac.m, AnJac.m, mass_matrix.m and RHS.m.
 
 
 ## How to Model Impedance Spectroscopy Measurements
 
-Users can perform impedance spectroscopy simulations by changing the voltage protocol in the parameters file. If the first entry in `applied_voltage` is set to `'impedance'`, `master.m` will call `IS_solver.m`, which automatically creates the sinusoidal voltage protocol for each sample frequency and calls `numericalsolver.m` to obtain the solution. `applied_voltage` requires several more entries (all floating point numbers) to specify the bounds of the impedance measurements. These are, in order, the smallest sample frequency (Hz); the largest sample frequency (Hz); the DC applied voltage (V); the AC applied voltage amplitude (V); the number of frequencies to sample (must be a non-negative integer); the number of complete sine waves to apply at each frequency.
+Users can perform impedance spectroscopy simulations by changing the voltage protocol in the parameters file. If the first entry in `applied_voltage` is set to `'impedance'`, `master.m` will call `IS_solver.m`, which simulates the cell in steady state at the DC voltage, and then automatically creates the sinusoidal voltage protocol for each sample frequency and calls `numericalsolver.m` to obtain the solution. `applied_voltage` requires several more entries (all floating point numbers) to specify the bounds of the impedance measurements. These are, in order, the smallest sample frequency (Hz); the largest sample frequency (Hz); the DC applied voltage (V); the AC applied voltage amplitude (V); the number of frequencies to sample (must be a non-negative integer); the number of complete sine waves to apply at each frequency.
 For example, to make 70 impedance measurements at frequencies between 1mHz and 1MHz, with a DC voltage of 0.8V, AC perturbations of amplitude 20mV and performing 6 complete sine waves at each frequency:
 ```
 applied_voltage = {'impedance', ...
@@ -140,29 +142,37 @@ applied_voltage = {'impedance', ...
     70, ...     % number of frequencies to sample
     6};         % number of sine waves
 ```
-The sample frequencies will be logarithmically spaced between the minimum and maximum frequencies. Once all frequencies have been simulated, `impedance_analysis.m` will analyse the phase of the current output and plot all the data on both a Nyquist plot and a Bode plot.
+The sample frequencies will be logarithmically spaced between the minimum and maximum frequencies.
 
 It is recommended that users maintain a constant light intensity throughout impedance measurements. For example, `light_intensity = {1}` for 1 Sun equivalent light intensity throughout.
 
-By default, `IS_solver.m` will return a 1xN structure array where N is the number of sample frequencies and each entry of the structure array contains the full solution structure of the corresponding simulation. To extract the imaginary and real parts of the impedance from this structure array, use `[X,R] = impedance_analysis(sol)`. This approach can however cause excessively large file sizes. To avoid this, the user can set `reduced_output = true` in the parameter file. The `sol` structure created by `master.m` will in this case contain only the fields `params`, containing the input parameters, `freqs`, containing a list of the sample frequencies, and `X` and `R`, being the imaginary and real parts of the impedance, respectively.
-
+For more information about how to analyse impedance spectra, see the section titled 'How to Analyse the Ouput'.
 
 
 ## How to Change the Statistical Models of Carriers in the Transport Layers
 
-Users can choose to emply degenerate statistical models to carriers in the transport layers, where carrier densities often become high enough that the Boltzmann approximation is innaccurate. The `stats` structure in the parameters file contains all the information necessary to construct the statistical models. This structure has two fields, `ETL` and `HTL`. If either of these fields are missing, the statistical model in that region will be automatically set to be the Boltzmann approximation to Fermi-Dirac statistics and the transport model will be unchanged from v1.4 of IonMonger. To apply a specific statistical model in one of the transport layers, the corresponding field of `stats` must have the field `model` and the field `Boltzmann`. `model` determines which statistical model should be employed. The currently support models are `'FermiDirac'`, `'GaussFermi'`, and `'Blakemore'`. `Boltzmann` can be set to `true` to use the Boltzmann approximation to the statistical model in question or `false` to use the full degenerate model. The Gauss-Fermi model also requires the field `s`, giving the level of Gaussian disorder in units of eV. The Blakemore model requires the additional field `lim` giving the (dimensionless) limiting concentration. If the Blakemore statistical function is written as B(x) = 1/(exp(-x) + gamma), then lim=1/gamma.
+Users can choose to emply degenerate statistical models to carriers in the transport layers, where carrier densities often become high enough that the Boltzmann approximation is innaccurate. The `stats` structure in the parameters file contains all the information necessary to construct the statistical models. This structure has two fields, `ETL` and `HTL`. If either of these fields are missing, the statistical model in that region will be automatically set to be the Boltzmann approximation to Fermi-Dirac statistics and the transport model will be unchanged from v1.4 of IonMonger. To apply a specific statistical model in one of the transport layers, the corresponding field of `stats` must have the field `model` and the field `Boltzmann`. `model` determines which statistical model should be employed. The currently supported models are `'FermiDirac'`, `'GaussFermi'`, and `'Blakemore'`. `Boltzmann` can be set to `true` to use the Boltzmann approximation to the statistical model in question or `false` to use the full degenerate model. The Gauss-Fermi model also requires the field `s`, giving the level of Gaussian disorder in units of eV. The Blakemore model requires the additional field `lim` giving the (dimensionless) limiting concentration. If the Blakemore statistical function is written as B(x) = 1/(exp(-x) + gamma), then lim=1/gamma.
 
 
 # How to Analyse the Ouput
 
-The solution is saved in dimensional form into one output file. This output .mat file takes the form of a structure called `sol` that contains:
+The solution is saved in dimensional form into one output file. This output .mat file takes the form of a structure called `sol`. There are three possible forms of the `sol` structure, depending on the simulation protocol. For transient simulations, `sol` contains:
 - the `vectors` structure, containing column vectors `x`, `dx`, `xE`, `dxE`, `xH` and `dxH`
 - the `params` structure, containing all input and calculated parameters
 - the `dstrbns` structure, containing `P`, `phi`, `n`, `p`, `phiE`, `nE`, `phiH` and `pH` (note that each variable is stored in the form P(t,x) and the command `surf(sol.vectors.x,sol.time,sol.dstrbns.P);` plots the whole evolution)
-- the `time`, `V`, `J`, `Jl`, `Jr` vectors of the same length
+- the `time`, `V`, `J`, `Jl`, `Jr`, `Jd` vectors of the same length
 - the `timetaken` for the simulation
 
-The user must then choose how to analyse or plot the data. One example plotting function, called plot_JV.m, can be found in the Code/Plotting folder. In order to perform an identical analysis at the end of every simulation, the user can add commands to the completion_tasks.m function, which can be found in the Code/Common folder.
+For impedance spectroscopy simulations, `sol` is a structure array, where each structure is the full solution structure for a single frequency measurement, with the additional field `impedance_protocol`, the cell containing the parameters of the impedance protocol as `params.applied_voltage` will be replaced for each frequency with a sinusoidal voltage protocol. The frequency of the n-th simulation can be found by `1/sol(n).params.applied_voltage{2}`.
+
+When taking a large number of sample frequencies, the solution structure array can become a large file, with much of the data being unnecessary. To reduce the size of the solution, set `reduced_output` to `true` in the parameters file. In this case, `IS_solver.m` will perform the impedance analysis and discard most of the data before returning the solution. In this case, `sol` is a single structure that contains:
+- the `vectors` structure, containing column vectors `x`, `dx`, `xE`, `dxE`, `xH` and `dxH`
+- the `params` structure, containing all input and calculated parameters
+- the `dstrbns` structure, containing the steady state solutions of `P`, `phi`, `n`, `p`, `phiE`, `nE`, `phiH` and `pH` at the DC voltage. (note that each variable is stored in the form P(x) and the command `plot(sol.vectors.x,sol.dstrbns.P);` plots the distribution)
+- the `J`, `Jl`, `Jr` values in steady state at the DC voltage.
+- the vectors `freqs`, `R`, and `X`, containing the frequency, and the real and imaginary parts of the impedance, respectively, for each sample frequency.
+
+The user must then choose how to analyse or plot the data. One example plotting function, called plot_sections.m, can be found in the Code/Plotting folder. Any solution of an impedance spectroscopy can be given to `plot_IS.m` to generate Nyquist and Bode plots as well as any user-defined plots. In order to perform an identical analysis at the end of every simulation, the user can add commands to the completion_tasks.m function, which can be found in the Code/Common folder.
 
 
 # Common Errors

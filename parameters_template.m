@@ -151,15 +151,15 @@ applied_voltage = ...
     'linear', 1.2/1e-1, 1.2 % forward scan
     };
 
-% applied_voltage = {'impedance', ...
-%     1e-4, ...   % minimum impedance frequency (Hz)
-%     1e7, ...    % maximum impedance frequency (Hz)
-%     0.9, ...  	% DC voltage (V)
-%     20e-3, ...  % AC voltage amplitude (V)
-%     60, ...     % number of frequencies to sample
-%     5};         % number of sine waves
+applied_voltage = {'impedance', ...
+    1e-4, ...   % minimum impedance frequency (Hz)
+    1e7, ...    % maximum impedance frequency (Hz)
+    0.9, ...  	% DC voltage (V)
+    20e-3, ...  % AC voltage amplitude (V)
+    60, ...     % number of frequencies to sample
+    5};         % number of sine waves
 
-reduced_output = false; % set to true to reduce the amount of data retained ...
+reduced_output = true; % set to true to reduce the amount of data retained ...
 % in impedance simulations
 
 % Choose whether the time points are spaced linearly or logarithmically
