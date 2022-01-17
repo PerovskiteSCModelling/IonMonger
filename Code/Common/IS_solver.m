@@ -8,18 +8,18 @@ function sol = IS_solver(base_params)
 
 % get values from impedance protocol
 nf = base_params.applied_voltage{6}; % number of frequencies to be sampled
-min_f = base_params.applied_voltage{2}; % minimum frequency
-max_f = base_params.applied_voltage{3}; % maximum frequency
+fmin = base_params.applied_voltage{2}; % minimum frequency
+fmax = base_params.applied_voltage{3}; % maximum frequency
+V0 = base_params.applied_voltage{4};
 
 % contruct the list of sample frequencies, logarithmically spaced
-freqs = logspace(log10(min_f),log10(max_f),nf);
+freqs = logspace(log10(fmin),log10(fmax),nf);
 
 % find steady state at the DC voltage
 fprintf('solving for steady state conditions at DC voltage \n')
 params = base_params;
-V0 = base_params.applied_voltage{4};
 t = 10; % time spent in steady state at DC voltage (s)
-params.applied_voltage = {V0,'linear',t,V0};
+params.applied_voltage = {V0,'linear',t,V0}; % steady state protocol
 
 [params.light, params.psi, params.time, params.splits, params.findVoc] = ...
     construct_protocol(params,params.light_intensity, ...
@@ -30,7 +30,8 @@ dJdt = (sol.J(end)-sol.J(end-1))./(sol.time(end)-sol.time(end-1));
 if abs(dJdt)>1e-5
     warning(['Cell may not have reached steady state before impedance ', ...
         'measurements began']) ; end
-savestr = 'Data/DC_sol';
+
+savestr = [base_params.workfolder, 'DC_sol'];
 save(savestr,'sol');
 
 if ~isempty(ver('parallel')) % check for parallel computing toolbox
@@ -70,7 +71,6 @@ end
 
 for j = 1:length(sols)
     sols(j).impedance_protocol = base_params.applied_voltage; % retain overall protocol
-    sols(j).freq = freqs(j);
 end
 
 %% decide what information to retain in the impedance sol structure
