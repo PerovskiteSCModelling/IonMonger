@@ -40,9 +40,19 @@ if Plim <= N0, error(['Limiting ion density must be greater than typical '...
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
-if isfield(params, 'EfE'), dE = gcE*SE((EfE-EcE)/VT); % effective doping density of ETL (m-3)
+if ~isempty(EfE)
+    if ~isempty(dE)
+        warning(['the ETL doping density dE and doping quasi-Fermi level ',...
+            'EfE were both set. dE will be overwritten.'])
+    end
+    dE = gcE*SE((EfE-EcE)/VT); % effective doping density of ETL (m-3)
 else, EfE = EcE+VT*SEinv(dE/gcE); end % workfunction of ETL (eV)
-if isfield(params, 'EfH'), dH = gvH*SH((EvH-EfH)/VT); % effective doping density of HTL (m-3)
+if ~isempty(EfH)
+    if ~isempty(dH)
+        warning(['the HTL doping density dH and doping quasi-Fermi level ',...
+            'EfH were both set. dH will be overwritten.'])
+    end
+    dH = gvH*SH((EvH-EfH)/VT); % effective doping density of HTL (m-3)
 else, EfH = EvH-VT*SHinv(dH/gvH); end % workfunction of HTL (eV)
 if ~any(Ect), Ect = EfE; end % cathode workfunction (eV)
 if ~any(Ean), Ean = EfH; end % anode workfunction (eV)
@@ -86,8 +96,8 @@ lamH2 = rH*N0/dH*lam2; % relative HTL Debye length parameter squared
 lamH  = sqrt(lamH2);   % relative HTL Debye length parameter
 OmegaE = sqrt(N0/(rE*dE)); % ETL charge density parameter
 OmegaH = sqrt(N0/(rH*dH)); % HTL charge density parameter
-omegaE = dE/gcE;       % effective ETL doping concentration
-omegaH = dH/gvH;       % effective ETL doping concentration
+omegE = dE/gcE;       % effective ETL doping concentration
+omegH = dH/gvH;       % effective ETL doping concentration
 
 % Interface parameters
 kE = n0/dE; % ratio between electron densities across ETL/perovskite interface

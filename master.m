@@ -7,7 +7,7 @@ fprintf('Computation started at %s\n', datestr(now));
 reset_path();
 
 % Create a structure filled with the user-defined parameters
-params = parameters();
+params = parameters_template();
 
 % Solve the equations
 if strcmp(params.applied_voltage{1},'impedance') % check if voltage protocol ...

@@ -12,7 +12,7 @@ if size(sol,2)>1
     % recieved full solution array
     [X,R] = impedance_analysis(sol);
     for j = 1:size(sol,2)
-        freqs(j) = sol(j).freq;
+        freqs(j) = 1/sol(j).params.applied_voltage{2};
     end
 else
     if ~isfield(sol,'V')
@@ -28,7 +28,7 @@ end
 % === default plots ===
 
 % Bode plot
-figure(96)
+figure()
 T = tiledlayout(2,1);
 ax1 = nexttile;
 plot(ax1,freqs,X,'x-b')
@@ -48,7 +48,7 @@ T.TileSpacing = 'compact';
 
 % Nyquist plot
 
-figure(97)
+figure()
 plot(R,-X,'-sr')
 grid on
 set(gca,'TickLabelInterpreter','latex','FontSize',18,'DataAspectRatio',[1 1 1])

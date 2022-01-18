@@ -1,4 +1,4 @@
- function animate_sections(sol,sections,vidlength,filename,NameValueArgs)
+   function animate_sections(sol,sections,vidlength,filename,NameValueArgs)
 % A function to animate sections of a solution from IonMonger. `sol` is a
 % solution structure. `sections` is a vector of integers specifying which
 % sections of the protocol should be included. `length` is the length of
@@ -152,6 +152,10 @@ for i = 1:round(titleframetime*NameValueArgs.FrameRate)
     writeVideo(vid,frame)
 end
 
+create_frame(framedata,500)
+
+error()
+
 % create each frame and save to frames structure
 if ~isempty(ver('parallel')) % check for parallel computing toolbox
     % parallel computing toolbox installed
@@ -211,7 +215,7 @@ function frame = create_frame(framedata,i)
     set(0,'defaultAxesTickLabelInterpreter','latex') % For latex tick labels
     set(0,'defaultLegendInterpreter','latex') % For latex legends
 
-    fig = figure('Position',[0 0 Size(1) Size(2)],'Visible','off');
+    fig = figure('Position',[0 0 Size(1) Size(2)],'Visible','on');
     fignum = fig.Number;
     clf(fignum)
     T=tiledlayout(2,2);
@@ -338,7 +342,7 @@ function frame = create_frame(framedata,i)
     
     frame = getframe(fig);
     
-    close(fignum)
+%     close(fignum)
 
 end
 

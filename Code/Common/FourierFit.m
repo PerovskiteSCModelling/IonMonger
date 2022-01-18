@@ -5,7 +5,7 @@ function fit = FourierFit(t,S,omega)
 % the fitted curve and the error. Note that this function is only intended
 % to analyse signals where a signal frequency, `omega`, is present. The
 % signal must contain an integer number of complete periods. In IonMonger's
-% output, each period comprises 100 time points, meaning N complete waves
+% output, each period comprises 100 time steps, meaning N complete waves
 % should contain 100*N+1 points.
 
 % obtains a fit of the form S = S0+Sp*sin(2*pi*omega*t+theta)

@@ -2,7 +2,8 @@
 This folder contains the following files:
 - create_matrices.m (takes `params`, `vectors`; returns `matrices`)
 - create_vectors.m (takes `params`; returns `vectors`)
-- Jac.m (takes `params`; returns Jacobian matrix)
+- Jac.m (takes `params`; returns sparsity pattern of Jacobian matrix)
+- AnJac.m (takes `t`, `u`, `params`, `vectors`, `matrices`; returns evaluation of the Jacobian)
 - mass_matrix.m (takes `params`; returns mass matrix)
 - RHS.m (takes `time`, state vector, potential profile, `params`, `vectors`, `matrices`; returns derivative of state vector wrt time)
 - initial_conditions.m (takes `vectors`, `params`, `matrices`; returns the initial conditions vector `sol_init`)

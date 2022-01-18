@@ -47,8 +47,7 @@ p_colour = [1 0 0];
 figure;
 subplot(2,2,1); hold on;
 for tt = plotindex
-    semilogy(x,P(tt,:),'color',shade(tt)*P_colour);
-    set(gca,'YScale','log')
+    plot(x,P(tt,:),'color',shade(tt)*P_colour);
 end
 xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Ion Vacancy Density (cm$^{-3}$)');
@@ -62,17 +61,15 @@ xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Electric Potential (V)');
 subplot(2,2,3); hold on;
 for tt = plotindex
-    semilogy(x,n(tt,:),'color',shade(tt)*n_colour);
-    semilogy(xE,nE(tt,:),'color',shade(tt)*n_colour);
-    set(gca,'YScale','log')
+    plot(x,n(tt,:),'color',shade(tt)*n_colour);
+    plot(xE,nE(tt,:),'color',shade(tt)*n_colour);
 end
 xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Electron Concentration (cm$^{-3}$)');
 subplot(2,2,4); hold on;
 for tt = plotindex
-    semilogy(x,p(tt,:),'color',shade(tt)*p_colour);
-    semilogy(xH,pH(tt,:),'color',shade(tt)*p_colour);
-    set(gca,'YScale','log')
+    plot(x,p(tt,:),'color',shade(tt)*p_colour);
+    plot(xH,pH(tt,:),'color',shade(tt)*p_colour);
 end
 xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Hole Concentration (cm$^{-3}$)');

@@ -64,26 +64,28 @@ inverted = false; % choose false for a standard architecture cell (light
 % (light entering through the HTL)
 
 % ETL parameters
-dE    = 1e24;    % effective doping density of ETL (m-3)
-% EfE   = -4.1;    % doped electron quasi-Fermi level in ETL (eV) (optional, overrides dE)
+% dE    = 1e24;    % effective doping density of ETL (m-3)
+EfE   = -4.1;    % doped electron quasi-Fermi level in ETL (eV) (optional, overrides dE)
 gcE   = 5e25;    % effective conduction band DoS in ETL (m-3)
 EcE   = -4.0;    % conduction band reference energy in ETL (eV)
 bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
 DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
-stats.ETL.model = 'FermiDirac'; % ETL statistical model
-stats.ETL.Boltzmann = false; % ETL Boltzmann approximation
+stats.ETL.model = 'FermiDirac'; % ETL statistical model (choose from
+% 'FermiDirac', 'GaussFermi', or 'Blakemore')
+stats.ETL.Boltzmann = true; % ETL Boltzmann approximation
 
 % HTL parameters
-dH    = 1e24;    % effective doping density of HTL (m-3) 
-% EfH   = -5;    % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
+% dH    = 1e24;    % effective doping density of HTL (m-3) 
+EfH   = -5;    % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
 gvH   = 5e25;    % effective valence band DoS in HTL (m-3)
 EvH   = -5.1;   % valence band reference energy in HTL (eV)
 bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
-stats.HTL.model = 'GaussFermi'; % HTL statistical model
-stats.HTL.Boltzmann = false; % HTL Boltzmann approximation
+stats.HTL.model = 'GaussFermi'; % HTL statistical model (choose from
+% 'FermiDirac', 'GaussFermi', or 'Blakemore')
+stats.HTL.Boltzmann = true; % HTL Boltzmann approximation
 stats.HTL.s = 2; % HTL Gaussian disorder (only required for GaussFermi model)
 
 % Metal contact parameters (optional)
@@ -93,13 +95,13 @@ stats.HTL.s = 2; % HTL Gaussian disorder (only required for GaussFermi model)
 % Bulk recombination
 tn    = 1e-9;    % electron pseudo-lifetime for SRH (s)
 tp    = 1e-7;    % hole pseudo-lifetime for SRH (s)
-beta  = 0;       % bimolecular recombination rate (m3s-1)
-Augn  = 0;       % electron-dominated Auger recombination rate (m6s-1)
-Augp  = 0;       % hole-dominated Auger recombination rate (m6s-1)
-
+beta  = 0e-13;       % bimolecular recombination rate (m3s-1)
+Augn  = 0e-28;       % electron-dominated Auger recombination rate (m6s-1)
+Augp  = 0e-28;       % hole-dominated Auger recombination rate (m6s-1)
+% warning('extra recombination')
 % Interface recombination (max. velocity ~ 1e5)
-betaE = 0;       % ETL/perovskite bimolecular recombination rate (m3s-1)
-betaH = 0;       % perovskite/HTL bimolecular recombination rate (m3s-1)
+betaE = 0e-20;       % ETL/perovskite bimolecular recombination rate (m3s-1)
+betaH = 0e-20;       % perovskite/HTL bimolecular recombination rate (m3s-1)
 vnE   = 1e5;     % electron recombination velocity for SRH (ms-1)
 vpE   = 1e1;      % hole recombination velocity for SRH (ms-1)
 vnH   = 1e-1;     % electron recombination velocity for SRH (ms-1)
@@ -112,11 +114,11 @@ vpH   = 1e5;     % hole recombination velocity for SRH (ms-1)
 
 %% Option to set initial distributions from a saved solution
 
-% Name of a saved distribution created using 'save_end_state.m'. The
-% initial voltage specified by voltage_protocol will be overwritten with
-% the applied voltage of the saved distribution.
+% Name of a saved solution structure. Initial distributions will be taken
+% from the final distributions of the saved solution. In this case,
+% `applied_voltage` does not need an initial voltage.
 
-% input_filename = 'SaveFiles/filename.mat';
+% input_filename = 'SaveFiles/example1.mat';
 
 %% Non-dimensionalise model parameters and save all inputs
 
@@ -143,23 +145,26 @@ params = nondimensionalise(params);
 light_intensity = {1};
 
 % Voltage protocol (either {'open-circuit'}, {a single value} or a protocol
-% beginning with either 'open-circuit' or an initial value, in Volts)
+% beginning with either 'open-circuit' or an initial value, in Volts). For
+% impedance spectroscopy protocols, see GUIDE.md.
 applied_voltage = ...
     {Vbi, ... % steady-state initial value
-    'tanh', 5, 1.2, ... % preconditioning
+    'tanh', 5, 1.2, ...
     'linear', 1.2/1e-1, 0, ... % reverse scan
-    'linear', 1.2/1e-1, 1.2 % forward scan
+    'linear', 1.2/1e-1, 1.2 ... % reverse scan
     };
 
-applied_voltage = {'impedance', ...
-    1e-4, ...   % minimum impedance frequency (Hz)
-    1e7, ...    % maximum impedance frequency (Hz)
-    0.9, ...  	% DC voltage (V)
-    20e-3, ...  % AC voltage amplitude (V)
-    60, ...     % number of frequencies to sample
-    5};         % number of sine waves
+% Impedance protocol template:
+% applied_voltage = {'impedance', ...
+%     1e-4, ...   % minimum impedance frequency (Hz)
+%     1e7, ...    % maximum impedance frequency (Hz)
+%     0.6, ...  	% DC voltage (V)
+%     20e-3, ...  % AC voltage amplitude (V)
+%     6, ...      % number of frequencies to sample
+%     5, ...      % number of sine waves
+%     10};        % time to hold at DC voltage (s)
 
-reduced_output = true; % set to true to reduce the amount of data retained ...
+reduced_output = false; % set to true to reduce the amount of data retained ...
 % in impedance simulations
 
 % Choose whether the time points are spaced linearly or logarithmically
@@ -203,7 +208,12 @@ if Verbose
             title('V(t) except the voltage starts from Voc, not Vbi as shown here');
         end
         if strcmp(applied_voltage{1},'impedance')
-            title({'example impedance protocol','at a frequency of 1Hz'}); end
+            title({'example impedance protocol','at a frequency of 1Hz'})
+            hold on
+            plot(tstar2t(time(end-200:end)),psi2Vap(psi(time(end-200:end))),'r')
+            legend({'','phase analysis region'},'Location','best','Interpreter','latex')
+            hold off
+        end
         ylim([min([0,psi2Vap(psi(time))]), ceil(2*max(psi2Vap(psi(time))))/2])
     end
     drawnow;

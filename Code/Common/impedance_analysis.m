@@ -1,11 +1,15 @@
-function [X,R] = impedance_analysis(sol)
+function [X,R] = impedance_analysis(sol,nwaves)
 % This function calculates the impedance from multiple impedance
 % measurements and decomposes it into its real and imaginary components.
 % sol is a structure array containing the solutions to multiple impedance
 % measurements where sol(i) is the solution structure of the i-th sample
 % frequency. The function returns `X`, the imaginary component of impedance
 % at each sample frequency, and `R`, the real component of impedance at
-% each sample frequency, both in units of Ohm cm2.
+% each sample frequency, both in units of Ohm cm2. `nwaves` is an optional
+% argument specifying the number of complete periods on which to perform
+% the phase analysis. The default value is 2.
+
+if nargin<2 ; nwaves = 2; end % number of complete periods to analyse
 
 % extract the impedance protocol
 nf = sol(1).impedance_protocol{6}; % number of frequencies to be sampled
@@ -13,14 +17,18 @@ min_f = sol(1).impedance_protocol{2}; % minimum sample frequency
 max_f = sol(1).impedance_protocol{3}; % maximum frequency
 Vp = sol(1).impedance_protocol{5}; % voltage amplitude
 V0 = sol(1).impedance_protocol{4}; % DC voltage
-n_wave = sol(1).impedance_protocol{7}; % number of complete sine waves
+
+if nwaves > sol(1).impedance_protocol{7}
+    error(['impedance_analysis was asked to analyse ' num2str(nwaves), ...
+        ' complete periods but the solution only contains ', ...
+        num2str(sol(1).impedance_protocol{7}) ' complete periods.'])
+end
 
 freqs = logspace(log10(min_f),log10(max_f),nf);
 
 Z = nan(nf,1)+i*nan(nf,1); % preallocate Z
 for j = 1:nf
     try % extract the impedance from each measurement
-        nwaves = 2; % number of complete periods to analyse
         
         % get indices of the timesteps to be analysed
         ind = (length(sol(j).J)-nwaves*100):length(sol(j).J);

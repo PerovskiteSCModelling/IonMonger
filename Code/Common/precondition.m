@@ -14,7 +14,7 @@ warnon = warning('error','MATLAB:ode15s:IntegrationTolNotMet');
 
 % Compute the Jacobian, mass matrix and initial slope and add to options
 % Note that the mass matrix is adjusted so ions are as mobile as electrons
-if exist('AnJac')
+if exist('AnJac','file')
     options.Jacobian = @(t,u) AnJac(t,u,params,vectors,matrices);
 else
     options.JPattern = Jac(params);
@@ -41,7 +41,6 @@ if Verbose, fsoptions.Display = 'iter'; else, fsoptions.Display = 'off'; end
 % Use the initial estimate to obtain an approximate steady-state solution
 if exist('AnJac.m','file')
     fsoptions.SpecifyObjectiveGradient = true;
-    fsoptions.MaxIterations = 1e3;
     [sol_init,~,exitflag,~] = fsolve(@(u) RHS_AnJac(u,psi, ...
         params,vectors,matrices,'init'),sol_init,fsoptions);
 else

@@ -10,7 +10,8 @@ function sol = IS_solver(base_params)
 nf = base_params.applied_voltage{6}; % number of frequencies to be sampled
 fmin = base_params.applied_voltage{2}; % minimum frequency
 fmax = base_params.applied_voltage{3}; % maximum frequency
-V0 = base_params.applied_voltage{4};
+V0 = base_params.applied_voltage{4}; % DC voltage
+t = base_params.applied_voltage{8}; % time spent in steady state at DC voltage
 
 % contruct the list of sample frequencies, logarithmically spaced
 freqs = logspace(log10(fmin),log10(fmax),nf);
@@ -18,7 +19,6 @@ freqs = logspace(log10(fmin),log10(fmax),nf);
 % find steady state at the DC voltage
 fprintf('solving for steady state conditions at DC voltage \n')
 params = base_params;
-t = 10; % time spent in steady state at DC voltage (s)
 params.applied_voltage = {V0,'linear',t,V0}; % steady state protocol
 
 [params.light, params.psi, params.time, params.splits, params.findVoc] = ...
@@ -29,10 +29,13 @@ sol = numericalsolver(params);
 dJdt = (sol.J(end)-sol.J(end-1))./(sol.time(end)-sol.time(end-1));
 if abs(dJdt)>1e-5
     warning(['Cell may not have reached steady state before impedance ', ...
-        'measurements began']) ; end
+        'measurements began. Considering increasing the time spent at the DC voltage'])
+end
 
 savestr = [base_params.workfolder, 'DC_sol'];
 save(savestr,'sol');
+
+if nf>1 ; base_params.Verbose = false; ; end % Supress output during measurements
 
 if ~isempty(ver('parallel')) % check for parallel computing toolbox
     % parallel computing toolbox installed
@@ -114,8 +117,7 @@ function sol = IS_measurement(params,freq,savestr)
     % protocol with a sinusoidal protocol at frequency `freq`. `savestr` is
     % a string specifying the location of the saved file containing the DC
     % steady state solution.
-
-    params.Verbose = false; % supress output during measurement
+    
     params.UseSplits = false; % avoid making separate calls for consecutive sine waves
     params.input_filename = savestr;
     

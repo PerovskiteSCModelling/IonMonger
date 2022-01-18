@@ -7,13 +7,13 @@ function JJJ = AnJac(t,u,params,vectors,matrices,flag)
 
 % Input parameters and arrays
 [chi, delta, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, rE, ...
-    NH, lamH2, KH, kH, rH, DI, atol, ARs, Rsp, SPinv, SEinv, omegaE, ...
-    omegaH, SHinv, AE, AH] ...
+    NH, lamH2, KH, kH, rH, DI, atol, ARs, Rsp, SPinv, SEinv, omegE, ...
+    omegH, SHinv, AE, AH] ...
     = struct2array(params,{'chi','delta','R','lambda','lam2','Rr','Rl', ...
                            'N','Kn','Kp','NE','lamE2','KE','kE','rE', ...
                            'NH','lamH2','KH','kH','rH','DI','atol', ...
-                           'ARs','Rsp', 'SPinv', 'SEinv', 'omegaE',...
-                           'omegaH', 'SHinv', 'AE', 'AH'});
+                           'ARs','Rsp', 'SPinv', 'SEinv', 'omegE',...
+                           'omegH', 'SHinv', 'AE', 'AH'});
 [dx, dxE, dxH, xd, xdE, xdH] ...
     = struct2array(vectors,{'dx','dxE','dxH','xd','xdE','xdH'});
 [JJJ, Av, AvE, AvH, Lo, LoE, LoH, Dx, DxE, DxH] ...
@@ -50,15 +50,15 @@ RRp = R(Avn,Avp+del/2,AvP);
 RRP = R(Avn,Avp,AvP+del/2);
 EP = SPinv(P)+phi; % ion 'quasi-Fermi level'
 dEP = Dx*EP; % derivative of ion 'quasi-Fermi level'
-EnE = SEinv(omegaE*nE)-phiE; % ETL quasi-Fermi level
+EnE = SEinv(omegE*nE)-phiE; % ETL quasi-Fermi level
 dEnE = DxE*EnE; % derivative of ETL quasi-Fermi level
-EpH = SHinv(omegaH*pH)+phiH; % HTL quasi-Fermi level
+EpH = SHinv(omegH*pH)+phiH; % HTL quasi-Fermi level
 dEpH = DxH*EpH; % derivative of HTL quasi-Fermi level
 
 % derivatives of inverse statistical functions
 dSPinvdP = (SPinv(P*(1+del/2))-SPinv(P*(1-del/2)))./(P*del); % derivative of the inverse ion statistical function
-dSEinvdnE = (SEinv(omegaE*(nE*(1+del/2)))-SEinv(omegaE*(nE*(1-del/2))))./(nE*del);% derivative of the inverse ETL statistical function
-dSHinvdpH = (SHinv(omegaH*(pH*(1+del/2)))-SHinv(omegaH*(pH*(1-del/2))))./(pH*del);% derivative of the inverse ETL statistical function
+dSEinvdnE = (SEinv(omegE*(nE*(1+del/2)))-SEinv(omegE*(nE*(1-del/2))))./(nE*del);% derivative of the inverse ETL statistical function
+dSHinvdpH = (SHinv(omegH*(pH*(1+del/2)))-SHinv(omegH*(pH*(1-del/2))))./(pH*del);% derivative of the inverse ETL statistical function
 
 % P equation depends on P    
 JJJ(1:N+1,1:N+1) = nnz(DI)*lambda*gallery('tridiag',N+1, ...
@@ -214,7 +214,7 @@ JJJ(4*N+6:4*N+NE+4,4*N+NE+5:4*N+2*NE+5) = -LoE/lamE2;
 % nE equation depends on phi
 JJJ(4*N+2*NE+4,N+2) = -kE*KE*AvnE(end)./dxE(end);
 % nE equation depends on n
-JJJ(4*N+2*NE+5,2*N+3) = omegaE;
+JJJ(4*N+2*NE+5,2*N+3) = omegE;
 % nE equation does not depend on p
 % nE equation depends on phiE
 JJJ(4*N+NE+5:4*N+2*NE+4,4*N+5:4*N+NE+4) = -kE*KE*gallery('tridiag',NE, ...
@@ -227,7 +227,7 @@ JJJ(4*N+NE+5:4*N+2*NE+5,4*N+NE+5:4*N+2*NE+5) = kE*KE*gallery('tridiag',NE+1, ...
     [1/(kE*KE); -1/2*dEnE(1:NE-1)-AvnE(1:end-1).*xdE(1:NE-1).*dSEinvdnE(2:NE)+...
     1/2*dEnE(2:NE)-AvnE(2:NE).*xdE(2:NE).*dSEinvdnE(2:NE); 0], ...
     [0; 1/2*dEnE(2:NE)+AvnE(2:NE).*xdE(2:NE).*dSEinvdnE(3:NE+1)]);
-JJJ(4*N+2*NE+5,4*N+2*NE+5) = -AE*dSEinvdnE(end)*exp(SEinv(omegaE*nE(end)));
+JJJ(4*N+2*NE+5,4*N+2*NE+5) = -AE*dSEinvdnE(end)*exp(SEinv(omegE*nE(end)));
 % nE equation does not depend on phiH
 % nE equation does not depend on pH
 
@@ -251,7 +251,7 @@ JJJ(4*N+2*NE+6:4*N+2*NE+NH+4,4*N+2*NE+NH+6:4*N+2*NE+2*NH+6) = LoH/lamH2;
 JJJ(4*N+2*NE+NH+7,2*N+2) = kH*KH*AvpH(1)./dxH(1);
 % pH equation does not depend on n
 % pH equation depends on p
-JJJ(4*N+2*NE+NH+6,4*N+4) = omegaH;
+JJJ(4*N+2*NE+NH+6,4*N+4) = omegH;
 % pH equation does not depend on phiE
 % pH equation does not depend on nE
 % pH equation depends on phiH
@@ -267,7 +267,7 @@ JJJ(4*N+2*NE+NH+6:4*N+2*NE+2*NH+6,4*N+2*NE+NH+6:4*N+2*NE+2*NH+6) = ...
     [0; -AvpH(1:NH-1).*xdH(1:NH-1).*dSHinvdpH(2:NH)-1/2*dEpH(1:NH-1)-...
     AvpH(2:NH).*xdH(2:NH).*dSHinvdpH(2:NH)+1/2*dEpH(2:NH); 1/(kH*KH)], ...
     [0; AvpH(2:NH).*xdH(2:NH).*dSHinvdpH(3:NH+1)+1/2*dEpH(2:NH)]);
-JJJ(4*N+2*NE+NH+6,4*N+2*NE+NH+6) = -AH*dSHinvdpH(1)*exp(SHinv(omegaH*pH(1)));
+JJJ(4*N+2*NE+NH+6,4*N+2*NE+NH+6) = -AH*dSHinvdpH(1)*exp(SHinv(omegH*pH(1)));
 
 % Adjust right-hand potential BC to account for any parasitic resistance
 JJJ(4*N+2*NE+NH+5,4*N+2*NE+NH+4:4*N+2*NE+NH+5) ...

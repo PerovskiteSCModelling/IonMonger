@@ -10,12 +10,12 @@ function dudt = RHS(t,u,psi,params,vectors,matrices,flag)
 % Input parameters and arrays
 [chi, delta, G, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, ...
     rE, NH, lamH2, KH, kH, rH, DI, nc, pc, ARs, Rsp, pbi, SPinv, SEinv, ...
-    omegaE, SHinv, omegaH, AE, AH, phidisp] ...
+    omegE, SHinv, omegH, AE, AH, phidisp] ...
     = struct2array(params,{'chi','delta','G','R','lambda','lam2','Rr', ...
                            'Rl','N','Kn','Kp','NE','lamE2','KE','kE', ...
                            'rE','NH','lamH2','KH','kH','rH','DI','nc', ...
                            'pc','ARs','Rsp','pbi', 'SPinv', 'SEinv', ...
-                           'omegaE', 'SHinv', 'omegaH', 'AE', 'AH', 'phidisp'});
+                           'omegE', 'SHinv', 'omegH', 'AE', 'AH', 'phidisp'});
 [x, dx, dxE, dxH] = struct2array(vectors,{'x','dx','dxE','dxH'});
 [dudt, Av, AvE, AvH, Lo, LoE, LoH, Dx, DxE, DxH, NN, ddE, ddH] ...
     = struct2array(matrices,{'dudt','Av','AvE','AvH','Lo','LoE','LoH', ...
@@ -43,9 +43,9 @@ cd = NN-Lo*P+delta*(Lo*n-chi*Lo*p); % charge density
 cdE = LoE*nE-ddE; % charge density in ETL
 cdH = ddH-LoH*pH; % charge density in HTL
 fn = Kn*(Dx*n-mE.*(Av*n)); % electron current
-fnE = kE*KE*(AvE*nE).*(DxE*(SEinv(omegaE*nE)-phiE)); % electron current in ETL
+fnE = kE*KE*(AvE*nE).*(DxE*(SEinv(omegE*nE)-phiE)); % electron current in ETL
 fp = Kp*(Dx*p+mE.*(Av*p)); % negative hole current
-fpH = kH*KH*(AvH*pH).*(DxH*(SHinv(omegaH*pH)+phiH)); % negative hole current in HTL
+fpH = kH*KH*(AvH*pH).*(DxH*(SHinv(omegH*pH)+phiH)); % negative hole current in HTL
 GR = G(Av*x,t)-R(Av*n,Av*p,Av*P); % generation-recombination
 
 % P equation
@@ -81,7 +81,7 @@ dudt(4*N+6:4*N+NE+4,:) = mEE(2:NE,:)-mEE(1:NE-1,:)-cdE/lamE2;
 % nE equation
 dudt(4*N+NE+5,:) = nE(1,:)-nc;
 dudt(4*N+NE+6:4*N+2*NE+4,:) = fnE(2:NE,:)-fnE(1:NE-1,:);
-dudt(4*N+2*NE+5,:) = omegaE*n(1,:) - AE*exp(SEinv(omegaE*nE(end,:)));
+dudt(4*N+2*NE+5,:) = omegE*n(1,:) - AE*exp(SEinv(omegE*nE(end,:)));
 
 % phiH equation
 dudt(4*N+2*NE+6:4*N+2*NE+NH+4,:) = mEH(2:NH,:)-mEH(1:NH-1,:)-cdH/lamH2;
@@ -91,7 +91,7 @@ dudt(4*N+2*NE+NH+5,:) = phiH(end,:)+psi(t) ...
 % (neglecting the displacement current, which should be small at the contacts)
 
 % pH equation
-dudt(4*N+2*NE+NH+6,:) = omegaH*p(end,:) - AH*exp(SHinv(omegaH*pH(1,:)));
+dudt(4*N+2*NE+NH+6,:) = omegH*p(end,:) - AH*exp(SHinv(omegH*pH(1,:)));
 dudt(4*N+2*NE+NH+7:4*N+2*NE+2*NH+5,:) = fpH(2:NH,:)-fpH(1:NH-1,:);
 dudt(4*N+2*NE+2*NH+6,:) = pH(end,:)-pc;
 

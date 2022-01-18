@@ -6,6 +6,10 @@ This folder contains the code necessary to run the solver and process the output
 - FE_solve.m (called by numericalsolver.m) performs the solution procedure, using the scripts contained in Code/Solver
 - calculate_currents.m (called by numericalsolver.m) is used to calculate the total dimensionless current density as well as the losses due to interfacial recombination
 - find_Voc.m and precondition.m are functions (called by FE_solve.m if needed) to obtain alternative initial conditions when the voltage protocol starts from either open-circuit or a fixed voltage not equal to the cell's built-in voltage, respectively
+- create_stats_funcs.m (called by nondimensionalise.m) is a function to create a statistical model and provide functions to quickly and accurately evaluate statistical functions and their inverses
+- FourierFit.m (called by impedance_analysis.m) is a function that fits a sinusoidal curve to some periodic input signal using the Fourier transform
+- impedance_analysis.m (called by IS_solver.m) is a function that calculates the impedance from a structure array of impedance measurement simulations
+- IS_solver.m (called by master.m) is the intermediary step between master.m and numericalsolver.m for impedance simulations, iteratively replacing the voltage protocol with a sinusoidal protocol and calling numericalsolver.m to obtain the solution for each sample frequency
 
 In addition:
 - struct2array.m is used (in almost all functions) to extract the contents of a structure (such as `params` or `sol`)

@@ -9,8 +9,8 @@ if sol.params.Verbose
     [N0, b] = struct2array(sol.params,{'N0','b'});
     x = struct2array(sol.vectors,{'x'});
     P = struct2array(sol.dstrbns,{'P'});
-    fprintf('The absolute percentage error in the anion mass conservation is %0.2g%% \n', ...
-        abs(trapz(x*1e-9,N0-P(end,:)))/(b*N0));
+%     fprintf('The absolute percentage error in the anion mass conservation is %0.2g%% \n', ...
+%         abs(trapz(x*1e-9,N0-P(end,:)))/(b*N0));
     
     % Output the steady-state Voc if computed
     if sol.params.findVoc
