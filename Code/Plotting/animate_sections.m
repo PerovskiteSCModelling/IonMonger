@@ -142,7 +142,37 @@ fig = figure('Position',[0 0 NameValueArgs.Size],'Visible','off');
 ax = axes('Position',[0 0 1 1],'Color','w','Units','normalized');
 imshow('Code/Plotting/IM_logo.png','Parent',ax,'Reduce',false)
 frame = getframe(fig);
+close(fig.Number)
 titleframetime = 2; % time for title frame in seconds
+for i = 1:round(titleframetime*NameValueArgs.FrameRate)
+    writeVideo(vid,frame)
+end
+
+% experimental protocol plot
+fig = figure('Position',[0 0 NameValueArgs.Size],'Visible','off');
+ax = axes('Position',[0.2 0.2 0.6 0.6],'Color','w','Units','normalized');
+yyaxis left
+plot(sol.time,sol.V,'-b','HandleVisibility','off','LineWidth',1.5)
+Ys = [floor(min([sol.V; sol.params.light(sol.params.time')])*10)/10, ceil(max([sol.V; sol.params.light(sol.params.time')])*10)/10];
+ylim(Ys)
+set(gca,'FontSize',20,...
+    'TickLabelInterpreter','latex',...
+    'YColor','b')
+ylabel('applied voltage','Interpreter','latex')
+yyaxis right
+plot(sol.time,sol.params.light(sol.params.time),'-r','HandleVisibility','off','LineWidth',1.5)
+set(gca,'FontSize',20,...
+    'TickLabelInterpreter','latex',...
+    'YColor','r')
+ylim(Ys)
+ylabel({'light intensity (Sun equiv.)'},'Interpreter','latex')
+xlabel('time (s)','Interpreter','latex')
+title('Experimental protocol','Interpreter','latex')
+patch([time(1) time(end) time(end) time(1)],[Ys([1,1,2,2])],'g','FaceAlpha',0.2,...
+        'EdgeColor','none','DisplayName','render region')
+legend('Location','best')
+frame = getframe(fig);
+close(fig.Number)
 for i = 1:round(titleframetime*NameValueArgs.FrameRate)
     writeVideo(vid,frame)
 end
@@ -151,10 +181,6 @@ frame = create_initial_frame(framedata);
 for i = 1:round(titleframetime*NameValueArgs.FrameRate)
     writeVideo(vid,frame)
 end
-
-create_frame(framedata,500)
-
-error()
 
 % create each frame and save to frames structure
 if ~isempty(ver('parallel')) % check for parallel computing toolbox
@@ -215,7 +241,7 @@ function frame = create_frame(framedata,i)
     set(0,'defaultAxesTickLabelInterpreter','latex') % For latex tick labels
     set(0,'defaultLegendInterpreter','latex') % For latex legends
 
-    fig = figure('Position',[0 0 Size(1) Size(2)],'Visible','on');
+    fig = figure('Position',[0 0 Size(1) Size(2)],'Visible','off');
     fignum = fig.Number;
     clf(fignum)
     T=tiledlayout(2,2);
@@ -251,6 +277,7 @@ function frame = create_frame(framedata,i)
         
         start = finish; % last index becomes the first index of next line
     end
+    plot(ax1,V(min([i,k(end)+1])),J(min([i,k(end)+1])),'or','LineWidth',1.5)
     
     % carrier densities plot
     patch(ax2,xE([1,end,end,1]),YLims(2,[1,1,2,2]),'b','FaceAlpha',0.15,...
@@ -334,7 +361,7 @@ function frame = create_frame(framedata,i)
     
     % set axis properties
     set(T, 'Padding', 'compact', 'TileSpacing', 'compact')
-    set(ax1,'YLim',YLims(1,:),'XLim',[floor(min(V)/0.1)*0.1,...
+    set(ax1,'YLim',YLims(1,:),'XLim',[floor(min([0,V])/0.1)*0.1,...
         ceil(max(V)/0.1)*0.1],'GridAlpha',0.4)
     set(ax2,'YScale','log','YLim',YLims(2,:),'XLim',[xE(1) xH(end)])
     set(ax3,'YLim',YLims(3,:),'XLim',[xE(1) xH(end)])
@@ -342,7 +369,7 @@ function frame = create_frame(framedata,i)
     
     frame = getframe(fig);
     
-%     close(fignum)
+    close(fignum)
 
 end
 

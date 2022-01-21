@@ -16,9 +16,11 @@ elseif isfield(sol,'X')
 end
 
 % Retrieve the nondimensional parameter values and recombination functions
-[G0, dE, dH, N0, brate, ni2, gamma, tor, tor3, Cn, Cp, R, SRH, Auger, jay] = ...
+[G0, dE, dH, N0, brate, ni2, gamma, tor, tor3, Cn, Cp, R, SRH, Auger, jay, ...
+    kE, kH] = ...
 	struct2array(sol.params, {'G0','dE','dH','N0','brate','ni2','gamma', ...
-                              'tor','tor3','Cn','Cp','R','SRH','Auger','jay'});
+                              'tor','tor3','Cn','Cp','R','SRH','Auger', ...
+                              'jay', 'kE', 'kH'});
 
 % Unpack the dimensional charge concentrations
 [n, p, P] = struct2array(sol.dstrbns, {'n','p','P'});
@@ -28,10 +30,10 @@ time = sol.time;
 x = sol.vectors.x;
 
 % Compute the rates of recombination
-R_tot = G0*R(n/dE,p/dH,P/N0);
-R_bim = G0*brate*(n/dE.*p/dH-ni2);
-R_Aug = G0*Auger(n/dE,p/dH,Cn,Cp,ni2);
-R_SRH = G0*SRH(n/dE,p/dH,gamma,ni2,tor,tor3);
+R_tot = G0*R(n/(dE*kE),p/(dH*kH),P/N0);
+R_bim = G0*brate*(n/(dE*kE).*p/(dH*kH)-ni2);
+R_Aug = G0*Auger(n/(dE*kE),p/(dH*kH),Cn,Cp,ni2);
+R_SRH = G0*SRH(n/(dE*kE),p/(dH*kH),gamma,ni2,tor,tor3);
 
 % Set default figure options
 set(0,'defaultAxesFontSize',10); % Make axes labels smaller
