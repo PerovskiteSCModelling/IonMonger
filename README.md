@@ -21,11 +21,13 @@ The authors of this code published an investigation into how material properties
 
 # Requirements and Other Information
 
-Requirements: MATLAB (version R2018b).
+Requirements: MATLAB (version R2021a).
 
 This code was first created at the University of Southampton in 2016. See [AUTHORS](AUTHORS.md) for a list of contributors and [LICENSE](LICENSE) for the conditions of use.
 
 If you encounter a problem or any unexpected results, please create an Issue on the GitHub website, add details of the problem (including the error message and MATLAB version number) and attach the parameters.m file in use when the problem occurred. For other enquiries, please contact N.E.Courtier(at)soton.ac.uk.
+
+Some features of the code (for example, IS_solver.m and animate_sections.m) will make use of the Parallel Computing Toolbox and the Image Processing Toolbox for increased performance but can still run if the toolboxes are not installed.
 
 
 # How to Cite this Code

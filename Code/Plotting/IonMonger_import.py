@@ -128,7 +128,7 @@ def unpack_sol(filename):
     plt.figure(figsize=(8, 5), dpi=200)
     plt.plot(V[100:200],J[100:200],'-b',label='reverse')
     plt.plot(V[200:300],J[200:300],'--b',label='forward')
-    plt.ylim(0,25)
+    plt.ylim(-2,25)
     plt.xlim(0,1.2)
     plt.xlabel(r'applied voltage (V)')
     plt.ylabel(r'current density (mAcm$^{-2}$)')
@@ -145,6 +145,7 @@ def unpack_sol(filename):
     plt.ylabel(r'number density (m$^{-3}$)')
     plt.legend()
     plt.show()
+    
     
 def unpack_IS(filename):
     '''
