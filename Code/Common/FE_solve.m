@@ -92,7 +92,7 @@ while count == err_count
         end
         
         % Compute the Jacobian, mass matrix and initial slope and add to options
-        if ~exist('AnJac.m','file')
+        if exist('AnJac.m','file')
             options.Jacobian = @(t,u) AnJac(t,u,params,vectors,matrices,flag);
         else
         	options.JPattern = Jac(params,flag);

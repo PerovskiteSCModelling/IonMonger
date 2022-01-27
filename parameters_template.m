@@ -95,13 +95,13 @@ stats.HTL.s = 2; % HTL Gaussian disorder (only required for GaussFermi model)
 % Bulk recombination
 tn    = 1e-9;    % electron pseudo-lifetime for SRH (s)
 tp    = 1e-7;    % hole pseudo-lifetime for SRH (s)
-beta  = 0e-13;       % bimolecular recombination rate (m3s-1)
-Augn  = 0e-28;       % electron-dominated Auger recombination rate (m6s-1)
-Augp  = 0e-28;       % hole-dominated Auger recombination rate (m6s-1)
-% warning('extra recombination')
+beta  = 1e-13;       % bimolecular recombination rate (m3s-1)
+Augn  = 1e-29;       % electron-dominated Auger recombination rate (m6s-1)
+Augp  = 1e-29;       % hole-dominated Auger recombination rate (m6s-1)
+warning('extra recombination')
 % Interface recombination (max. velocity ~ 1e5)
-betaE = 0e-20;       % ETL/perovskite bimolecular recombination rate (m3s-1)
-betaH = 0e-20;       % perovskite/HTL bimolecular recombination rate (m3s-1)
+betaE = 1e-20;       % ETL/perovskite bimolecular recombination rate (m3s-1)
+betaH = 1e-20;       % perovskite/HTL bimolecular recombination rate (m3s-1)
 vnE   = 1e5;     % electron recombination velocity for SRH (ms-1)
 vpE   = 1e1;      % hole recombination velocity for SRH (ms-1)
 vnH   = 1e-1;     % electron recombination velocity for SRH (ms-1)
@@ -142,7 +142,13 @@ params = nondimensionalise(params);
 
 % Light protocol (either {a single value} or a protocol including an
 % initial value, set to 1 for measurements in the light, 0 in the dark)
-light_intensity = {1};
+light_intensity = ...
+    {1, ... % steady-state initial value
+%     'linear', 10, 1, ...
+%     'linear', 5, 0, ... % reverse scan
+%     'linear', 5, 0, ...
+%     'linear', 1, 0 ... % reverse scan
+    };
 
 % Voltage protocol (either {'open-circuit'}, {a single value} or a protocol
 % beginning with either 'open-circuit' or an initial value, in Volts). For
@@ -153,18 +159,25 @@ applied_voltage = ...
     'linear', 1.2/1e-1, 0, ... % reverse scan
     'linear', 1.2/1e-1, 1.2 ... % reverse scan
     };
+% applied_voltage = ...
+%     {Vbi, ... % steady-state initial value
+%     'linear', 10, 0, ...
+%     'linear', 5, 0, ... % reverse scan
+%     'linear', 5, 1.2, ...
+%     'linear', 1, 0 ... % reverse scan
+%     };
 
 % Impedance protocol template:
-% applied_voltage = {'impedance', ...
-%     1e-4, ...   % minimum impedance frequency (Hz)
-%     1e7, ...    % maximum impedance frequency (Hz)
-%     0.6, ...  	% DC voltage (V)
-%     20e-3, ...  % AC voltage amplitude (V)
-%     6, ...      % number of frequencies to sample
-%     5, ...      % number of sine waves
-%     10};        % time to hold at DC voltage (s)
+applied_voltage = {'impedance', ...
+    1e-4, ...   % minimum impedance frequency (Hz)
+    1e7, ...    % maximum impedance frequency (Hz)
+    0.6, ...  	% DC voltage (V)
+    20e-3, ...  % AC voltage amplitude (V)
+    150, ...      % number of frequencies to sample
+    5, ...      % number of sine waves
+    10};        % time to hold at DC voltage (s)
 
-reduced_output = false; % set to true to reduce the amount of data retained ...
+reduced_output = true; % set to true to reduce the amount of data retained ...
 % in impedance simulations
 
 % Choose whether the time points are spaced linearly or logarithmically
