@@ -9,10 +9,12 @@ function [psi, sol_init] = find_Voc(sol_init,psi,params,vectors,matrices,options
 
 % Parameter input
 [N, Kn, Kp, G, time, splits, t2tstar, tstar2t, Vap2psi, psi2Vap, dpf, ...
-    pbi, ARp, Verbose, phidisp] ...
+    pbi, ARp, Verbose, phidisp, light_intensity, applied_voltage, ...
+    time_spacing] ...
     = struct2array(params, {'N','Kn','Kp','G','time','splits','t2tstar', ...
                             'tstar2t','Vap2psi','psi2Vap','dpf','pbi', ...
-                            'ARp','Verbose', 'phidisp'});
+                            'ARp','Verbose', 'phidisp','light_intensity', ...
+                            'applied_voltage','time_spacing'});
 dx = vectors.dx;
 
 % Temporarily turn the following warning into an error
@@ -134,9 +136,14 @@ if ~isnan(psi(time(end)))
     old_psi = @(t) psi(t);
     T1 = splits(2); psi1 = old_psi(T1);
     psi = @(t) old_psi(t)+psioc.*(t<=T1).*(1-old_psi(t)/psi1);
+    
+    applied_voltage{1} = psi2Vap(psioc); % replace initial voltage
+    [~,psi,~,~,~] = ...
+    construct_protocol(params,light_intensity,applied_voltage,time_spacing)
+
     if Verbose
         clf(99); figure(99);
-        plot(tstar2t(time),psi2Vap(psi(time)));
+        plot((time),psi2Vap(psi(time)));        
         xlabel('Time (s)'); ylabel('Applied Voltage (V)');
         title('V(t)');
         drawnow;

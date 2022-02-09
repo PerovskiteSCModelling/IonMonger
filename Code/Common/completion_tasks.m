@@ -19,6 +19,14 @@ if sol.params.Verbose
             sol.params.psi2Vap(phiE(1,1)));
     end
     
+    % Retroactively plot open-circuit voltage tracking
+    if isnan(sol.params.psi(sol.params.time(end)))
+        figure(99)
+        hold on
+        plot(sol.time,sol.V)
+        hold off
+        xlabel('Time (s)'); ylabel('Open-circuit Voltage (V)');
+    end
 end
 
 end

@@ -12,7 +12,7 @@ This guide explains how to use IonMonger by editing a parameters.m file and runn
 
 - How to Edit the Input File
 
-- How to Analyse the Ouput
+- How to Analyse the Output
 
 - Common Errors
 
