@@ -73,10 +73,13 @@ figure('Name','3D impedance plot')
 plot3(freqs,R,X,'-o','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','m','Color','m')
 hold on
 ax = gca;
+xlim([min(freqs),max(freqs)])
+ylim([min([R;0]), ceil(max(R/5))*5])
+zlim([floor(min(X/5))*5 max([X;0])])
 plot3(ax.XLim(2)*ones(size(R)),R,X,'Color',0.6*[1,1,1],'LineWidth',1.5) % projection onto R-X plane
 plot3(freqs,ax.YLim(1)*ones(size(R)),X,'Color',0.6*[1,1,1],'LineWidth',1.5) % projection onto f-X plane
 plot3(freqs,R,ax.ZLim(2)*ones(size(R)),'Color',0.6*[1,1,1],'LineWidth',1.5) % projection onto f-R plane
-patch([min(freqs) max(freqs) max(freqs) min(freqs)],min(R)*[1,1,1,1],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
+patch([min(freqs)*1e-3 max(freqs)*1e3 max(freqs)*1e3 min(freqs)*1e-3],min(R)*[1,1,1,1],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
     'r','FaceAlpha',0.1,'EdgeColor','none')
 patch(max(freqs)*[1,1,1,1],[ax.YLim(1),ax.YLim(2),ax.YLim(2),ax.YLim(1)],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
     'b','FaceAlpha',0.1,'EdgeColor','none')
@@ -90,7 +93,6 @@ box on
 zlabel('X / $\Omega$cm$^2$','Interpreter','latex')
 ylabel('R / $\Omega$cm$^2$','Interpreter','latex')
 xlabel('frequency / Hz','Interpreter','latex')
-xlim([min(freqs),max(freqs)])
 daspect([max(freqs),max(R),max(R)])
 
 % === additional plots ===

@@ -199,6 +199,15 @@ or
 These errors can sometimes be circumvented by adjusting the values of `N`, `atol` and `rtol`, which can be found in parameters.m. The parameter `N` controls the number of grid points on which the solution is computed, while `atol` and `rtol` are used to set the absolute and relative error tolerances (`AbsTol` and `RelTol`) that are applied to the integration-in-time algorithm performed by `ode15s`. For further details, please refer to the [Matlab documentation](https://mathworks.com/help/matlab/ref/odeset.html).
 Note that, by default, the code follows a routine in which the solution procedure is attempted up to three times. On the second and third attempts (if needed), the code uses values for the two error tolerances that are 10 and 100 times smaller (or "stricter"), respectively.
 
+When using degenerate statistical models, the relation between doping density and equilibrium Fermi levels in the transport layers becomes more complex. It is therefore easy to inadvertently set unphysical values for one of these parameters. If you encounter an error while using degenerate statistics, check these parameters in the command window,
+	
+	params.dE		:	ETL doping density (m-3)
+	params.dH		: 	HTL doping density (m-3)
+	params.omegE	:	ETL dimensionless doping density
+	params.omegH	:	HTL dimensionless doping density
+	params.EfE		:	ETL equilibrium Fermi level (eV)
+	params.EfH		:	HTL equilibrium Fermi level (eV)
+
 If you encounter a different problem, please create an Issue on the GitHub website, add details of the problem (including the error message and MATLAB version number) and attach the parameters.m file in use when the problem occurred. For other enquiries, please contact N.E.Courtier(at)soton.ac.uk.
 
 

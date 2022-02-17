@@ -32,6 +32,11 @@ if abs(dJdt)>1e-5
         'measurements began. Considering increasing the time spent at the DC voltage'])
 end
 
+% Save the steady state solution
+if ~strcmp(base_params.workfolder(end),'/')
+    % modify the path to account for IonMongerLite workfolder
+    base_params.workfolder(end+1) = '_';
+end
 savestr = [base_params.workfolder, 'DC_sol'];
 save(savestr,'sol');
 

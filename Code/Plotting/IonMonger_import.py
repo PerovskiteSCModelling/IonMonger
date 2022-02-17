@@ -6,18 +6,13 @@ conversion, some variables are placed in a seemingly arbitrary number of nested
 containers. For this reason, when extracting variables, it may be necessary to
 add additional indexing. For example, `params['dE'][0][0][0]` to obtain the
 ETL doping density. Note that impedance spectroscopy simulations must be
-unpacked using the `unpack_IS` function, instead of `unpack_sol`.
+unpacked using the `unpack_IS` function, instead of `unpack_sol`. Ensure that
+Python's directory is set to the folder containing the solution file.
 '''
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
 import os
-
-# Set the main folder of IonMonger as the directory (assumes this script is
-# saved in Code/Plotting)
-wrkfldr = os.path.dirname(os.path.dirname(os.getcwd()))
-os.chdir(wrkfldr)
-print('directory has been set to ', wrkfldr)
 
 #%% Define the unpacking functions
 

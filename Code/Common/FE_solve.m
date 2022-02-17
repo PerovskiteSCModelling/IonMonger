@@ -7,9 +7,9 @@ function dstrbns = FE_solve(params,vectors)
 
 % Parameter input
 [psi, time, rtol, atol, Verbose, findVoc, splits, ...
-    OutputFcn, MaxStep, Stats] ... % the options on this line may be []
+    OutputFcn, MaxStep] ... % the options on this line may be []
     = struct2array(params,{'psi','time','rtol','atol','Verbose', ...
-    'findVoc','splits','OutputFcn','MaxStep','Stats'});
+    'findVoc','splits','OutputFcn','MaxStep'});
 
 % Program settings
 options = odeset('RelTol',rtol,'AbsTol',atol);
@@ -19,7 +19,7 @@ if isfield(params, 'OutputFcn')
 end
 if Verbose, options.OutputFcn = OutputFcn; end
 options.MaxStep = MaxStep;
-if Verbose, options.Stats = Stats; else, options.Stats = 'off'; end
+if Verbose, options.Stats = 'on'; else, options.Stats = 'off'; end
 options.MassSingular = 'yes';
 options.MStateDependence = 'none';
 

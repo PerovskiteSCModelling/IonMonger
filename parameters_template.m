@@ -17,17 +17,16 @@ if nargin<1, iter=1; end
 % Options for the user
 workfolder  = './Data/'; % the folder to which data will be saved,
 % note that the string must end with a forward slash
-Stats       = 'on'; % ode15s option to output stats, either 'on' or 'off'
 OutputFcn   = 'PrintVolt'; % ode15s optional message function, choose
 % either 'PrintVolt' or 'PrintTime' (which can be found in Code/Common/)
-Verbose     = true; % set this to false to suppress message output,
+Verbose     = false; % set this to false to suppress message output,
 % note that this option overwrites the previous two if Verbose=false
 UseSplits   = true; % set this to false to make a single call to ode15s
 
 % Resolution and error tolerances
 N    = 400; % Number of subintervals, with N+1 being the number of grid points
 rtol = 1e-6; % Relative temporal tolerance for ode15s solver
-atol = 1e-10; % Absolute temporal tolerance for ode15s solver
+atol = 1e-8; % Absolute temporal tolerance for ode15s solver
 phidisp = 100; % displacement factor for electric potential (VT) (optional)
 
 %% Parameter input
@@ -64,44 +63,46 @@ inverted = false; % choose false for a standard architecture cell (light
 % (light entering through the HTL)
 
 % ETL parameters
-% dE    = 1e24;    % effective doping density of ETL (m-3)
-EfE   = -4.1;    % doped electron quasi-Fermi level in ETL (eV) (optional, overrides dE)
+dE    = 1e24;    % effective doping density of ETL (m-3)
+% EfE   = -4.1;    % doped electron quasi-Fermi level in ETL (eV) (optional, overrides dE)
 gcE   = 5e25;    % effective conduction band DoS in ETL (m-3)
 EcE   = -4.0;    % conduction band reference energy in ETL (eV)
 bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
-DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
-stats.ETL.model = 'FermiDirac'; % ETL statistical model (choose from
-% 'FermiDirac', 'GaussFermi', or 'Blakemore')
-stats.ETL.Boltzmann = true; % ETL Boltzmann approximation
+% DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
+muE   = 3.8e-4;  % electron mobility in ETL (m2V-1s-1) (optional, overrides DE)
+stats.ETL = struct('model','FermiDirac',... 
+                    'Boltzmann',false); % ETL statistical model (choose model
+% from 'FermiDirac', 'GaussFermi', or 'Blakemore')
 
 % HTL parameters
 % dH    = 1e24;    % effective doping density of HTL (m-3) 
-EfH   = -5;    % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
-gvH   = 5e25;    % effective valence band DoS in HTL (m-3)
-EvH   = -5.1;   % valence band reference energy in HTL (eV)
+EfH   = -4.852;    % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
+gvH   = iter;    % effective valence band DoS in HTL (m-3)
+EvH   = -5.09;   % valence band reference energy in HTL (eV)
 bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
-DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
-stats.HTL.model = 'GaussFermi'; % HTL statistical model (choose from
-% 'FermiDirac', 'GaussFermi', or 'Blakemore')
-stats.HTL.Boltzmann = true; % HTL Boltzmann approximation
-stats.HTL.s = 2; % HTL Gaussian disorder (only required for GaussFermi model)
+% DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
+muH   = 3.8e-5;  % electron mobility in HTL (m2V-1s-1) (optional, overrides DH)
+stats.HTL = struct('model','GaussFermi',... 
+                    'Boltzmann',false,...
+                    's',3.73); % HTL statistical model (choose model
+% from 'FermiDirac', 'GaussFermi', or 'Blakemore')
 
 % Metal contact parameters (optional)
 % Ect   = -4.1;    % cathode workfunction (eV)
 % Ean   = -5.0;    % anode workfunction (eV)
 
 % Bulk recombination
-tn    = 1e-9;    % electron pseudo-lifetime for SRH (s)
-tp    = 1e-7;    % hole pseudo-lifetime for SRH (s)
-beta  = 1e-13;       % bimolecular recombination rate (m3s-1)
-Augn  = 1e-29;       % electron-dominated Auger recombination rate (m6s-1)
-Augp  = 1e-29;       % hole-dominated Auger recombination rate (m6s-1)
-warning('extra recombination')
+tn    = 3e-9;    % electron pseudo-lifetime for SRH (s)
+tp    = 3e-7;    % hole pseudo-lifetime for SRH (s)
+beta  = 0e-10;       % bimolecular recombination rate (m3s-1)
+Augn  = 0e-29;       % electron-dominated Auger recombination rate (m6s-1)
+Augp  = 0e-29;       % hole-dominated Auger recombination rate (m6s-1)
+
 % Interface recombination (max. velocity ~ 1e5)
-betaE = 1e-20;       % ETL/perovskite bimolecular recombination rate (m3s-1)
-betaH = 1e-20;       % perovskite/HTL bimolecular recombination rate (m3s-1)
+betaE = 0e-22;       % ETL/perovskite bimolecular recombination rate (m3s-1)
+betaH = 0e-22;       % perovskite/HTL bimolecular recombination rate (m3s-1)
 vnE   = 1e5;     % electron recombination velocity for SRH (ms-1)
 vpE   = 1e1;      % hole recombination velocity for SRH (ms-1)
 vnH   = 1e-1;     % electron recombination velocity for SRH (ms-1)
@@ -143,12 +144,7 @@ params = nondimensionalise(params);
 % Light protocol (either {a single value} or a protocol including an
 % initial value, set to 1 for measurements in the light, 0 in the dark)
 light_intensity = ...
-    {1, ... % steady-state initial value
-%     'linear', 10, 1, ...
-%     'linear', 5, 0, ... % reverse scan
-%     'linear', 5, 0, ...
-%     'linear', 1, 0 ... % reverse scan
-    };
+    {1};
 
 % Voltage protocol (either {'open-circuit'}, {a single value} or a protocol
 % beginning with either 'open-circuit' or an initial value, in Volts). For
@@ -156,26 +152,19 @@ light_intensity = ...
 applied_voltage = ...
     {Vbi, ... % steady-state initial value
     'tanh', 5, 1.2, ...
-    'linear', 1.2/1e-1, 0, ... % reverse scan
-    'linear', 1.2/1e-1, 1.2 ... % reverse scan
+    'linear', 1.2/1e-4, 0, ... % reverse scan
+    'linear', 1.2/1e-4, 1.2 ... % reverse scan
     };
-% applied_voltage = ...
-%     {Vbi, ... % steady-state initial value
-%     'linear', 10, 0, ...
-%     'linear', 5, 0, ... % reverse scan
-%     'linear', 5, 1.2, ...
-%     'linear', 1, 0 ... % reverse scan
-%     };
 
 % Impedance protocol template:
-applied_voltage = {'impedance', ...
-    1e-4, ...   % minimum impedance frequency (Hz)
-    1e7, ...    % maximum impedance frequency (Hz)
-    0.6, ...  	% DC voltage (V)
-    20e-3, ...  % AC voltage amplitude (V)
-    150, ...      % number of frequencies to sample
-    5, ...      % number of sine waves
-    10};        % time to hold at DC voltage (s)
+% applied_voltage = {'impedance', ...
+%     1e-4, ...   % minimum impedance frequency (Hz)
+%     1e7, ...    % maximum impedance frequency (Hz)
+%     0.9, ...  	% DC voltage (V)
+%     20e-3, ...  % AC voltage amplitude (V)
+%     200, ...      % number of frequencies to sample
+%     5, ...      % number of sine waves
+%     10};        % time to hold at DC voltage (s)
 
 reduced_output = true; % set to true to reduce the amount of data retained ...
 % in impedance simulations
@@ -224,7 +213,7 @@ if Verbose
             title({'example impedance protocol','at a frequency of 1Hz'})
             hold on
             plot(tstar2t(time(end-200:end)),psi2Vap(psi(time(end-200:end))),'r')
-            legend({'','phase analysis region'},'Location','best','Interpreter','latex')
+            legend({'','phase analysis region'},'Location','best')
             hold off
         end
         ylim([min([0,psi2Vap(psi(time))]), ceil(2*max(psi2Vap(psi(time))))/2])
