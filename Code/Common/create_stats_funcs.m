@@ -74,6 +74,20 @@ elseif isequal(model, 'Blakemore')
     if ~isempty(s),
         warning(['The Gaussian disorder parameter was defined but was not ' ...
             'used for the Blakemore model.']); end
+% % Template for user-defined statistical models
+% elseif isequal(model, 'modelname')
+%     if Boltzmann
+%         Sinv = @(x) log(x); % Boltzmann approximation to inverse function
+%         S = @(x) exp(x); % Boltzmann approximation to forwards function
+%         A = 1; % Boltzmann approximation constant
+%     else
+%         Sinv = @(x) log(x); % inverse function
+%         S = @(x) exp(x); % forwards function
+%         A = 1; % Boltzmann approximation constant
+%     end
+else
+    error(['Statistical model name not recognised. Choose from ''FermiDirac',...
+        ''', GaussFermi'', or ''Blakemore''.'])
 end
 
 %% 
