@@ -63,17 +63,25 @@ elseif isequal(model, 'Blakemore')
     if Boltzmann
         Sinv = @(x) log(x);
         S = @(x) exp(x);
+        S = @(x) 0*x;
         A = 1; % Boltzmann approximation constant
     else
         gamma = 1/lim;
         Sinv = @(x) BlakemoreInv(x,gamma);
         S = @(x) 1./(exp(-x)+gamma);
+        S = @(x) 0*x;
         A = 1; % Boltzmann approximation constant
     end
-    
     if ~isempty(s),
         warning(['The Gaussian disorder parameter was defined but was not ' ...
             'used for the Blakemore model.']); end
+elseif isequal(model, 'Steric')
+  gamma = 1/lim;
+  Sinv = @(x) BlakemoreInv(x,gamma);
+  S = @(x) gamma*x;
+  A = 1; % Boltzmann approximation constant
+
+
 % % Template for user-defined statistical models
 % elseif isequal(model, 'modelname')
 %     if Boltzmann
@@ -90,7 +98,7 @@ else
         ''', GaussFermi'', or ''Blakemore''.'])
 end
 
-%% 
+%%
 
 function F = FermiDirac(xi, N)
 % Numerical evaluation of the Fermi-Dirac integral
@@ -106,7 +114,7 @@ end
 
 function G = GaussFermi(xi, s, N)
 % Numerical evaluation of the Gauss-Fermi integral
-if s<1 
+if s<1
     error('Gaussian width is too low for accurate Gauss-Fermi integral evaluation. Ensure s>=1 or s=0.')
 end
 if any(xi>2*s)

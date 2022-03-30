@@ -19,7 +19,7 @@ workfolder  = './Data/'; % the folder to which data will be saved,
 % note that the string must end with a forward slash
 OutputFcn   = 'PrintVolt'; % ode15s optional message function, choose
 % either 'PrintVolt' or 'PrintTime' (which can be found in Code/Common/)
-Verbose     = false; % set this to false to suppress message output,
+Verbose     = true; % set this to false to suppress message output,
 % note that this option overwrites the previous two if Verbose=false
 UseSplits   = true; % set this to false to make a single call to ode15s
 
@@ -51,11 +51,13 @@ gv    = 5.8e24;    % valence band density of states (m-3)
 
 % Ion parameters
 N0    = 1.6e25;        % typical density of ion vacancies (m-3)
-Plim  = inf;           % limiting density of ion vacancies (m-3) (can choose inf)
+Plim  = 2.1e25;           % limiting density of ion vacancies (m-3) (can choose inf)
 D     = @(Dinf, EA) Dinf*exp(-EA/(kB*T)); % diffusivity relation
 DIinf = 6.5e-8;        % high-temp. vacancy diffusion coefficient (m2s-1)
 EAI   = 0.58;          % iodide vacancy activation energy (eV)
 DI    = D(DIinf, EAI); % diffusion coefficient for iodide ions (m2s-1)
+stats.P = struct('model','Steric','Boltzmann',false);
+%DI = 9e-18;
 
 % Direction of light
 inverted = false; % choose false for a standard architecture cell (light
@@ -71,20 +73,20 @@ bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
 % DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
 muE   = 3.8e-4;  % electron mobility in ETL (m2V-1s-1) (optional, overrides DE)
-stats.ETL = struct('model','FermiDirac',... 
+stats.ETL = struct('model','FermiDirac',...
                     'Boltzmann',false); % ETL statistical model (choose model
 % from 'FermiDirac', 'GaussFermi', or 'Blakemore')
 
 % HTL parameters
-% dH    = 1e24;    % effective doping density of HTL (m-3) 
+% dH    = 1e24;    % effective doping density of HTL (m-3)
 EfH   = -4.852;    % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
-gvH   = iter;    % effective valence band DoS in HTL (m-3)
+gvH   = 5e25;    % effective valence band DoS in HTL (m-3)
 EvH   = -5.09;   % valence band reference energy in HTL (eV)
 bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 % DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
 muH   = 3.8e-5;  % electron mobility in HTL (m2V-1s-1) (optional, overrides DH)
-stats.HTL = struct('model','GaussFermi',... 
+stats.HTL = struct('model','GaussFermi',...
                     'Boltzmann',false,...
                     's',3.73); % HTL statistical model (choose model
 % from 'FermiDirac', 'GaussFermi', or 'Blakemore')
@@ -145,16 +147,20 @@ params = nondimensionalise(params);
 % initial value, set to 1 for measurements in the light, 0 in the dark)
 light_intensity = ...
     {1};
+    %{1,'linear', 1,1};
 
 % Voltage protocol (either {'open-circuit'}, {a single value} or a protocol
 % beginning with either 'open-circuit' or an initial value, in Volts). For
 % impedance spectroscopy protocols, see GUIDE.md.
 applied_voltage = ...
     {Vbi, ... % steady-state initial value
-    'tanh', 5, 1.2, ...
-    'linear', 1.2/1e-4, 0, ... % reverse scan
-    'linear', 1.2/1e-4, 1.2 ... % reverse scan
+    'tanh', 20, 1.3, ...
     };
+    % {Vbi, ... % steady-state initial value
+    % 'tanh', 5, 1.2, ...
+    % 'linear', 1.2/1e-4, 0, ... % reverse scan
+    % 'linear', 1.2/1e-4, 1.2 ... % reverse scan
+    % };
 
 % Impedance protocol template:
 % applied_voltage = {'impedance', ...

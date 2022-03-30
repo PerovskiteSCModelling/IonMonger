@@ -21,7 +21,7 @@ if ~isfield(stats, 'ETL')
 if ~isfield(stats, 'HTL')
     stats.HTL.model = 'FermiDirac';
     stats.HTL.Boltzmann = true ; end
-stats.P.model = 'Blakemore';
+
 if isempty(Plim) || Plim == inf
     % if there is no ion limitation, use Boltzmann for efficiency
     stats.P.Boltzmann = true;
@@ -31,12 +31,12 @@ else
     stats.P.lim = Plim/N0; % dimensionless vacancy density limit
 end
 if Plim <= N0, error(['Limiting ion density must be greater than typical '...
-        'ion density']) ; end 
+        'ion density']) ; end
 
 % Create statistical functions
 [SE, SEinv, AE] = create_stats_funcs(stats.ETL);
 [SH, SHinv, AH] = create_stats_funcs(stats.HTL);
-[~,SPinv,~] = create_stats_funcs(stats.P);
+[SPS,SPinv,~] = create_stats_funcs(stats.P);
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
@@ -199,7 +199,7 @@ ARp = Rp*Acell/1e4*q*G0*b/VT; % non-dim. parallel/shunt resistance x cell area
 Rsp = Rs/Rp; % ratio between series and parallel/shunt resistance
 
 
-if ~isfield(params, 'phidisp') % check for electric potential displacement 
+if ~isfield(params, 'phidisp') % check for electric potential displacement
     phidisp = 100; % set to default value
 end
 
