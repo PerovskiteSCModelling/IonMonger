@@ -4,6 +4,8 @@ function plot_sections(sol,sections)
 % integers indicating which of the sections of the voltage protocol
 % correspond to the reverse and forward scans of a J-V curve (e.g. [2,3]).
 % See GUIDE.md for notes on constructing a suitable simulation protocol.
+% If there is an odd number of sections, the first is assumed to correspond
+% to a preconditioning step.
 
 % Parameter input
 [J, V, Jl, Jr] = struct2array(sol,{'J','V','Jl','Jr'});
@@ -32,14 +34,22 @@ colour{2} = [0, 0.9, 0.6]; % green
 colour{3} = [0.9, 0.6, 0]; % orange
 
 % Plot each dataset
-for i = 1:length(sections)/2
+odd = mod(length(sections),2);
+if odd % odd number of sections
+    % Plot the first section
+    start = (sections(1)-1)*100+1;
+    plot(V(start:start+100),J(start:start+100),'-','Color',[0, 0, 0]);
+    plot(V(start:start+100),Jl(start:start+100),':b','HandleVisibility','off');
+    plot(V(start:start+100),Jr(start:start+100),':r','HandleVisibility','off');
+end
+for i = 1:floor(length(sections)/2)
     % Plot first scan (usually reverse)
-    start = (sections(2*i-1)-1)*100+1;
+    start = (sections(odd+2*i-1)-1)*100+1;
     plot(V(start:start+100),J(start:start+100),'-','Color',colour{i});
     plot(V(start:start+100),Jl(start:start+100),'-.b','HandleVisibility','off');
     plot(V(start:start+100),Jr(start:start+100),'-.r','HandleVisibility','off');
     % Plot second scan (usually forward)
-    start = (sections(2*i)-1)*100+1;
+    start = (sections(odd+2*i)-1)*100+1;
     plot(V(start:start+100),J(start:start+100),'--','Color',colour{i}); %,'HandleVisibility','off');
     plot(V(start:start+100),Jl(start:start+100),':b','HandleVisibility','off');
     plot(V(start:start+100),Jr(start:start+100),':r','HandleVisibility','off');
