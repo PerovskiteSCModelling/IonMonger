@@ -8,7 +8,7 @@ reset_path();
 
 % Create a structure filled with the user-defined parameters
 
-params = parameters_template();
+params = parameters();
 
 % Solve the equations
 if strcmp(params.applied_voltage{1},'impedance') % check if voltage protocol ...
