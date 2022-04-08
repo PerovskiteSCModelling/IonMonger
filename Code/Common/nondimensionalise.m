@@ -34,9 +34,9 @@ if Plim <= N0, error(['Limiting ion density must be greater than typical '...
         'ion density']) ; end 
 
 % Create statistical functions
-[SE, SEinv, AE] = create_stats_funcs(stats.ETL);
-[SH, SHinv, AH] = create_stats_funcs(stats.HTL);
-[~,SPinv,~] = create_stats_funcs(stats.P);
+[SE, SEinv] = create_stats_funcs(stats.ETL);
+[SH, SHinv] = create_stats_funcs(stats.HTL);
+[~,SPinv] = create_stats_funcs(stats.P);
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)

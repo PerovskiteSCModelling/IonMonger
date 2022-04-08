@@ -44,20 +44,28 @@ for tt = plotindex
     EvacE = shift-phiE(tt,:);
     EvacH = shift-phiH(tt,:);
     % Plot the vacuum level
-    plot(x, Evac, '--','color',shade(tt)*phi_colour);
-    plot(xE,EvacE,'--','color',shade(tt)*phi_colour);
-    plot(xH,EvacH,'--','color',shade(tt)*phi_colour);
+    plot(x, Evac, '--','color',shade(tt)*phi_colour,'HandleVisibility','off');
+    plot(xE,EvacE,'--','color',shade(tt)*phi_colour,'HandleVisibility','off');
+    plot(xH,EvacH,'--','color',shade(tt)*phi_colour,'HandleVisibility','off');
     % Plot the band energy levels
-    plot(x, Evac+Ec,  'color',shade(tt)*phi_colour);
-    plot(x, Evac+Ev,  'color',shade(tt)*phi_colour);
-    plot(xE,EvacE+EcE,'color',shade(tt)*phi_colour);
-    plot(xH,EvacH+EvH,'color',shade(tt)*phi_colour);
+    plot(x, Evac+Ec,  'color',shade(tt)*phi_colour,'HandleVisibility','off');
+    plot(x, Evac+Ev,  'color',shade(tt)*phi_colour,'HandleVisibility','off');
+    plot(xE,EvacE+EcE,'color',shade(tt)*phi_colour,'HandleVisibility','off');
+    plot(xH,EvacH+EvH,'color',shade(tt)*phi_colour,'HandleVisibility','off');
     % Plot the quasi-Fermi levels
-    plot(x, shift+Efn(tt,:), 'color',shade(tt)*n_colour);
-    plot(x, shift+Efp(tt,:), 'color',shade(tt)*p_colour);
-    plot(xE,shift+EfnE(tt,:),'color',shade(tt)*n_colour);
-    plot(xH,shift+EfpH(tt,:),'color',shade(tt)*p_colour);
+    plot(x, shift+Efn(tt,:), 'color',shade(tt)*n_colour,'HandleVisibility','off');
+    plot(x, shift+Efp(tt,:), 'color',shade(tt)*p_colour,'HandleVisibility','off');
+    plot(xE,shift+EfnE(tt,:),'color',shade(tt)*n_colour,'HandleVisibility','off');
+    plot(xH,shift+EfpH(tt,:),'color',shade(tt)*p_colour,'HandleVisibility','off');
 end
+
+% Legend
+plot(nan, nan, '--','color',phi_colour,'DisplayName','Vacuum level');
+plot(nan, nan, '-','color',phi_colour,'DisplayName','Band energy level');
+plot(nan, nan, '-','color',n_colour,'DisplayName','Electron QFL');
+plot(nan, nan, '-','color',p_colour,'DisplayName','Hole QFL');
+legend('Location','best')
+
 xlabel('Distance (nm)'); ylabel('Energy (eV)');
 
 % Reset default figure options

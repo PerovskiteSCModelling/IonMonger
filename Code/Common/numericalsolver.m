@@ -67,8 +67,6 @@ solution = struct('vectors',vectors, 'params',params, 'dstrbns',dstrbns, ...
         'timetaken',timetaken);
 
 % If completion tasks are specified, perform them
-if exist('completion_tasks','file')
-    solution = completion_tasks(solution);
-end
+if exist('completion_tasks','file'), completion_tasks(solution); end
 
 end

@@ -1,4 +1,4 @@
-function [S, Sinv, A] = create_stats_funcs(stats)
+function [S, Sinv] = create_stats_funcs(stats)
 % Creates an efficient and accurate numerical approximation to a statistical
 % function and its inverse. Statistical models are specified by a structure
 % with the fields 'model' and 'Boltzmann'. Supported models are 'FermiDirac',
@@ -20,12 +20,12 @@ if isequal(model, 'FermiDirac')
         % Create lookup table using numerical integration
         cmin = 1e-7; % minimum concentration required (dimensionless)
         Ntab=2e3; % number of tabulated points
-        xi=linspace(log(cmin), 6, Ntab); % dimensionless Fermi levels
+        xi=linspace(log(cmin), 12, Ntab); % dimensionless Fermi levels
         FD=FermiDirac(xi,1e3); % compute corresponding concentrations via numerical integration
         S=@(E) interp1(xi,FD, E, 'pchip', NaN); % create tabulated function
-        Sinv=@(c) interp1(FD, xi, c, 'pchip', NaN); % create tabulated inverse function
+%         Sinv=@(c) stats_interpolate(FD, xi, c, 'pchip', NaN); % create tabulated inverse function
+        Sinv=@(c) stats_interpolate(FD, xi, c); % create tabulated inverse function
     end
-    A = 1; % Boltzmann approximation constant
     if ~isempty(s),
         warning(['The Gaussian disorder parameter was defined but was not ' ...
             'used for the FermiDirac model.']); end
@@ -38,12 +38,10 @@ elseif isequal(model, 'GaussFermi')
         % Boltzmann approximation to Gauss-Fermi statistics
         Sinv = @(x) log(x) - s^2/2;
         S = @(x) exp(x + s^2/2);
-        A = 1;% Boltzmann approximation constant
     else
         if s==0
             Sinv = @(x) BlakemoreInv(x,1); % Exact limit of vanishing s
             S = @(x) 1./(exp(-x)+1);
-            A = 1; % Boltzmann approximation constant
         else
             % Create lookup table using numerical integration
             cmin = 1e-12; % minimum concentration required
@@ -51,8 +49,8 @@ elseif isequal(model, 'GaussFermi')
             xi=linspace(log(cmin)-s^2/2, 2*s, Ntab); % dimensionless Fermi levels
             GF=GaussFermi(xi,s,1e3); % compute corresponding concentrations
             S=@(E) interp1(xi,GF, E, 'pchip', nan); % create tabulated function
-            Sinv=@(c) interp1(GF, xi, c, 'pchip', nan); % create tabulated function
-            A = exp(s^2/2); % Boltzmann approximation constant
+%             Sinv=@(c) interp1(GF, xi, c, 'pchip', nan); % create tabulated inverse function
+            Sinv=@(c) stats_interpolate(GF, xi, c); % create tabulated inverse function
         end
     end
 elseif isequal(model, 'Blakemore')
@@ -63,12 +61,10 @@ elseif isequal(model, 'Blakemore')
     if Boltzmann
         Sinv = @(x) log(x);
         S = @(x) exp(x);
-        A = 1; % Boltzmann approximation constant
     else
         gamma = 1/lim;
         Sinv = @(x) BlakemoreInv(x,gamma);
         S = @(x) 1./(exp(-x)+gamma);
-        A = 1; % Boltzmann approximation constant
     end
     
     if ~isempty(s),
@@ -79,22 +75,20 @@ elseif isequal(model, 'Blakemore')
 %     if Boltzmann
 %         Sinv = @(x) log(x); % Boltzmann approximation to inverse function
 %         S = @(x) exp(x); % Boltzmann approximation to forwards function
-%         A = 1; % Boltzmann approximation constant
 %     else
 %         Sinv = @(x) log(x); % inverse function
 %         S = @(x) exp(x); % forwards function
-%         A = 1; % Boltzmann approximation constant
 %     end
 else
     error(['Statistical model name not recognised. Choose from ''FermiDirac',...
         ''', GaussFermi'', or ''Blakemore''.'])
 end
 
-%% 
+end
 
 function F = FermiDirac(xi, N)
 % Numerical evaluation of the Fermi-Dirac integral
-if any(xi>6)
+if any(xi>12)
     error('Fermi level is too high for accurate Fermi-Dirac integral evaluation.')
 end
 for i=1:length(xi)
@@ -125,4 +119,20 @@ function B = BlakemoreInv(xi, gamma)
     B(xi>=1/gamma) = inf;
 end
 
+function Ef = stats_interpolate(c_list, Ef_list, c)
+
+if any(c>max(c_list))
+    error(['Statistical function was called for a carrier density larger '...
+        'than any in the interpolation tables'])
+elseif any(c<min(c_list))
+    min(c)
+    min(c_list)
+    error(['Statistical function was called for a carrier density smaller '...
+        'than any in the interpolation tables'])
+else
+    Ef = interp1(c_list, Ef_list, c, 'pchip', NaN);
 end
+
+end
+
+

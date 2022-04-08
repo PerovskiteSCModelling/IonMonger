@@ -12,12 +12,12 @@ function sol = compute_QFLs(sol)
 % Compute the quasi-Fermi levels and add them to the solution structure
 sol.dstrbns.Efn  = -phi +Ec -VT*log(gc./n);
 sol.dstrbns.Efp  = -phi +Ev +VT*log(gv./p);
-if any(nE2EfE(1))
+if isfield(sol.params,'SE') % Check if solution is from v1 or v2
     sol.dstrbns.EfnE = -phiE+nE2EfE(nE); % use stats function
 else
     sol.dstrbns.EfnE = -phiE+EcE-VT*log(gcE./nE); % assume Boltzmann
 end
-if any(pH2EfH(1))
+if isfield(sol.params,'SH') % Check if solution is from v1 or v2
     sol.dstrbns.EfpH = -phiH+pH2EfH(pH); % use stats function
 else
     sol.dstrbns.EfpH = -phiH+EvH+VT*log(gvH./pH); % assume Boltzmann

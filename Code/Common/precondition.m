@@ -22,6 +22,7 @@ end
 options.Mass = mass_matrix(params,vectors,'precondition');
 options.InitialSlope = RHS(0,sol_init,@(t) 0,params,vectors,matrices) ...
     \options.Mass;
+options.OutputFcn = []; % Surpress output during preconditioning
 
 % Fix the light in its initial state
 params.G = @(x,t) G(x,0);
