@@ -6,12 +6,12 @@ function params = nondimensionalise(params)
 [N, q, Fph, kB, T, b, epsp, alpha, Ec, Ev, Dn, Dp, gc, gv, N0, DI, EcE, dE, ...
     gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, Augn, Augp, ...
     betaE, betaH, vnE, vpE, vnH, vpH, Ect, Ean, Rs, Rp, Acell, stats, Plim,...
-    EfE, EfH,Verbose,muE,muH] ...
+    non_l_P,EfE, EfH,Verbose,muE,muH] ...
     = struct2array(params, ...
     {'N','q','Fph','kB','T','b','epsp','alpha','Ec','Ev','Dn','Dp','gc', ...
     'gv','N0','DI','EcE','dE','gcE','bE','epsE','DE','EvH','dH','gvH','bH', ...
     'epsH','DH','tn','tp','beta','Augn','Augp','betaE','betaH','vnE','vpE', ...
-    'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim', 'EfE', 'EfH',...
+    'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim','non_l_P', 'EfE', 'EfH',...
     'Verbose','muE','muH'});
 
 % Check for  statistical models
@@ -24,11 +24,19 @@ if ~isfield(stats, 'HTL')
 
 if isempty(Plim) || Plim == inf
     % if there is no ion limitation, use Boltzmann for efficiency
-    stats.P.Boltzmann = true;
-    stats.P.lim = nan;
+    SPinv = @(x) log(x);
+    SPS = @(x) 0*x
 else
-    stats.P.Boltzmann = false;
-    stats.P.lim = Plim/N0; % dimensionless vacancy density limit
+    lim = Plim/N0; % dimensionless vacancy density limit
+    gamma = 1/lim;
+    SPinv = @(x) BlakemoreInv(x,gamma);
+    if isequal(non_l_P,'Drift')
+      SPS = @(x) gamma*x;
+    elseif isequal(non_l_P,'Diffusion')
+      SPS = @(x) 0*x;
+    else
+      error(['Required a non-linear term. Chose from <Drift> or <Diffusion>.']) ; end
+
 end
 if Plim <= N0, error(['Limiting ion density must be greater than typical '...
         'ion density']) ; end
@@ -36,7 +44,7 @@ if Plim <= N0, error(['Limiting ion density must be greater than typical '...
 % Create statistical functions
 [SE, SEinv, AE] = create_stats_funcs(stats.ETL);
 [SH, SHinv, AH] = create_stats_funcs(stats.HTL);
-[SPS,SPinv,~] = create_stats_funcs(stats.P);
+
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
@@ -206,5 +214,11 @@ end
 % Compile all parameters into the params structure
 vars = setdiff(who,{'params','vars'});
 for i=1:length(vars), params.(vars{i}) = eval(vars{i}); end
+
+
+function B = BlakemoreInv(xi, gamma)
+    B = log(xi./(1-gamma*xi));
+    B(xi>=1/gamma) = inf;
+end
 
 end

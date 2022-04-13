@@ -51,13 +51,14 @@ gv    = 5.8e24;    % valence band density of states (m-3)
 
 % Ion parameters
 N0    = 1.6e25;        % typical density of ion vacancies (m-3)
-Plim  = 2.1e25;           % limiting density of ion vacancies (m-3) (can choose inf)
+Plim  = 2.0e25;           % limiting density of ion vacancies (m-3) (can choose inf)
 D     = @(Dinf, EA) Dinf*exp(-EA/(kB*T)); % diffusivity relation
 DIinf = 6.5e-8;        % high-temp. vacancy diffusion coefficient (m2s-1)
 EAI   = 0.58;          % iodide vacancy activation energy (eV)
 DI    = D(DIinf, EAI); % diffusion coefficient for iodide ions (m2s-1)
-stats.P = struct('model','Steric','Boltzmann',false);
-%DI = 9e-18;
+%stats.P = struct('model','Blakemore','Boltzmann',false);
+%stats.P = struct('model','Steric','type','drift'); % choose from non linear..
+non_l_P = 'Drift';     % non-linear term in Ion Vacancy flux. Choose from 'Drift' or 'Diffusion' if Plim specified.
 
 % Direction of light
 inverted = false; % choose false for a standard architecture cell (light
@@ -154,7 +155,8 @@ light_intensity = ...
 % impedance spectroscopy protocols, see GUIDE.md.
 applied_voltage = ...
     {Vbi, ... % steady-state initial value
-    'tanh', 20, 1.3, ...
+    'tanh', 5, 2.0, ...
+    'linear', 20, 2.0, ... % steady state
     };
     % {Vbi, ... % steady-state initial value
     % 'tanh', 5, 1.2, ...

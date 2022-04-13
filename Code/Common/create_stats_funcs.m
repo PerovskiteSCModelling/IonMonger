@@ -63,24 +63,16 @@ elseif isequal(model, 'Blakemore')
     if Boltzmann
         Sinv = @(x) log(x);
         S = @(x) exp(x);
-        S = @(x) 0*x;
         A = 1; % Boltzmann approximation constant
     else
         gamma = 1/lim;
         Sinv = @(x) BlakemoreInv(x,gamma);
         S = @(x) 1./(exp(-x)+gamma);
-        S = @(x) 0*x;
         A = 1; % Boltzmann approximation constant
     end
     if ~isempty(s),
         warning(['The Gaussian disorder parameter was defined but was not ' ...
             'used for the Blakemore model.']); end
-elseif isequal(model, 'Steric')
-  gamma = 1/lim;
-  Sinv = @(x) BlakemoreInv(x,gamma);
-  S = @(x) gamma*x;
-  A = 1; % Boltzmann approximation constant
-
 
 % % Template for user-defined statistical models
 % elseif isequal(model, 'modelname')
