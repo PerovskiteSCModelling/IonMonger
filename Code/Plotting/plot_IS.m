@@ -3,8 +3,8 @@ function plot_IS(sol)
 % parameters of the Nyquist and Bode plots can easily be edited and new
 % plots can be added below. `sol` is a solution structure from an IS
 % simulation. This function works for full solutions or reduced solutions
-% obtained using the `reduced_output` parameter.
-
+% obtained using the `reduced_output` parameter. For analysing and plotting
+% other sinudoidally varying outputs, see the example in FourierFit.m
 % === extract data ===
 
 % check which type of solution structure

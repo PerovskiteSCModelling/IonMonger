@@ -132,16 +132,15 @@ The only mathematical modification required to model open-circuit conditions is 
 ## How to Model Impedance Spectroscopy Measurements
 
 Users can perform impedance spectroscopy simulations by changing the voltage protocol in the parameters file. If the first entry in `applied_voltage` is set to `'impedance'`, `master.m` will call `IS_solver.m`, which simulates the cell in steady state at the DC voltage, and then automatically creates the sinusoidal voltage protocol for each sample frequency and calls `numericalsolver.m` to obtain the solution. `applied_voltage` requires several more entries (all floating point numbers) to specify the bounds of the impedance measurements. These are, in order, the smallest sample frequency (Hz); the largest sample frequency (Hz); the DC applied voltage (V); the AC applied voltage amplitude (V); the number of frequencies to sample (must be a non-negative integer); the number of complete sine waves to apply at each frequency.
-For example, to make 70 impedance measurements at frequencies between 1mHz and 1MHz, with a DC voltage of 0.8V, AC perturbations of amplitude 20mV and performing 6 complete sine waves at each frequency:
+For example, to make 64 impedance measurements at frequencies between 0.1mHz and 10MHz, with a DC voltage of 0.9V, AC perturbations of amplitude 10mV and performing 5 complete sine waves at each frequency:
 ```
-applied_voltage = {'impedance', ...
-    1e-4, ...   % minimum impedance frequency (Hz)
-    1e7, ...    % maximum impedance frequency (Hz)
-    0.6, ...    % DC voltage (V)
-    20e-3, ...  % AC voltage amplitude (V)
-    6, ...      % number of frequencies to sample
-    5, ...      % number of sine waves
-    10};        % time to hold at DC voltage (s)
+ applied_voltage = {'impedance', ...
+     1e-4, ...     % minimum impedance frequency (Hz)
+     1e7, ...      % maximum impedance frequency (Hz)
+     0.9, ...      % DC voltage (V)
+     10e-3, ...    % AC voltage amplitude (V)
+     64, ...       % number of frequencies to sample
+     5};           % number of sine waves
 ```
 The sample frequencies will be logarithmically spaced between the minimum and maximum frequencies.
 
@@ -179,7 +178,7 @@ When taking a large number of sample frequencies, the solution structure array c
   - the `J`, `Jl`, `Jr` values in steady state at the DC voltage.
   - the vectors `freqs`, `R`, and `X`, containing the frequency, and the real and imaginary parts of the impedance, respectively, for each sample frequency.
 
-The user must then choose how to analyse or plot the data. One example plotting function, called plot_sections.m, can be found in the Code/Plotting folder. Any solution of an impedance spectroscopy can be given to `plot_IS.m` to generate Nyquist and Bode plots as well as any user-defined plots. In order to perform an identical analysis at the end of every simulation, the user can add commands to the completion_tasks.m function, which can be found in the Code/Common folder. FourierFit.m is a function that can be used to fit a sinusoidal curve to a periodic signal. Example code is included in this function to analyse the phase of any variable from an impedance simulation.
+The user must then choose how to analyse or plot the data. One example plotting function, called `plot_sections.m`, can be found in the Code/Plotting folder. Any solution of an impedance spectroscopy can be given to `plot_IS.m` to generate Nyquist and Bode plots as well as any user-defined plots. In order to perform an identical analysis at the end of every simulation, the user can add commands to the `completion_tasks.m` function, which can be found in the Code/Common folder. `FourierFit.m` is a function that can be used to fit a sinusoidal curve to a periodic signal. Example code is included in this function to analyse the phase of any variable from an impedance simulation.
 
 
 # Common Errors

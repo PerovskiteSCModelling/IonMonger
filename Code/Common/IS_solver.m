@@ -48,7 +48,7 @@ end
 savestr = [base_params.workfolder, 'DC_sol'];
 save(savestr,'sol');
 
-if nf>1 ; base_params.Verbose = false; ; end % Supress output during measurements
+if nf>1 ; base_params.Verbose = false; end % Supress output during measurements
 
 if ~isempty(ver('parallel')) % check for parallel computing toolbox
     % parallel computing toolbox installed
