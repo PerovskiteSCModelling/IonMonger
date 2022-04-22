@@ -163,9 +163,9 @@ applied_voltage = ...
 %     1e-4, ...     % minimum impedance frequency (Hz)
 %     1e7, ...      % maximum impedance frequency (Hz)
 %     0.9, ...      % DC voltage (V)
-%     20e-3, ...    % AC voltage amplitude (V)
-%     200, ...      % number of frequencies to sample
-%     5}            % number of sine waves
+%     10e-3, ...    % AC voltage amplitude (V)
+%     64, ...       % number of frequencies to sample
+%     5};           % number of sine waves
 
 reduced_output = true; % set to true to reduce the amount of data retained ...
 % in impedance simulations
