@@ -71,10 +71,9 @@ bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
 DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
 % muE   = 3.8e-4;  % electron mobility in ETL (m2V-1s-1) (optional, overrides DE)
-% stats.ETL = struct('model','FermiDirac',... 
-%                     'Boltzmann',true);  % ETL statistical model (choose model
-%                                         % from 'FermiDirac', 'GaussFermi',
-%                                         % or 'Blakemore')
+% stats.ETL = struct('band','parabolic',... % ETL band shape (<parabolic> or <Gaussian>)
+%                     'distribution','Boltzmann'); % ETL statistical distribution
+%                                                  % (<Boltzmann> or <FermiDirac>)
 
 % HTL parameters
 dH    = 1e24;    % effective doping density of HTL (m-3) 
@@ -85,11 +84,9 @@ bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
 % muH   = 3.8e-5;  % electron mobility in HTL (m2V-1s-1) (optional, overrides DH)
-% stats.HTL = struct('model','GaussFermi',... 
-%                     'Boltzmann',true,...
-%                     's',3);     % HTL statistical model (choose model
-%                                 % from 'FermiDirac', 'GaussFermi', or
-%                                 % 'Blakemore')
+% stats.HTL = struct('band','Gaussian',... % HTL band shape (<parabolic> or <Gaussian>)
+%                     'distribution','Boltzmann',... % HTL statistical distribution (<Boltzmann> or <FermiDirac>)
+%                     's',3); % HTL Gaussian width
 
 % Metal contact parameters (optional)
 % Ect   = -4.1;    % cathode workfunction (eV)

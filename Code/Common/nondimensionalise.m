@@ -16,20 +16,12 @@ function params = nondimensionalise(params)
 
 % Check for  statistical models
 if ~isfield(stats, 'ETL')
-    stats.ETL.model = 'FermiDirac';
-    stats.ETL.Boltzmann = true ; end
+    stats.ETL.band = 'parabolic';
+    stats.ETL.distribution = 'Boltzmann'; end
 if ~isfield(stats, 'HTL')
-    stats.HTL.model = 'FermiDirac';
-    stats.HTL.Boltzmann = true ; end
-stats.P.model = 'Blakemore';
-if isempty(Plim) || Plim == inf
-    % if there is no ion limitation, use Boltzmann for efficiency
-    stats.P.Boltzmann = true;
-    stats.P.lim = nan;
-else
-    stats.P.Boltzmann = false;
-    stats.P.lim = Plim/N0; % dimensionless vacancy density limit
-end
+    stats.HTL.band = 'parabolic';
+    stats.HTL.distribution = 'Boltzmann'; end
+stats.P = struct('band','Gaussian','distribution','Boltzmann','s',0); % placeholder for steric effects
 if Plim <= N0, error(['Limiting ion density must be greater than typical '...
         'ion density']) ; end 
 
