@@ -18,3 +18,6 @@ Thumbs.db
 
 # Video files generated from sweep animation
 *.mp4
+
+# Will's local files/functions
+Private/
