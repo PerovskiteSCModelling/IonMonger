@@ -23,17 +23,15 @@ if ~isfield(stats, 'HTL')
     stats.HTL.Boltzmann = true ; end
 
 if isempty(Plim) || Plim == inf
-    % if there is no ion limitation, use Boltzmann for efficiency
-    SPinv = @(x) log(x);
-    SPS = @(x) 0*x
+    % if there is no ion limitation specified use infinite limit
+    lim = 1e35/N0; % this value is ignored for inf limit
+    m = [1;0];
 else
     lim = Plim/N0; % dimensionless vacancy density limit
-    gamma = 1/lim;
-    SPinv = @(x) BlakemoreInv(x,gamma);
     if isequal(non_l_P,'Drift')
-      SPS = @(x) gamma*x;
+      m = [1;1];
     elseif isequal(non_l_P,'Diffusion')
-      SPS = @(x) 0*x;
+      m = [0;0];
     else
       error(['Required a non-linear term. Chose from <Drift> or <Diffusion>.']) ; end
 
