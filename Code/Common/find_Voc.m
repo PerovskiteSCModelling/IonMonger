@@ -139,7 +139,7 @@ if ~isnan(psi(time(end)))
     
     applied_voltage{1} = psi2Vap(psioc); % replace initial voltage
     [~,psi,~,~,~] = ...
-    construct_protocol(params,light_intensity,applied_voltage,time_spacing)
+    construct_protocol(params,light_intensity,applied_voltage,time_spacing);
 
     if Verbose
         clf(99); figure(99);
@@ -149,5 +149,6 @@ if ~isnan(psi(time(end)))
         drawnow;
     end
 end
+
 
 end

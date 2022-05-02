@@ -1,7 +1,10 @@
-function completion_tasks(sol)
+function sol = completion_tasks(sol)
 % This script is called by numericalsolver and can contain any additional
 % tasks to be performed after the (dimensional) solution has been found.
 % The only input is the solution structure.
+
+% Compute the quasi-Fermi levels
+% sol = compute_QFLs(sol);
 
 if sol.params.Verbose
     

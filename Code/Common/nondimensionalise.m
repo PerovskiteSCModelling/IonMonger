@@ -16,8 +16,8 @@ function params = nondimensionalise(params)
 
 % Check for  statistical models
 if ~isfield(stats, 'ETL')
-    stats.ETL.model = 'FermiDirac';
-    stats.ETL.Boltzmann = true ; end
+    stats.ETL.band = 'parabolic';
+    stats.ETL.distribution = 'Boltzmann'; end
 if ~isfield(stats, 'HTL')
     stats.HTL.model = 'FermiDirac';
     stats.HTL.Boltzmann = true ; end
@@ -42,7 +42,6 @@ if Plim <= N0, error(['Limiting ion density must be greater than typical '...
 % Create statistical functions
 [SE, SEinv, AE] = create_stats_funcs(stats.ETL);
 [SH, SHinv, AH] = create_stats_funcs(stats.HTL);
-
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
@@ -212,11 +211,5 @@ end
 % Compile all parameters into the params structure
 vars = setdiff(who,{'params','vars'});
 for i=1:length(vars), params.(vars{i}) = eval(vars{i}); end
-
-
-function B = BlakemoreInv(xi, gamma)
-    B = log(xi./(1-gamma*xi));
-    B(xi>=1/gamma) = inf;
-end
 
 end

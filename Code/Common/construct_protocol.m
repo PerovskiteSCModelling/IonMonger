@@ -30,8 +30,8 @@ if strcmp(applied_voltage{1},'impedance')
     
     V0 = applied_voltage{4}; % DC voltage
     Vp = applied_voltage{5}; % AC voltage amplitude
-    t = applied_voltage{8}; % time spent in steady state (s)
-    n = applied_voltage{7}; % number of periods to simulate
+    t = 5;                  % time spent in steady state (s)
+    n = applied_voltage{7};  % number of periods to simulate
     applied_voltage = {V0,'tanh',t,V0}; % protocol for steady state
     freq = 1; % example frequency (Hz)
     for i = 1:n

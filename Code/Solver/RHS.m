@@ -38,7 +38,6 @@ mE = Dx*phi; % negative electric field
 mEE = DxE*phiE; % negative electric field in ETL
 mEH = DxH*phiH; % negative electric field in HTL
 FP = nnz(DI)*lambda*(Av*((lim - m(1)*P)./(lim - P)).*(Dx*P) + Av*(P.*(1-m(2)*P/lim)).*(Dx*phi) );% negative anion vacancy flux
-%%%%%%%%%%%%%
 cd = NN-Lo*P+delta*(Lo*n-chi*Lo*p); % charge density
 cdE = LoE*nE-ddE; % charge density in ETL
 cdH = ddH-LoH*pH; % charge density in HTL
@@ -81,7 +80,7 @@ dudt(4*N+6:4*N+NE+4,:) = mEE(2:NE,:)-mEE(1:NE-1,:)-cdE/lamE2;
 % nE equation
 dudt(4*N+NE+5,:) = nE(1,:)-nc;
 dudt(4*N+NE+6:4*N+2*NE+4,:) = fnE(2:NE,:)-fnE(1:NE-1,:);
-dudt(4*N+2*NE+5,:) = omegE*n(1,:) - AE*exp(SEinv(omegE*nE(end,:)));
+dudt(4*N+2*NE+5,:) = n(1,:) - exp(SEinv(omegE*nE(end,:))-SEinv(omegE));
 
 % phiH equation
 dudt(4*N+2*NE+6:4*N+2*NE+NH+4,:) = mEH(2:NH,:)-mEH(1:NH-1,:)-cdH/lamH2;
@@ -91,7 +90,7 @@ dudt(4*N+2*NE+NH+5,:) = phiH(end,:)+psi(t) ...
 % (neglecting the displacement current, which should be small at the contacts)
 
 % pH equation
-dudt(4*N+2*NE+NH+6,:) = omegH*p(end,:) - AH*exp(SHinv(omegH*pH(1,:)));
+dudt(4*N+2*NE+NH+6,:) = p(end,:) - exp(SHinv(omegH*pH(1,:))-SHinv(omegH));
 dudt(4*N+2*NE+NH+7:4*N+2*NE+2*NH+5,:) = fpH(2:NH,:)-fpH(1:NH-1,:);
 dudt(4*N+2*NE+2*NH+6,:) = pH(end,:)-pc;
 

@@ -219,7 +219,7 @@ JJJ(4*N+6:4*N+NE+4,4*N+NE+5:4*N+2*NE+5) = -LoE/lamE2;
 % nE equation depends on phi
 JJJ(4*N+2*NE+4,N+2) = -kE*KE*AvnE(end)./dxE(end);
 % nE equation depends on n
-JJJ(4*N+2*NE+5,2*N+3) = omegE;
+JJJ(4*N+2*NE+5,2*N+3) = 1;
 % nE equation does not depend on p
 % nE equation depends on phiE
 JJJ(4*N+NE+5:4*N+2*NE+4,4*N+5:4*N+NE+4) = -kE*KE*gallery('tridiag',NE, ...
@@ -232,7 +232,8 @@ JJJ(4*N+NE+5:4*N+2*NE+5,4*N+NE+5:4*N+2*NE+5) = kE*KE*gallery('tridiag',NE+1, ...
     [1/(kE*KE); -1/2*dEnE(1:NE-1)-AvnE(1:end-1).*xdE(1:NE-1).*dSEinvdnE(2:NE)+...
     1/2*dEnE(2:NE)-AvnE(2:NE).*xdE(2:NE).*dSEinvdnE(2:NE); 0], ...
     [0; 1/2*dEnE(2:NE)+AvnE(2:NE).*xdE(2:NE).*dSEinvdnE(3:NE+1)]);
-JJJ(4*N+2*NE+5,4*N+2*NE+5) = -AE*dSEinvdnE(end)*exp(SEinv(omegE*nE(end)));
+% JJJ(4*N+2*NE+5,4*N+2*NE+5) = -AE*dSEinvdnE(end)*exp(SEinv(omegE*nE(end)));
+JJJ(4*N+2*NE+5,4*N+2*NE+5) = -dSEinvdnE(end)*exp(SEinv(omegE*nE(end))-SEinv(omegE));
 % nE equation does not depend on phiH
 % nE equation does not depend on pH
 
@@ -256,7 +257,7 @@ JJJ(4*N+2*NE+6:4*N+2*NE+NH+4,4*N+2*NE+NH+6:4*N+2*NE+2*NH+6) = LoH/lamH2;
 JJJ(4*N+2*NE+NH+7,2*N+2) = kH*KH*AvpH(1)./dxH(1);
 % pH equation does not depend on n
 % pH equation depends on p
-JJJ(4*N+2*NE+NH+6,4*N+4) = omegH;
+JJJ(4*N+2*NE+NH+6,4*N+4) = 1;
 % pH equation does not depend on phiE
 % pH equation does not depend on nE
 % pH equation depends on phiH
@@ -272,7 +273,8 @@ JJJ(4*N+2*NE+NH+6:4*N+2*NE+2*NH+6,4*N+2*NE+NH+6:4*N+2*NE+2*NH+6) = ...
     [0; -AvpH(1:NH-1).*xdH(1:NH-1).*dSHinvdpH(2:NH)-1/2*dEpH(1:NH-1)-...
     AvpH(2:NH).*xdH(2:NH).*dSHinvdpH(2:NH)+1/2*dEpH(2:NH); 1/(kH*KH)], ...
     [0; AvpH(2:NH).*xdH(2:NH).*dSHinvdpH(3:NH+1)+1/2*dEpH(2:NH)]);
-JJJ(4*N+2*NE+NH+6,4*N+2*NE+NH+6) = -AH*dSHinvdpH(1)*exp(SHinv(omegH*pH(1)));
+% JJJ(4*N+2*NE+NH+6,4*N+2*NE+NH+6) = -AH*dSHinvdpH(1)*exp(SHinv(omegH*pH(1)));
+JJJ(4*N+2*NE+NH+6,4*N+2*NE+NH+6) = -dSHinvdpH(1)*exp(SHinv(omegH*pH(1))-SHinv(omegH));
 
 % Adjust right-hand potential BC to account for any parasitic resistance
 JJJ(4*N+2*NE+NH+5,4*N+2*NE+NH+4:4*N+2*NE+NH+5) ...
