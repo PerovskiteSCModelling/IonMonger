@@ -124,4 +124,3 @@ function Ef = stats_interpolate(c_list, Ef_list, c)
     end
 end
 
-
