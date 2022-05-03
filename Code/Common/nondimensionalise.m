@@ -19,7 +19,6 @@ if ~isfield(stats, 'ETL')
     stats.ETL.band = 'parabolic';
     stats.ETL.distribution = 'Boltzmann'; end
 if ~isfield(stats, 'HTL')
-    stats.HTL.model = 'FermiDirac';
     stats.HTL.Boltzmann = true ; end
 
 if isempty(Plim) || Plim == inf
