@@ -76,6 +76,7 @@ DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
 %                     'distribution','Boltzmann'); % ETL statistical distribution
 %                                                  % (<Boltzmann> or <FermiDirac>)
 
+
 % HTL parameters
 dH    = 1e24;    % effective doping density of HTL (m-3) 
 % EfH   = -4.9;  % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
