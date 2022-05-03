@@ -19,7 +19,8 @@ if ~isfield(stats, 'ETL')
     stats.ETL.band = 'parabolic';
     stats.ETL.distribution = 'Boltzmann'; end
 if ~isfield(stats, 'HTL')
-    stats.HTL.Boltzmann = true ; end
+    stats.HTL.band = 'parabolic';
+    stats.HTL.distribution = 'Boltzmann'; end
 
 if isempty(Plim) || Plim == inf
     % if there is no ion limitation specified use infinite limit
@@ -33,14 +34,13 @@ else
       m = [0;0];
     else
       error(['Required a non-linear term. Chose from <Drift> or <Diffusion>.']) ; end
-
 end
 if Plim <= N0, error(['Limiting ion density must be greater than typical '...
         'ion density']) ; end
 
 % Create statistical functions
-[SE, SEinv, AE] = create_stats_funcs(stats.ETL);
-[SH, SHinv, AH] = create_stats_funcs(stats.HTL);
+[SE, SEinv] = create_stats_funcs(stats.ETL);
+[SH, SHinv] = create_stats_funcs(stats.HTL);
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
