@@ -6,12 +6,12 @@ function params = nondimensionalise(params)
 [N, q, Fph, kB, T, b, epsp, alpha, Ec, Ev, Dn, Dp, gc, gv, N0, DI, EcE, dE, ...
     gcE, bE, epsE, DE, EvH, dH, gvH, bH, epsH, DH, tn, tp, beta, Augn, Augp, ...
     betaE, betaH, vnE, vpE, vnH, vpH, Ect, Ean, Rs, Rp, Acell, stats, Plim,...
-    non_l_P,EfE, EfH,Verbose,muE,muH] ...
+    nonlinear,EfE, EfH,Verbose,muE,muH] ...
     = struct2array(params, ...
     {'N','q','Fph','kB','T','b','epsp','alpha','Ec','Ev','Dn','Dp','gc', ...
     'gv','N0','DI','EcE','dE','gcE','bE','epsE','DE','EvH','dH','gvH','bH', ...
     'epsH','DH','tn','tp','beta','Augn','Augp','betaE','betaH','vnE','vpE', ...
-    'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim','non_l_P', 'EfE', 'EfH',...
+    'vnH','vpH','Ect','Ean','Rs','Rp','Acell', 'stats', 'Plim','nonlinear', 'EfE', 'EfH',...
     'Verbose','muE','muH'});
 
 % Check for  statistical models
@@ -19,29 +19,20 @@ if ~isfield(stats, 'ETL')
     stats.ETL.band = 'parabolic';
     stats.ETL.distribution = 'Boltzmann'; end
 if ~isfield(stats, 'HTL')
-    stats.HTL.model = 'FermiDirac';
-    stats.HTL.Boltzmann = true ; end
+    stats.HTL.band = 'parabolic';
+    stats.HTL.distribution = 'Boltzmann'; end
 
-if isempty(Plim) || Plim == inf
-    % if there is no ion limitation specified use infinite limit
-    lim = 1e35/N0; % this value is ignored for inf limit
-    m = [1;0];
-else
-    lim = Plim/N0; % dimensionless vacancy density limit
-    if isequal(non_l_P,'Drift')
-      m = [1;1];
-    elseif isequal(non_l_P,'Diffusion')
-      m = [0;0];
-    else
-      error(['Required a non-linear term. Chose from <Drift> or <Diffusion>.']) ; end
-
+if any(Plim)
+    lim = N0/Plim; % ratio of average to maximum vacancy density
+    if not( isequal(nonlinear,'Drift') | isequal(nonlinear,'Diffusion')|isequal(nonlinear,'Neither'))
+      error(['Required a non-linear term. Choose from <Drift>, <Diffusion> or <Neither>.']) ; end
 end
 if Plim <= N0, error(['Limiting ion density must be greater than typical '...
         'ion density']) ; end
 
 % Create statistical functions
-[SE, SEinv, AE] = create_stats_funcs(stats.ETL);
-[SH, SHinv, AH] = create_stats_funcs(stats.HTL);
+[SE, SEinv] = create_stats_funcs(stats.ETL);
+[SH, SHinv] = create_stats_funcs(stats.HTL);
 
 % Energy level parameters
 VT = kB*T; % thermal voltage (V)
