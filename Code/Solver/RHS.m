@@ -9,12 +9,12 @@ function dudt = RHS(t,u,psi,params,vectors,matrices,flag)
 
 % Input parameters and arrays
 [chi, delta, G, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, ...
-    rE, NH, lamH2, KH, kH, rH, DI, nc, pc, ARs, Rsp, pbi, m,lim, SEinv, ...
+    rE, NH, lamH2, KH, kH, rH, DI, nc, pc, ARs, Rsp, pbi, nonlinear, lim, SEinv, ...
     omegE, SHinv, omegH, AE, AH, phidisp] ...
     = struct2array(params,{'chi','delta','G','R','lambda','lam2','Rr', ...
                            'Rl','N','Kn','Kp','NE','lamE2','KE','kE', ...
                            'rE','NH','lamH2','KH','kH','rH','DI','nc', ...
-                           'pc','ARs','Rsp','pbi', 'm','lim','SEinv', ...
+                           'pc','ARs','Rsp','pbi', 'nonlinear', 'lim','SEinv', ...
                            'omegE', 'SHinv', 'omegH', 'AE', 'AH', 'phidisp'});
 [x, dx, dxE, dxH] = struct2array(vectors,{'x','dx','dxE','dxH'});
 [dudt, Av, AvE, AvH, Lo, LoE, LoH, Dx, DxE, DxH, NN, ddE, ddH] ...
@@ -37,7 +37,18 @@ pH   = u(4*N+2*NE+NH+6:4*N+2*NE+2*NH+6,:);
 mE = Dx*phi; % negative electric field
 mEE = DxE*phiE; % negative electric field in ETL
 mEH = DxH*phiH; % negative electric field in HTL
-FP = nnz(DI)*lambda*(Av*((lim - m(1)*P)./(lim - P)).*(Dx*P) + Av*(P.*(1-m(2)*P/lim)).*(Dx*phi) );% negative anion vacancy flux
+
+if any(lim) && strcmp(nonlinear,'Drift')
+    PAP = lim*(2*Av*(P.^2)+P(1:N,:).*P(2:N+1,:))/3;
+    PD = Dx*P;
+elseif any(lim) && strcmp(nonlinear,'Diffusion')
+    PAP = 0;
+    PD = -1/lim*Dx*log(1-lim*P);
+else
+  PAP = 0;
+	PD = Dx*P;
+end
+FP = nnz(DI)*lambda*(PD+mE.*(Av*P-PAP)); % negative anion vacancy flux
 cd = NN-Lo*P+delta*(Lo*n-chi*Lo*p); % charge density
 cdE = LoE*nE-ddE; % charge density in ETL
 cdH = ddH-LoH*pH; % charge density in HTL
