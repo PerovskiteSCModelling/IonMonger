@@ -58,14 +58,19 @@ if length(applied_voltage)>1 & ~ischar(applied_voltage{2})
     end
 else
     if isfield(params,'input_filename')
-        % initial voltage has been specified but an initial distribution
-        % has also been specified
-        warning(['Initial voltage was specified in applied_voltage but a ' ...
+        if ~strcmp(applied_voltage{1},'open-circuit')
+            % initial voltage has been specified but an initial distribution
+            % has also been specified
+            warning(['Initial voltage was specified in applied_voltage but a ' ...
             'saved initial distribution has also been specified. This ' ...
             'value will override the initial voltage.'])
-        load(params.input_filename)
-        % replace initial voltage with saved voltage 
-        applied_voltage{1} = sol.V(end); % replace initial voltage with saved voltage 
+            load(params.input_filename)
+            % replace initial voltage with saved voltage 
+            applied_voltage{1} = sol.V(end); % replace initial voltage with saved voltage 
+        else
+            % applied voltage is open-circuit and initial distributions
+            % have been requested. Do nothing
+        end
     end
 end
 
