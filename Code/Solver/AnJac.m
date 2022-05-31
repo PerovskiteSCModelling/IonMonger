@@ -45,7 +45,7 @@ if any(lim) && strcmp(nonlinear,'Drift')
     PA1 = lim*(2*P(1:N)+P(2:N+1))/3;
     PA2 = lim*(P(1:N)+2*P(2:N+1))/3;
     pd = ones(N+1,1);
-elseif any(eps) && strcmp(nonlinear,'Diffusion')
+elseif any(lim) && strcmp(nonlinear,'Diffusion')
     [PAP, PA1, PA2] = deal(zeros(N,1));
     pd = 1-lim*P;
 else
