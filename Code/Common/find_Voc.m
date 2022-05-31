@@ -50,6 +50,14 @@ function [value,isterminal,direction] = Voc_event(t,y,direction)
     % direction = -1 for an increasing voltage and 1 for decreasing
 end
 
+% search_time = t2tstar(10);
+% V = @(t) Vap2psi(0)*(2-t/search_time).*t/search_time;
+% t = linspace(0, search_time,500);
+options = rmfield(options,'Jacobian');
+options.JPattern = Jac(params);
+warning('using numjac for Voc finding')
+error('FindVoc is using numerical Jacobian')
+
 % Precondition the cell at 0V
 search_time = t2tstar(10);
 [~,scan_down] = ode15s(@(t,u) RHS(t,u,@(t) ... Vap2psi(0)*t/search_time, ...
@@ -57,50 +65,44 @@ search_time = t2tstar(10);
                     params,vectors,matrices),[0 search_time],sol_init,options);
 sol_init = scan_down(end,:)';
 
-if integral(@(x) params.G(x,0),0,1) == 0
-    % If there is no illumination, assume that open-circuit is at 0V
-    
+% Try to locate the Voc between 0 and 2V by slowly increasing the voltage
+if Verbose
+    disp('Attempting to find Voc between 0 and 2V');
+end
+options.Events = @(t,y) Voc_event(t,y,-1);
+options.InitialSlope = RHS(0,sol_init,@(t) Vap2psi(0), ...
+                        params,vectors,matrices)\options.Mass;
+[~,y,~,ye,~] = ode15s(@(t,u) RHS(t,u,@(t) ...
+                (Vap2psi(0)*(search_time-t)+Vap2psi(2)*t)/search_time, ...
+                params,vectors,matrices),[0 search_time],sol_init,options);
+if isempty(ye)
+    error('No open-circuit events found.');
 else
-    % Try to locate the Voc between 0 and 2V by slowly increasing the voltage
-    if Verbose
-        disp('Attempting to find Voc between 0 and 2V');
-    end
-    options.Events = @(t,y) Voc_event(t,y,-1);
-    options.InitialSlope = RHS(0,sol_init,@(t) Vap2psi(0), ...
-                            params,vectors,matrices)\options.Mass;
-    [~,y,~,ye,~] = ode15s(@(t,u) RHS(t,u,@(t) ...
-                    (Vap2psi(0)*(search_time-t)+Vap2psi(2)*t)/search_time, ...
-                    params,vectors,matrices),[0 search_time],sol_init,options);
-    if isempty(ye)
-        error('No open-circuit events found.');
-    else
-        sol_init = ye(end,:)';
-    end
-    
-    % Try to find a better estimate with stricter tolerances
-    try
-        if Verbose
-            disp('Attempting to find better estimate near the first estimate');
-        end
-        options.AbsTol = 1e-14;
-        options.InitialSlope = [];
-        options.OutputFcn = [];
-        [~,~,~,ze,~] = ode15s(@(t,u) RHS(t,u,@(t) y(end-1,4*N+5)-phidisp-10*t/search_time, ...
-                        params,vectors,matrices),[0 search_time],y(end-1,:)',options);
-        if isempty(ze)
-            if Verbose
-                disp('No better estimate found, continung with original estimate');
-            end
-        else
-            if Verbose
-                disp('Better estimate found');
-            end
-            sol_init = ze(end,:)';
-        end
-    catch
-    end
+    sol_init = ye(end,:)';
+end
 
-end            
+% Try to find a better estimate with stricter tolerances
+try
+    if Verbose
+        disp('Attempting to find better estimate near the first estimate');
+    end
+    options.AbsTol = 1e-14;
+    options.InitialSlope = [];
+    options.OutputFcn = [];
+    [~,~,~,ze,~] = ode15s(@(t,u) RHS(t,u,@(t) y(end-1,4*N+5)-phidisp-10*t/search_time, ...
+                    params,vectors,matrices),[0 search_time],y(end-1,:)',options);
+    if isempty(ze)
+        if Verbose
+            disp('No better estimate found, continung with original estimate');
+        end
+    else
+        if Verbose
+            disp('Better estimate found');
+        end
+        sol_init = ze(end,:)';
+    end
+catch
+end        
 
 % Reset error message to warning
 warning(warnon);
