@@ -56,7 +56,7 @@ D     = @(Dinf, EA) Dinf*exp(-EA/(kB*T)); % diffusivity relation
 DIinf = 6.5e-8;        % high-temp. vacancy diffusion coefficient (m2s-1)
 EAI   = 0.58;          % iodide vacancy activation energy (eV)
 DI    = D(DIinf, EAI); % diffusion coefficient for iodide ions (m2s-1)
-non_l_P = 'Drift';     % non-linear term in Ion Vacancy flux. Choose from 'Drift' or 'Diffusion' if Plim specified.
+nonlinear = 'Neither'; % non-linear term in the ion Vacancy flux. Choose from 'Drift' or 'Diffusion' or 'Neither' if Plim specified.
 
 % Direction of light
 inverted = false; % choose false for a standard architecture cell (light
