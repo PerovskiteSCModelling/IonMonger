@@ -136,7 +136,7 @@ SRH = @(n,p,gamma,ni2,tor,tor3) ...
 R = @(n,p,P) brate*(n.*p-ni2) ... % bimolecular
            + Auger(n,p,Cn,Cp,ni2) ... % Auger recombination
            + SRH(n,p,gamma,ni2,tor,tor3); % SRH recombination via trap states
-
+       
 % Interface recombination parameters
 brateE = betaE*dE*p0/(b*G0); % rate constant for bimolecular recombination
 brateH = betaH*n0*dH/(b*G0); % rate constant for bimolecular recombination
@@ -156,10 +156,15 @@ else
 end
 % Total ETL/perovskite interface recombination rate
 Rl = @(nE,p) brateE*(nE.*p-ni2/kE) ... % bimolecular
-           + SRH(nE,p,gammaE,ni2/kE,torE,torE3); % SRH
+           + SRH(nE,p,gammaE,ni2,torE,torE3); % SRH
 % Total perovskite/HTL interface recombination rate
 Rr = @(n,pH) brateH*(n.*pH-ni2/kH) ... % bimolecular
-           + SRH(pH,n,gammaH,ni2/kH,torH,torH3); % SRH
+           + SRH(pH,n,gammaH,ni2,torH,torH3); % SRH
+
+% Will's recombination rates
+% Rl = @(nE,p) gammaE*(nE.*p-ni2)./(nE+torE*p+torE3)
+% Rr = @(n,pH) gammaH*(pH.*n-ni2)./(pH+torH*n+torH3)
+% R = @(n,p,P) gamma*(p.*n-ni2)./(n+tor*p+tor3)
 
 % Spatial grid parameters (consistent with the choice of N above)
 X = 0.2; % percentage of grid points within an ionic Debye length of the interface
