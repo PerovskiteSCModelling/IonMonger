@@ -61,14 +61,14 @@ dudt(2*N+2,:) = rH*mEH(1,:)-mE(end,:) ...
     -rH*dxH(1)*(1/2-pH(1,:)/3-pH(2,:)/6)/lamH2; % continuity
 
 % n equation
-dudt(2*N+3,:) = kE*fn(1,:)-fnE(end,:)+kE*(dx(1).*GR(1,:)/2-Rl(nE(end,:),p(1,:))); % continuity
+dudt(2*N+3,:) = kE*fn(1,:)-fnE(end,:)+kE*(dx(1).*GR(1,:)/2-Rl(n(1,:),p(1,:))); % continuity
 dudt(2*N+4:3*N+2,:) = fn(2:N,:)-fn(1:N-1,:)+(dx(2:N).*GR(2:N,:)+dx(1:N-1).*GR(1:N-1,:))/2;
-dudt(3*N+3,:) = -fn(N,:)+dx(N)*GR(end,:)/2-Rr(n(N+1,:),pH(1,:));
+dudt(3*N+3,:) = -fn(N,:)+dx(N)*GR(end,:)/2-Rr(n(N+1,:),p(N+1,:));
 
 % p equation
-dudt(3*N+4,:) = fp(1,:)+dx(1)*GR(1,:)/2-Rl(nE(end,:),p(1,:));
+dudt(3*N+4,:) = fp(1,:)+dx(1)*GR(1,:)/2-Rl(n(1,:),p(1,:));
 dudt(3*N+5:4*N+3,:) = fp(2:N,:)-fp(1:N-1,:)+(dx(2:N).*GR(2:N,:)+dx(1:N-1).*GR(1:N-1,:))/2;
-dudt(4*N+4,:) = fpH(1,:)-kH*fp(end,:)+kH*(dx(end)*GR(end,:)/2-Rr(n(N+1,:),pH(1,:))); % continuity
+dudt(4*N+4,:) = fpH(1,:)-kH*fp(end,:)+kH*(dx(end)*GR(end,:)/2-Rr(n(N+1,:),p(N+1,:))); % continuity
 
 % phiE equation
 dudt(4*N+5,:) = phiE(1,:)-psi(t);
