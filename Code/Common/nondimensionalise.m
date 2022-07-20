@@ -99,8 +99,8 @@ R = @(n,p,P) brate*(n.*p-ni2) ... % bimolecular
            + SRH(n,p,gamma,ni2,tor,tor3); % SRH recombination via trap states
 
 % Interface recombination parameters
-brateE = betaE*dE*p0/(b*G0*kE); % rate constant for bimolecular recombination
-brateH = betaH*n0*dH/(b*G0*kH); % rate constant for bimolecular recombination
+brateE = betaE*dE*p0/(b*G0); % rate constant for bimolecular recombination
+brateH = betaH*n0*dH/(b*G0); % rate constant for bimolecular recombination
 if vpE>0 && vnE>0
     gammaE = p0*vpE/(b*G0); % rate constant for SRH recombination
     torE   = p0*vpE/(dE*vnE); % ratio of SRH carrier lifetimes
