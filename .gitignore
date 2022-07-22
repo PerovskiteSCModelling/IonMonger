@@ -1,7 +1,12 @@
 # Ignore the following files and folders
 
-# Parameters file (every user should have their own parameters.m file, based upon parameters_template.m)
+# Parameters file (every user should have their own parameters.m file,
+# based upon parameters_template.m)
 parameters.m
+# Users can also store other parameters files if they are labelled with an
+# underscore followed by any number of characters not equal to 'template'
+parameters_*.m
+!parameters_template.m
 
 # Default location for saved data
 Data/
