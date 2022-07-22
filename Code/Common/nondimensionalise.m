@@ -161,11 +161,6 @@ Rl = @(n,p) brateE*(n.*p-ni2) ... % bimolecular
 Rr = @(n,p) brateH*(n.*p-ni2) ... % bimolecular
           + SRH(p,n,gammaH,ni2,torH,torH3); % SRH
 
-% Will's recombination rates
-% Rl = @(nE,p) gammaE*(nE.*p-ni2)./(nE+torE*p+torE3)
-% Rr = @(n,pH) gammaH*(pH.*n-ni2)./(pH+torH*n+torH3)
-% R = @(n,p,P) gamma*(p.*n-ni2)./(n+tor*p+tor3)
-
 % Spatial grid parameters (consistent with the choice of N above)
 X = 0.2; % percentage of grid points within an ionic Debye length of the interface
 tanhfun = @(x,st) (tanh(st*(2*x-1))/tanh(st)+1)/2;
