@@ -155,11 +155,11 @@ else
     [gammaH, torH, torH3] = deal(0); % no perovskite/HTL interface recombination
 end
 % Total ETL/perovskite interface recombination rate
-Rl = @(nE,p) brateE*(nE.*p-ni2) ... % bimolecular
-           + SRH(nE,p,gammaE,ni2,torE,torE3); % SRH
+Rl = @(n,p) brateE*(n.*p-ni2) ... % bimolecular
+          + SRH(n,p,gammaE,ni2,torE,torE3); % SRH
 % Total perovskite/HTL interface recombination rate
-Rr = @(n,pH) brateH*(n.*pH-ni2) ... % bimolecular
-           + SRH(pH,n,gammaH,ni2,torH,torH3); % SRH
+Rr = @(n,p) brateH*(n.*p-ni2) ... % bimolecular
+          + SRH(p,n,gammaH,ni2,torH,torH3); % SRH
 
 % Will's recombination rates
 % Rl = @(nE,p) gammaE*(nE.*p-ni2)./(nE+torE*p+torE3)
