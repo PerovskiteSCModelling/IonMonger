@@ -18,3 +18,5 @@ Thumbs.db
 
 # Video files generated from sweep animation
 *.mp4
+
+Private/
