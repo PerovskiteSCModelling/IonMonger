@@ -11,7 +11,7 @@ nf = base_params.applied_voltage{6}; % number of frequencies to be sampled
 fmin = base_params.applied_voltage{2}; % minimum frequency
 fmax = base_params.applied_voltage{3}; % maximum frequency
 V0 = base_params.applied_voltage{4}; % DC voltage
-t = 1e0; % time spent in steady state at DC voltage
+t = 10; % time spent in steady state at DC voltage
 
 % contruct the list of sample frequencies, logarithmically spaced
 freqs = logspace(log10(fmin),log10(fmax),nf);
@@ -33,8 +33,8 @@ while ~steadystate
     dJdt = (sol.J(end)-sol.J(end-1))./(sol.time(end)-sol.time(end-1)); % final gradient of current
     if abs(dJdt)>params.atol
         success = 0;
-        warning(['Cell did not reach steady state after ' num2str(t) 's. Retrying with ' num2str(t*100) 's of equilibration time'])
-        t = t*1e2; % increase time for equilibration
+        warning(['Cell did not reach steady state after ' num2str(t) 's. Retrying with ' num2str(t*10) 's of equilibration time'])
+        t = t*10; % increase time for equilibration
     else
         steadystate = 1;
     end

@@ -1,6 +1,6 @@
 % A more detailed, charge carrier generation profile specG(x) that
 % integrates the absorption spectrum data below. To use this function in
-% your simulation, use the following commands your parameters.m file:
+% your simulation, use the following commands in your parameters.m file:
 % Gspec = generation_profile(alpha,Upsilon,inv);
 % G = @(x,t) light(t).*ppval(Gspec,x);
 % The inputs are: alpha = (typical) absorption coefficient, Upsilon = 

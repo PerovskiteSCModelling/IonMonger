@@ -51,7 +51,7 @@ gv    = 5.8e24;    % valence band density of states (m-3)
 
 % Ion parameters
 N0    = 1.6e25;        % typical density of ion vacancies (m-3)
-Plim  = 2.0e25;           % limiting density of ion vacancies (m-3) (can choose inf)
+% Plim  = 2.0e25;           % limiting density of ion vacancies (m-3) (can choose inf)
 D     = @(Dinf, EA) Dinf*exp(-EA/(kB*T)); % diffusivity relation
 DIinf = 6.5e-8;        % high-temp. vacancy diffusion coefficient (m2s-1)
 EAI   = 0.58;          % iodide vacancy activation energy (eV)
@@ -146,7 +146,6 @@ params = nondimensionalise(params);
 % initial value, set to 1 for measurements in the light, 0 in the dark)
 light_intensity = ...
     {1};
-    %{1,'linear', 1,1};
 
 % Voltage protocol (either {'open-circuit'}, {a single value} or a protocol
 % beginning with either 'open-circuit' or an initial value, in Volts). For
@@ -157,11 +156,6 @@ applied_voltage = ...
     'linear', 1.2/1e-1, 0, ... % reverse scan
     'linear', 1.2/1e-1, 1.2 ... % reverse scan
     };
-    % {Vbi, ... % steady-state initial value
-    % 'tanh', 5, 1.2, ...
-    % 'linear', 1.2/1e-4, 0, ... % reverse scan
-    % 'linear', 1.2/1e-4, 1.2 ... % reverse scan
-    % };
 
 % Impedance protocol template:
 % applied_voltage = {'impedance', ...

@@ -36,7 +36,9 @@ ax1 = nexttile;
 col = [0.3,0.7,0.1];
 plot(ax1,freqs,abs(R+i*X),'-o','LineWidth',L,'MarkerSize',M,'MarkerFaceColor',col,'Color',col)
 ax2 = nexttile;
-plot(freqs,angle(R+i*X)/pi,'-o','LineWidth',L,'MarkerSize',M,'MarkerFaceColor',col,'Color',col)
+arg = angle(R+i*X);
+arg(arg<0) = arg(arg<0)+2*pi;
+plot(freqs,arg/pi,'-o','LineWidth',L,'MarkerSize',M,'MarkerFaceColor',col,'Color',col)
 set(ax1,'XScale','log','TickLabelInterpreter','latex','FontSize',18)
 set(ax2,'XScale','log','TickLabelInterpreter','latex','FontSize',18)
 ylabel(ax1,'$|Z|$ / $\Omega$cm$^2$','Interpreter','latex')
@@ -57,7 +59,7 @@ set(ax2,'XScale','log','TickLabelInterpreter','latex','FontSize',18)
 ylabel(ax1,'X / $\Omega$cm$^2$','Interpreter','latex')
 ylabel(ax2,'R / $\Omega$cm$^2$','Interpreter','latex')
 xlabel(ax2,'frequency / Hz','Interpreter','latex')
-ylim(ax2,[0 inf])
+ylim(ax2,[min([R;0]) inf])
 T.TileSpacing = 'compact';
 
 % Nyquist plot
@@ -74,12 +76,12 @@ plot3(freqs,R,X,'-o','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','m','Color',
 hold on
 ax = gca;
 xlim([min(freqs),max(freqs)])
-ylim([min([R;0]), ceil(max(R/5))*5])
-zlim([floor(min(X/5))*5 max([X;0])])
+ylim([min([R;0]), max([R;0])])
+zlim([min([X;0]) max([X;0])])
 plot3(ax.XLim(2)*ones(size(R)),R,X,'Color',0.6*[1,1,1],'LineWidth',1.5) % projection onto R-X plane
 plot3(freqs,ax.YLim(1)*ones(size(R)),X,'Color',0.6*[1,1,1],'LineWidth',1.5) % projection onto f-X plane
 plot3(freqs,R,ax.ZLim(2)*ones(size(R)),'Color',0.6*[1,1,1],'LineWidth',1.5) % projection onto f-R plane
-patch([min(freqs)*1e-3 max(freqs)*1e3 max(freqs)*1e3 min(freqs)*1e-3],min(R)*[1,1,1,1],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
+patch([min(freqs)*1e-3 max(freqs)*1e3 max(freqs)*1e3 min(freqs)*1e-3],min([R;0])*[1,1,1,1],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
     'r','FaceAlpha',0.1,'EdgeColor','none')
 patch(max(freqs)*[1,1,1,1],[ax.YLim(1),ax.YLim(2),ax.YLim(2),ax.YLim(1)],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
     'b','FaceAlpha',0.1,'EdgeColor','none')

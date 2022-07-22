@@ -32,6 +32,7 @@ dstrbns = FE_solve(params,vectors);
 [b, N0, n0, p0, VT, dE, dH, tstar2t, psi2Vap, Vbi, jay, phidisp] ...
     = struct2array(params,{'b','N0','n0','p0','VT','dE','dH','tstar2t', ...
                            'psi2Vap','Vbi','jay', 'phidisp'});
+                       
 b = b*1e9; % Change the width b in metres to nanometres
 vectors.x    = b*vectors.x;
 vectors.dx   = b*vectors.dx;

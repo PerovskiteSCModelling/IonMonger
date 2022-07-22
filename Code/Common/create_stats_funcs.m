@@ -68,7 +68,7 @@ elseif isequal(band, 'Kane')
         S = @(x) A*exp(x); % Boltzmann approximation to forwards function
     elseif isequal(distribution , 'FermiDirac')
         % Create lookup table using numerical integration
-        cmin = 1e-7; % minimum density required (dimensionless)
+        cmin = 1e-8; % minimum density required (dimensionless)
         Ntab=2e3; % number of tabulated points
         xi=linspace(log(cmin), 12, Ntab); % dimensionless quasi-Fermi levels
         KF=KaneFermi(xi,1e3,alphastar); % compute corresponding densities via numerical integration

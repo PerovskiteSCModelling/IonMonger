@@ -50,22 +50,22 @@ function [value,isterminal,direction] = Voc_event(t,y,direction)
     % direction = -1 for an increasing voltage and 1 for decreasing
 end
 
-% Precondition the cell at 0V
+% Precondition the cell at -0.2V
 search_time = t2tstar(10);
 [~,scan_down] = ode15s(@(t,u) RHS(t,u,@(t) ... Vap2psi(0)*t/search_time, ...
                     Vap2psi(-0.2)*(2-t/search_time)*t/search_time, ...
                     params,vectors,matrices),[0 search_time],sol_init,options);
 sol_init = scan_down(end,:)';
 
-% Try to locate the Voc between -0.1 and 2V by slowly increasing the voltage
+% Try to locate the Voc between -0.2 and 2V by slowly increasing the voltage
 if Verbose
-    disp('Attempting to find Voc between -0.1 and 2V');
+    disp('Attempting to find Voc between -0.2V and 2V');
 end
 options.Events = @(t,y) Voc_event(t,y,-1);
-options.InitialSlope = RHS(0,sol_init,@(t) Vap2psi(-0.1), ...
+options.InitialSlope = RHS(0,sol_init,@(t) Vap2psi(-0.2), ...
                         params,vectors,matrices)\options.Mass;
 [~,y,~,ye,~] = ode15s(@(t,u) RHS(t,u,@(t) ...
-                (Vap2psi(-0.1)*(search_time-t)+Vap2psi(2)*t)/search_time, ...
+                (Vap2psi(-0.2)*(search_time-t)+Vap2psi(2)*t)/search_time, ...
                 params,vectors,matrices),[0 search_time],sol_init,options);
 if isempty(ye)
     error('No open-circuit events found.');
