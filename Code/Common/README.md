@@ -10,9 +10,12 @@ This folder contains the code necessary to run the solver and process the output
 - FourierFit.m (called by impedance_analysis.m) is a function that fits a sinusoidal curve to some periodic input signal using the Fourier transform
 - impedance_analysis.m (called by IS_solver.m) is a function that calculates the impedance from a structure array of impedance measurement simulations
 - IS_solver.m (called by master.m) is the intermediary step between master.m and numericalsolver.m for impedance simulations, iteratively replacing the voltage protocol with a sinusoidal protocol and calling numericalsolver.m to obtain the solution for each sample frequency
+- RHS_AnJac.m (called by initial_conditions.m, find_Voc.m and precondition.m) compiles RHS and AnJac for use by fsolve
 
 In addition:
 - struct2array.m is used (in almost all functions) to extract the contents of a structure (such as `params` or `sol`)
 - PrintVolt.m and PrintTime.m are output functions for ode15s, which allow ode15s to output its progress throughout the solver procedure
 - sec2hms.m is used to convert the run time in seconds to hours, minutes and seconds
 - completion_tasks.m can be used to run additional commands after the solution is found
+- compute_QFLs.m can be used to compute quasi-Fermi levels from the solution variables
+- generation_profile.m can be used to create a generation profile from an absorption spectra

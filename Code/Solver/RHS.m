@@ -9,12 +9,12 @@ function dudt = RHS(t,u,psi,params,vectors,matrices,flag)
 
 % Input parameters and arrays
 [chi, delta, G, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, ...
-    rE, NH, lamH2, KH, kH, rH, DI, nc, pc, ARs, Rsp, pbi, nonlinear, ...
-    lim, SEinv, omegE, SHinv, omegH, phidisp] ...
+    rE, NH, lamH2, KH, kH, rH, DI, nc, pc, ARs, Rsp, pbi, NonlinearFP, ...
+    Pm, SEinv, omegE, SHinv, omegH, phidisp] ...
     = struct2array(params,{'chi','delta','G','R','lambda','lam2','Rr', ...
                            'Rl','N','Kn','Kp','NE','lamE2','KE','kE', ...
                            'rE','NH','lamH2','KH','kH','rH','DI','nc', ...
-                           'pc','ARs','Rsp','pbi','nonlinear','lim', ...
+                           'pc','ARs','Rsp','pbi','NonlinearFP','Pm', ...
                            'SEinv','omegE','SHinv','omegH','phidisp'});
 [x, dx, dxE, dxH] = struct2array(vectors,{'x','dx','dxE','dxH'});
 [dudt, Av, AvE, AvH, Lo, LoE, LoH, Dx, DxE, DxH, NN, ddE, ddH] ...
@@ -23,6 +23,7 @@ function dudt = RHS(t,u,psi,params,vectors,matrices,flag)
 
 % Adjust for vectorisation
 dudt = repmat(dudt,[1,size(u,2)]);
+
 % Assign variable names
 P   = u(1:N+1,:);
 phi = u(N+2:2*N+2,:);
@@ -37,13 +38,12 @@ pH   = u(4*N+2*NE+NH+6:4*N+2*NE+2*NH+6,:);
 mE = Dx*phi; % negative electric field
 mEE = DxE*phiE; % negative electric field in ETL
 mEH = DxH*phiH; % negative electric field in HTL
-
-if any(lim) && strcmp(nonlinear,'Drift')
-    PAP = lim*(2*Av*(P.^2)+P(1:N,:).*P(2:N+1,:))/3;
+if any(Pm) && strcmp(NonlinearFP,'Drift')
+    PAP = Pm*(2*Av*(P.^2)+P(1:N,:).*P(2:N+1,:))/3;
     PD = Dx*P;
-elseif any(lim) && strcmp(nonlinear,'Diffusion')
+elseif any(Pm) && strcmp(NonlinearFP,'Diffusion')
     PAP = 0;
-    PD = -1/lim*Dx*log(1-lim*P);
+    PD = -1/Pm*Dx*log(1-Pm*P);
 else
     PAP = 0;
 	PD = Dx*P;

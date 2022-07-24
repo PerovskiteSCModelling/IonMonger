@@ -34,40 +34,43 @@ end
 matrices = create_matrices(params,vectors);
 
 if isfield(params,'input_filename')
-    if Verbose, disp(['Using initial distributions from the saved file ' ... 
-            params.input_filename]), end
+    if Verbose
+        disp(['Using initial distributions from the saved file ' ... 
+            params.input_filename])
+    end
     load(params.input_filename)
     
     % unpack final step of solution
-    P = sol.dstrbns.P(end,:);
-    phi = sol.dstrbns.phi(end,:);
-    n = sol.dstrbns.n(end,:);
-    p = sol.dstrbns.p(end,:);
+    P    = sol.dstrbns.P(end,:);
+    phi  = sol.dstrbns.phi(end,:);
+    n    = sol.dstrbns.n(end,:);
+    p    = sol.dstrbns.p(end,:);
     phiE = sol.dstrbns.phiE(end,:);
-    nE = sol.dstrbns.nE(end,:);
+    nE   = sol.dstrbns.nE(end,:);
     phiH = sol.dstrbns.phiH(end,:);
-    pH = sol.dstrbns.pH(end,:);
+    pH   = sol.dstrbns.pH(end,:);
     
     % interpolate onto new spacial grid and nondimensionalise
-    [b,N0,VT,dE,dH,kE,kH] = struct2array(params,{'b','N0','VT','dE','dH',...
-        'kE','kH'});
-    P = interp1(sol.vectors.x,P,vectors.x*b*1e9)/N0;
-    phi = interp1(sol.vectors.x,phi,vectors.x*b*1e9)/VT;
-    n = interp1(sol.vectors.x,n,vectors.x*b*1e9)/(kE*dE);
-    p = interp1(sol.vectors.x,p,vectors.x*b*1e9)/(kH*dH);
+    [b, N0, VT, dE, dH, kE, kH] = ...
+        struct2array(params,{'b','N0','VT','dE','dH','kE','kH'});
+    P    = interp1(sol.vectors.x, P,   vectors.x*b*1e9)/N0;
+    phi  = interp1(sol.vectors.x, phi, vectors.x*b*1e9)/VT;
+    n    = interp1(sol.vectors.x, n,   vectors.x*b*1e9)/(kE*dE);
+    p    = interp1(sol.vectors.x, p,   vectors.x*b*1e9)/(kH*dH);
     phiE = interp1(sol.vectors.xE,phiE,vectors.xE*b*1e9)/VT;
-    nE = interp1(sol.vectors.xE,nE,vectors.xE*b*1e9)/dE;
+    nE   = interp1(sol.vectors.xE,nE,  vectors.xE*b*1e9)/dE;
     phiH = interp1(sol.vectors.xH,phiH,vectors.xH*b*1e9)/VT;
-    pH = interp1(sol.vectors.xH,pH,vectors.xH*b*1e9)/dH;
+    pH   = interp1(sol.vectors.xH,pH,  vectors.xH*b*1e9)/dH;
     
     % eliminate superfluous phi points
     phiE = phiE(1:end-1);
     phiH = phiH(2:end);
     
-    sol_start = [P ; phi ; n ; p ; phiE ; nE ; phiH ; pH];
+    sol_start = [P; phi; n; p; phiE; nE; phiH; pH];
     
-    if any(isnan(sol_start)); error(['There was an error in interpolating ' ... 
-        'the saved distributions onto the new spacial grid'])
+    if any(isnan(sol_start))
+        error(['There was an error in interpolating the saved ' ... 
+            'distributions onto the new spatial grid.']);
     end
 else
     % Compute consistent initial conditions for a cell preconditioned at Vbi
@@ -80,6 +83,7 @@ while count == err_count
     try
         % Always start the solution procedure from steady state at Vbi
         sol_init = sol_start;
+        
         % Perform a preconditioning step if requested
         if isfield(params,'input_filename')
             % do nothing
@@ -100,7 +104,7 @@ while count == err_count
         options.Mass = mass_matrix(params,vectors,flag);
         options.InitialSlope = RHS(0,sol_init,psi,params,vectors,matrices,flag) ...
                                     \options.Mass;
-
+        
         %% SOLVE
 
         % Note that to solve without splits and without the loop, it is simply:
@@ -130,6 +134,7 @@ while count == err_count
         end
 
     catch ME % if no solution can be obtained, try again up to 2 more times
+        
         err_count = err_count + 1;
         if err_count==3
             disp('Could not obtain solution');

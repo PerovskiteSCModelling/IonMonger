@@ -26,13 +26,13 @@ J46 = spalloc(N+1,NE+1,1); J46(1,NE+1) = 1;
 J51 = spalloc(NE,N+1,1);
 J52 = J51; J52(NE,1) = 1;
 J55 = gallery('tridiag',NE,1,1,1); J55(1,2) = 0;
-J56 = gallery('tridiag',NE+1,1,1,1); J56=J56(1:NE,:); J56(1,:)=zeros(1,NE+1);
+J56 = gallery('tridiag',NE+1,1,1,1); J56 = J56(1:NE,:); J56(1,:) = zeros(1,NE+1);
 J57 = spalloc(NE,NH,1);
 J58 = spalloc(NE,NH+1,1);
 J61 = spalloc(NE+1,N+1,1);
 J62 = J61; J62(NE,1) = 1;
 J63 = J61; J63(NE+1,1) = 1;
-J65 = gallery('tridiag',NE+1,1,1,1); J65=J65(:,1:NE); J65([1,NE+1],:) = zeros(2,NE);
+J65 = gallery('tridiag',NE+1,1,1,1); J65 = J65(:,1:NE); J65([1,NE+1],:) = zeros(2,NE);
 J66 = gallery('tridiag',NE+1,1,1,1);
 J67 = spalloc(NE+1,NH,1);
 J68 = spalloc(NE+1,NH+1,1);
@@ -41,14 +41,14 @@ J72 = J71; J72(1,N+1) = 1;
 J75 = spalloc(NH,NE,1);
 J76 = spalloc(NH,NE+1,1);
 J77 = gallery('tridiag',NH,1,1,1); J77(NH,NH-1) = 0;
-J78 = gallery('tridiag',NH+1,1,1,1); J78=J78(2:NH+1,:); J78(NH,:)=zeros(1,NH+1);
+J78 = gallery('tridiag',NH+1,1,1,1); J78 = J78(2:NH+1,:); J78(NH,:) = zeros(1,NH+1);
 
 J81 = spalloc(NH+1,N+1,1);
-J82 = J81; J82(2,N+1)=1;
-J84 = J81; J84(1,N+1)=1;
-J85 = spalloc(NH+1, NE,1);
-J86 = spalloc(NH+1, NE+1,1);
-J87 = gallery('tridiag',NH+1,1,1,1); J87=J87(:,2:NH+1); J87([1,NH+1],:)=zeros(2,NH);
+J82 = J81; J82(2,N+1) = 1;
+J84 = J81; J84(1,N+1) = 1;
+J85 = spalloc(NH+1,NE,1);
+J86 = spalloc(NH+1,NE+1,1);
+J87 = gallery('tridiag',NH+1,1,1,1); J87 = J87(:,2:NH+1); J87([1,NH+1],:) = zeros(2,NH);
 J88 = gallery('tridiag',NH+1,1,1,1);
 
 % Combine the blocks to define the sparse matrix
