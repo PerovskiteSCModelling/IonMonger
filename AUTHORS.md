@@ -5,7 +5,7 @@
 Dr Nicola Courtier (University of Southampton, 2016-2020, University of Oxford 2020-present),
 Dr James Cave (University of Bath, 2016-2018),
 Will Clarke (University of Southampton 2020-present) and
-Laurence Bennett (University of Southampton 2019-2022).
+Dr Laurence Bennett (University of Southampton 2019-2022).
 
 This work was supported by EPSRC-funded studentships for Nicola, James and Laurence
 from the CDT in New and Sustainable Photovoltaics (reference EP/L01551X/1).
