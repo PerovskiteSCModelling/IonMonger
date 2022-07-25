@@ -5,11 +5,12 @@ function animate_sections(sol,sections,vidlength,filename,NameValueArgs)
 % the final video in seconds. `filename` is a string that will be used to
 % name the final file when saving. The optional Name-Value pair arguments
 % `FrameRate` and `Size` can be used to specify the frame rate in fps and
-% the size of the image in pixels. Defaults are 30fps and 1920x1080p
-% resolution. If the Image Processing Toolbox is installed, the video will
-% automatically play in the built-in player. Otherwise, an external player
-% will be required. If the Parallel Computing Toolbox is installed, frames
-% will be rendered on parallel workers.
+% the size of the image in pixels. Defaults are 30fps and 1280x720p
+% resolution (choose 1920x1080p only if your screen has a strictly higher
+% resolution than this). If the Image Processing Toolbox is installed, the
+% video will automatically play in the built-in player. Otherwise, an
+% external player will be required. If the Parallel Computing Toolbox is
+% installed, frames will be rendered on parallel workers.
 
 % For example, to make a 5 second video of the reverse and forward sweeps
 % after a preconditioning stage and save as 'sweep_animation' in the folder
@@ -22,7 +23,7 @@ arguments
     sections double
     vidlength double
     filename string
-    NameValueArgs.Size (1,2) {mustBeNumeric} = [1920 1080];
+    NameValueArgs.Size (1,2) {mustBeNumeric} = [1280 720]; % [1920 1080];
     NameValueArgs.FrameRate (1,1) {mustBeNumeric} = 30;
     NameValueArgs.Verbose = true;
 end
