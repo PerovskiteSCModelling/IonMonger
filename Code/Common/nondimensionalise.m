@@ -106,7 +106,7 @@ if ~isempty(DH)
 else, DH = muH*VT; % hole diffusion coefficient in HTL (m2s-1)
 end
 KE = DE*dE/(G0*b^2);   % ETL electron current parameter
-KH = DH*dH/(G0*b^2);   % HTL electron current parameter
+KH = DH*dH/(G0*b^2);   % HTL hole current parameter
 rE = epsE/epsp;        % relative ETL permittivity
 rH = epsH/epsp;        % relative HTL permittivity
 lamE2 = rE*N0/dE*lam2; % relative ETL Debye length parameter squared
