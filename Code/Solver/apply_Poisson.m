@@ -14,6 +14,7 @@ function sol_init = apply_Poisson(sol_init,params,vectors,matrices)
 [Lo, LoE, LoH, NN, ddE, ddH] ...
     = struct2array(matrices,{'Lo','LoE','LoH','NN','ddE','ddH'});
 
+% Assign variable names
 P   = sol_init(1:N+1);
 phi = sol_init(N+2:2*N+2);
 n   = sol_init(2*N+3:3*N+3);

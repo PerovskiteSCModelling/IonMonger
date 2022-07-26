@@ -94,7 +94,7 @@ try
         sol_init = ze(end,:)';
     end
 catch
-end        
+end
 
 % Reset error message to warning
 warning(warnon);
@@ -137,12 +137,11 @@ if ~isnan(psi(time(end)))
 
     if Verbose
         clf(99); figure(99);
-        plot((time),psi2Vap(psi(time)));        
+        plot(tstar2t(time),psi2Vap(psi(time)));
         xlabel('Time (s)'); ylabel('Applied Voltage (V)');
         title('V(t)');
         drawnow;
     end
 end
-
 
 end

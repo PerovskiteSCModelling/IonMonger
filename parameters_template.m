@@ -1,4 +1,4 @@
-function params = parameters_template(iter)
+function params = parameters(iter)
 % This function returns a parameter structure that contains all the inputs
 % required for the simulation(s). In this function, the user should choose
 % the values of the variables in the following sections:
@@ -51,12 +51,13 @@ gv    = 5.8e24;    % valence band density of states (m-3)
 
 % Ion parameters
 N0    = 1.6e25;        % typical density of ion vacancies (m-3)
-% Plim  = 2.0e25;           % limiting density of ion vacancies (m-3) (can choose inf)
 D     = @(Dinf, EA) Dinf*exp(-EA/(kB*T)); % diffusivity relation
 DIinf = 6.5e-8;        % high-temp. vacancy diffusion coefficient (m2s-1)
 EAI   = 0.58;          % iodide vacancy activation energy (eV)
 DI    = D(DIinf, EAI); % diffusion coefficient for iodide ions (m2s-1)
-nonlinear = 'Neither'; % non-linear term in the ion Vacancy flux. Choose from 'Drift' or 'Diffusion' or 'Neither' if Plim specified.
+% Plim  = 2.0e27;        % limiting density of ion vacancies (m-3) (can choose Inf)
+% NonlinearFP = 'Drift'; % nonlinear modification of the ion vacancy flux,
+% choose from 'Drift' or 'Diffusion' (only if Plim specified)
 
 % Direction of light
 inverted = false; % choose false for a standard architecture cell (light
@@ -64,31 +65,33 @@ inverted = false; % choose false for a standard architecture cell (light
 % (light entering through the HTL)
 
 % ETL parameters
+% Define only dE or EfE and DE or muE (dE and DE take precedence)
 dE    = 1e24;    % effective doping density of ETL (m-3)
-% EfE   = -4.1;  % doped electron quasi-Fermi level in ETL (eV) (optional, overrides dE)
+% EfE   = -4.1;    % doped electron quasi-Fermi level in ETL (eV)
 gcE   = 5e25;    % effective conduction band DoS in ETL (m-3)
 EcE   = -4.0;    % conduction band reference energy in ETL (eV)
 bE    = 100e-9;  % width of ETL (m)
 epsE  = 10*eps0; % permittivity of ETL (Fm-1)
 DE    = 1e-5;    % electron diffusion coefficient in ETL (m2s-1)
-% muE   = 3.8e-4;  % electron mobility in ETL (m2V-1s-1) (optional, overrides DE)
-% stats.ETL = struct('band','parabolic',... % ETL band shape (<parabolic> or <Gaussian>)
-%                     'distribution','Boltzmann'); % ETL statistical distribution
-%                                                  % (<Boltzmann> or <FermiDirac>)
-
+% muE   = 3.8e-4;  % electron mobility in ETL (m2V-1s-1)
+% stats.ETL = struct('band','parabolic',... % ETL band shape, choose 'parabolic' or 'Gaussian'
+%                    'distribution','Boltzmann'); % ETL statistical distribution,
+%                                                 % choose 'Boltzmann' or 'FermiDirac'
 
 % HTL parameters
+% Define only dH or EfH and DH or muH (dH and DH take precedence)
 dH    = 1e24;    % effective doping density of HTL (m-3) 
-% EfH   = -4.9;  % doped hole quasi-Fermi in HTL (eV) (optional, overrides dH)
+% EfH   = -4.9;    % doped hole quasi-Fermi in HTL (eV)
 gvH   = 5e25;    % effective valence band DoS in HTL (m-3)
 EvH   = -5.1;    % valence band reference energy in HTL (eV)
 bH    = 200e-9;  % width of HTL (m)
 epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
-% muH   = 3.8e-5;  % electron mobility in HTL (m2V-1s-1) (optional, overrides DH)
-% stats.HTL = struct('band','Gaussian',... % HTL band shape (<parabolic> or <Gaussian>)
-%                     'distribution','Boltzmann',... % HTL statistical distribution (<Boltzmann> or <FermiDirac>)
-%                     's',3); % HTL Gaussian width
+% muH   = 3.8e-5;  % electron mobility in HTL (m2V-1s-1)
+% stats.HTL = struct('band','Gaussian',... % HTL band shape, choose 'parabolic' or 'Gaussian'
+%                    's',3, ... % HTL Gaussian width (only if Gaussian)
+%                    'distribution','Boltzmann'); % HTL statistical distribution,
+%                                                 % choose 'Boltzmann' or 'FermiDirac'
 
 % Metal contact parameters (optional)
 % Ect   = -4.1;    % cathode workfunction (eV)
@@ -120,7 +123,7 @@ vpH   = 1e5;     % effective hole recombination velocity for SRH (ms-1)
 % from the final distributions of the saved solution. In this case,
 % `applied_voltage` does not need an initial voltage.
 
-% input_filename = 'SaveFiles/example1.mat';
+% input_filename = 'Data/simulation.mat';
 
 %% Non-dimensionalise model parameters and save all inputs
 
@@ -152,9 +155,9 @@ light_intensity = ...
 % impedance spectroscopy protocols, see GUIDE.md.
 applied_voltage = ...
     {Vbi, ... % steady-state initial value
-    'tanh', 5, 1.2, ...
-    'linear', 1.2/1e-1, 0, ... % reverse scan
-    'linear', 1.2/1e-1, 1.2 ... % reverse scan
+    'tanh', 5, 1.2, ... % preconditioning
+    'linear', 1.2/0.1, 0, ... % reverse scan
+    'linear', 1.2/0.1, 1.2 ... % reverse scan
     };
 
 % Impedance protocol template:
@@ -210,13 +213,13 @@ if Verbose
             title('V(t) except the voltage starts from Voc, not Vbi as shown here');
         end
         if strcmp(applied_voltage{1},'impedance')
-            title({'example impedance protocol','at a frequency of 1Hz'})
-            hold on
-            plot(tstar2t(time(end-200:end)),psi2Vap(psi(time(end-200:end))),'r')
-            legend({'','phase analysis region'},'Location','best')
-            hold off
+            title({'example impedance protocol','at a frequency of 1Hz'});
+            hold on;
+            plot(tstar2t(time(end-200:end)),psi2Vap(psi(time(end-200:end))),'r');
+            legend({'','phase analysis region'},'Location','best');
+            hold off;
         end
-        ylim([min([0,psi2Vap(psi(time))]), ceil(2*max(psi2Vap(psi(time))))/2])
+        ylim([min([0,psi2Vap(psi(time))]), ceil(2*max(psi2Vap(psi(time))))/2]);
     end
     drawnow;
 end

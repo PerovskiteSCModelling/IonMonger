@@ -4,8 +4,8 @@ function sol_init = initial_conditions(psi0,params,vectors,matrices)
 % vectors and matrices needed by the solver.
 
 % Parameter input
-[chi, nc, pc, Verbose, N, NE, NH, phidisp] = struct2array(params, {'chi','nc', ...
-    'pc','Verbose', 'N', 'NE', 'NH', 'phidisp'});
+[chi, nc, pc, Verbose, NE, NH, phidisp] = ...
+    struct2array(params, {'chi','nc','pc','Verbose','NE','NH','phidisp'});
 [x, xE, xH] = struct2array(vectors, {'x','xE','xH'});
 
 % Define uniform profiles for the ion vacancy density and electric potential
@@ -55,7 +55,7 @@ sol_init = apply_Poisson(sol_init,params,vectors,matrices);
 end
 
 
-% Quasi-steady BVP for the carrier concentrations
+%% Quasi-steady BVP for the carrier concentrations
 % y(1) = p(x), y(2) = jp(x) = -Kp*dp/dx, y(3) = n(x), y(4) = jn(x) = Kn*dn/dx
 function dpdx = yode(x,y,params)
 [G, R, Kp, Kn] = struct2array(params,{'G','R','Kp','Kn'});
@@ -65,8 +65,7 @@ dpdx = [-y(2)/Kp; ...
         -(G(x,0)-R(y(3),y(1),1))];
 end
 function res = ybcs(ya,yb,params)
-[Rl, Rr, omegH, omegE, SHinv, SEinv] = struct2array(params,{...
-    'Rl','Rr','omegH','omegE','SHinv','SEinv'});
+[Rl, Rr] = struct2array(params,{'Rl','Rr'});
 res = [yb(1)-1; ...
        ya(2)+Rl(1,ya(1)); ...
        ya(3)-1; ...

@@ -8,9 +8,10 @@ parameters.m
 parameters_*.m
 !parameters_template.m
 
-# Default location for saved data
+# Default location for saved data and private files
 Data/
 !Code/Tests/Data/
+Private/
 
 # Offline documentation
 Doc/
@@ -23,5 +24,3 @@ Thumbs.db
 
 # Video files generated from sweep animation
 *.mp4
-
-Private/

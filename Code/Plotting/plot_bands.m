@@ -3,6 +3,17 @@ function plot_bands(sol,plotindex)
 % by plotindex, which must be a vector of integers corresponding to the
 % desired points in sol.time (for example, plotindex = [1,101,201,301]).
 
+% Check sol structure
+if size(sol,2)>1 % received structure array from IS simulation
+    error(['plot_bands was given a solution structure array from an ' ...
+        'impedance spectroscopy simulation. To use plot_bands for the '...
+        'n-th sample frequency solution, use `plot_bands(sol(n),...)`'])
+elseif isfield(sol,'X') % received reduced solution structure
+    error(['plot_bands was given a reduced solution structure from an ' ...
+        'impedance spectroscopy simulation. To use plot_bands with an ' ...
+        'IS solution, ensure reduced_output=false'])
+end
+
 % Unpack the parameters, spatial vectors and dimensional solution variables
 [EcE, Ec, Ev, EvH] = struct2array(sol.params,{'EcE','Ec','Ev','EvH'});
 [x, xE, xH] = struct2array(sol.vectors,{'x','xE','xH'});
@@ -18,9 +29,9 @@ end
 
 % Set default figure options
 set(0,'defaultAxesFontSize',10); % Make axes labels smaller
-set(0,'defaultTextInterpreter','latex') % For latex axis labels
-set(0,'defaultAxesTickLabelInterpreter','latex') % For latex tick labels
-set(0,'defaultLegendInterpreter','latex') % For latex legends
+set(0,'defaultTextInterpreter','latex'); % For latex axis labels
+set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
+set(0,'defaultLegendInterpreter','latex'); % For latex legends
 
 % Shading
 if length(plotindex)>1
@@ -61,9 +72,9 @@ end
 
 % Legend
 plot(nan, nan, '--','color',phi_colour,'DisplayName','Vacuum level');
-plot(nan, nan, '-','color',phi_colour,'DisplayName','Band energy level');
-plot(nan, nan, '-','color',n_colour,'DisplayName','Electron QFL');
-plot(nan, nan, '-','color',p_colour,'DisplayName','Hole QFL');
+plot(nan, nan, '-','color', phi_colour,'DisplayName','Band energy level');
+plot(nan, nan, '-','color', n_colour,'DisplayName','Electron QFL');
+plot(nan, nan, '-','color', p_colour,'DisplayName','Hole QFL');
 legend('Location','best')
 
 xlabel('Distance (nm)'); ylabel('Energy (eV)');
