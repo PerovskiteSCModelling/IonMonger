@@ -58,26 +58,6 @@ elseif isequal(band, 'Gaussian')
         error(['Statistical distribution not recognised. Please choose ', ...
             'either ''Boltzmann'' or ''FermiDirac''.']);
     end
-elseif isequal(band, 'Kane')
-    alphastar = stats.alphastar;
-    if isequal(distribution, 'Boltzmann')
-        if alphastar==0
-            A = 1;
-        else
-            % exact evaluation of A using a Bessel function
-            A = 1/sqrt(pi*alphastar)*besselk(2,1/(2*alphastar),1);
-        end
-        Sinv = @(x) log(x/A); % Boltzmann approximation to inverse function
-        S = @(x) A*exp(x); % Boltzmann approximation to forwards function
-    elseif isequal(distribution , 'FermiDirac')
-        % Create lookup table using numerical integration
-        cmin = 1e-8; % minimum density required (dimensionless)
-        Ntab = 2e3; % number of tabulated points
-        xi = linspace(log(cmin), 12, Ntab); % dimensionless quasi-Fermi levels
-        KF = KaneFermi(xi,1e3,alphastar); % compute corresponding densities via numerical integration
-        S = @(E) interp1(xi,KF, E, 'pchip', NaN); % create tabulated function
-        Sinv = @(c) stats_interpolate(KF, xi, c); % create tabulated inverse function
-    end
 % % Template for user-defined statistical models
 % elseif isequal(band, 'bandname')
 %     if isequal(distribution , 'Boltzmann')
@@ -133,15 +113,6 @@ function B = BlakemoreInv(xi, gamma)
     % singular point
     B = log(xi./(1-gamma*xi));
     B(xi>=1/gamma) = inf;
-end
-
-function KF = KaneFermi(xi, N, alphastar)
-    % Numerical evaluation of the Kane-Fermi integral
-    for i = 1:length(xi)
-        eta = linspace(0, 10*(1+alphastar)+exp((xi(i))/3), 2e3); % create integration grid
-        f = 2/sqrt(pi)*sqrt(eta.*(1+alphastar*eta)).*(1+2*alphastar*eta)./(1+exp(eta-xi(i))); % calculate integrand
-        KF(i) = trapz(eta,f); % numerically integrate using the trapezoid rule
-    end
 end
 
 function Ef = stats_interpolate(c_list, Ef_list, c)
