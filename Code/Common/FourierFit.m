@@ -80,7 +80,6 @@ if size(S,1)>1
 end
 if size(t,1)>1
     t = t'; % make t a row vector
-end
 
 a0 = 1/t(end)*trapz(t,S);
 a1 = 2/t(end)*trapz(t,S.*cos(2*pi*f*t));
