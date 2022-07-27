@@ -252,7 +252,7 @@ def unpack_IS(filename):
     plotting. Examples for plotting Nyquist and Bode plots are included.
     '''
     plt.figure(figsize=(5, 3), dpi=200)
-    plt.plot(R,X,'-r')
+    plt.plot(R,X,'-or',markersize=2,linewidth=1)
     plt.gca().invert_yaxis()
     plt.xlabel(r'$R$ ($\Omega cm^2$)')
     plt.ylabel(r'$X$ ($\Omega cm^2$)')
@@ -270,5 +270,5 @@ def unpack_IS(filename):
     plt.show()
     
 # ======== Examples to execute the above functions ========
-unpack_sol('Data/simulation.mat')
-unpack_IS('Data/IS_simulation.mat')
+# unpack_sol('Data/simulation.mat')
+unpack_IS('Data/simulation.mat')
