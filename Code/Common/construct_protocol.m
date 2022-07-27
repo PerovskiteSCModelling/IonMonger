@@ -18,8 +18,8 @@ function [light, psi, time, splits, findVoc] = ...
 % time points (time and splits) and the option whether to first findVoc.
 % To create an impedance protocol, begin the applied_voltage cell with the
 % string 'impedance', followed by the necessary protocol parameters (see
-% user guide). In this case, the function will return a dummy protocol for
-% a 1Hz impedance measurement for plotting purposes. 
+% the GUIDE). In this case, the function will return a dummy protocol for
+% a 1Hz impedance measurement for plotting purposes.
 
 % Parameter input
 [Vbi, t2tstar, Vap2psi] = struct2array(params, {'Vbi','t2tstar','Vap2psi'});
@@ -43,7 +43,7 @@ if strcmp(applied_voltage{1},'impedance')
 end
     
 % check for initial voltage
-if length(applied_voltage)>1 & ~ischar(applied_voltage{2})
+if length(applied_voltage)>1 && ~ischar(applied_voltage{2})
     % If second entry is not a character vector, the initial voltage has
     % been omitted
     if isfield(params,'input_filename')

@@ -9,12 +9,18 @@ function fit = FourierFit(t,S,f)
 % comprises 100 time steps, meaning N complete waves should contain 
 % 100*N+1 points.
 
-% obtains a fit of the form S = S0+Sp*sin(2*pi*f*t+theta)
+% This function obtains a fit of the form S = S0+Sp*sin(2*pi*f*t+theta).
 
 % ===================== example of periodic analysis ======================
 % To analyse the 'impedance' of any periodic variable in the solution
 % structure, use and adapt the following code. Ensure `reduced_output` is
 % set to `false` in the parameters file.
+
+% % Set default figure options
+% set(0,'defaultAxesFontSize',18); % Make axes labels larger
+% set(0,'defaultTextInterpreter','latex'); % For latex axis labels
+% set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
+% set(0,'defaultLegendInterpreter','latex'); % For latex legends
 % 
 % nwaves = 2; % number of waves to analyse
 % [f,Sp,S0,theta_S] = deal(NaN(size(sol))); % preallocate vectors
@@ -35,48 +41,45 @@ function fit = FourierFit(t,S,f)
 %     Sp(j) = fit.Sp;  
 %     S0(j) = fit.S0;
 %     theta_S(j) = fit.theta+pi; % get phase from fit
-%     %(some quantities may require an extra phase offset of pi)
+%     % (some quantities may require an extra phase offset of pi)
 %     Vp = sol(1).impedance_protocol{5}; % get voltage amplitude
-%     Z(j) = Vp/fit.Sp*exp(-i*theta_S(j)); % create 'impedance'
+%     Z(j) = Vp/fit.Sp*exp(-1i*theta_S(j)); % create 'impedance'
 % end
 % 
-% figure()    % Nyquist plot
-% plot(real(Z),-imag(Z),'-sr')
-% grid on
-% set(gca,'DataAspectRatio',[1 1 1]) % comment if poor view
-% ylabel('-imag($V/S$)','Interpreter','latex');
-% xlabel('real($V/S$)','Interpreter','latex')
+% figure();    % Nyquist plot
+% plot(real(Z),-imag(Z),'-sr');
+% grid on;
+% set(gca,'DataAspectRatio',[1 1 1]); % comment if poor view
+% ylabel('-imag($V/S$)');
+% xlabel('real($V/S$)');
 % 
-% figure()    % Real and imaginary frequency plot
+% figure();    % Real and imaginary frequency plot
 % T = tiledlayout(2,1);
 % ax1 = nexttile;
-% semilogx(ax1,f,-imag(Z),'x-b')
+% semilogx(ax1,f,-imag(Z),'x-b');
 % ax2 = nexttile;
-% semilogx(ax2,f,real(Z),'x-b')
-% ylabel(ax1,'-imag($V/S$)','Interpreter','latex');
-% ylabel(ax2,'real($V/S$)','Interpreter','latex');
-% xlabel(ax2,'frequency / Hz','Interpreter','latex')
+% semilogx(ax2,f,real(Z),'x-b');
+% ylabel(ax1,'-imag($V/S$)');
+% ylabel(ax2,'real($V/S$)');
+% xlabel(ax2,'frequency / Hz');
 % 
-% figure()    % Amplitude and phase frequency plot
+% figure();    % Amplitude and phase frequency plot
 % T = tiledlayout(2,1);
 % ax1 = nexttile;
-% semilogx(ax1,f,Sp,'x-b')
+% semilogx(ax1,f,Sp,'x-b');
 % ax2 = nexttile;
-% semilogx(ax2,f,theta_S,'x-b')
-% ylabel(ax1,'amplitude $S_p$','Interpreter','latex')
-% ylabel(ax2,'phase $\theta_S$','Interpreter','latex')
-% xlabel(ax2,'frequency / Hz')
+% semilogx(ax2,f,theta_S,'x-b');
+% ylabel(ax1,'amplitude $S_p$');
+% ylabel(ax2,'phase $\theta_S$');
+% xlabel(ax2,'frequency / Hz');
 
 % =========================================================================
 
 if size(S,1)>1
-    % ensure S is a row vector
-    S = S';
+    S = S'; % make S a row vector
 end
 if size(t,1)>1
-    % ensure t is a row vector
-    t = t';
-end
+    t = t'; % make t a row vector
 
 a0 = 1/t(end)*trapz(t,S);
 a1 = 2/t(end)*trapz(t,S.*cos(2*pi*f*t));
@@ -87,7 +90,8 @@ Sp = sqrt(a1^2+b1^2);
 if b1>0, theta = atan(a1/b1);
 elseif a1>0, theta = atan(a1/b1)+pi;
 elseif a1<0, theta = atan(a1/b1)-pi;
-else, error('Phase calculation was unsuccessful'), end
+else, error('Phase calculation was unsuccessful');
+end
 
 fit.S = @(t) S0+Sp*sin(2*pi*f*t+theta);
 fit.omega = f; % frequency

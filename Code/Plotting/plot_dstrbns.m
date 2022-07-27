@@ -4,21 +4,16 @@ function plot_dstrbns(sol,plotindex)
 % desired points in sol.time (for example, plotindex = [1,101,201,301]),
 % and the current density and interfacial recombination losses over time.
 
-% check sol structure
-if size(sol,2)>1
-    % recieved structure array from IS simulation
+% Check sol structure
+if size(sol,2)>1 % received structure array from IS simulation
     error(['plot_dstrbns was given a solution structure array from an ' ...
-    'impedance spectroscopy simulation. To use plot_dstrbns for the n-th '...
-    'sample frequency solution, use `animate_sections(sol(n),...)`'])
-elseif isfield(sol,'X')
-    % recieved reduced solution structure from IS simulation
+        'impedance spectroscopy simulation. To use plot_dstrbns for the '...
+        'n-th sample frequency solution, use `plot_dstrbns(sol(n),...)`'])
+elseif isfield(sol,'X') % received reduced solution structure from IS simulation
     error(['plot_dstrbns was given a reduced solution structure from an ' ...
-    'impedance spectroscopy simulation. To use plot_dstrbns with an IS ' ...
-    'solution, ensure reduced_output=false'])
+        'impedance spectroscopy simulation. To use plot_dstrbns with an ' ...
+        'IS solution, ensure reduced_output=false'])
 end
-
-% Retrieve the nondimensional parameter values
-[kE, kH] = struct2array(sol.params, {'kE','kH'});
 
 % Unpack the spatial vectors and dimensional solution variables
 [x, xE, xH] = struct2array(sol.vectors,{'x','xE','xH'});
@@ -28,9 +23,9 @@ end
 
 % Set default figure options
 set(0,'defaultAxesFontSize',10); % Make axes labels smaller
-set(0,'defaultTextInterpreter','latex') % For latex axis labels
-set(0,'defaultAxesTickLabelInterpreter','latex') % For latex tick labels
-set(0,'defaultLegendInterpreter','latex') % For latex legends
+set(0,'defaultTextInterpreter','latex'); % For latex axis labels
+set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
+set(0,'defaultLegendInterpreter','latex'); % For latex legends
 
 % Shading
 if length(plotindex)>1

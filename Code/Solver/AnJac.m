@@ -7,12 +7,12 @@ function JJJ = AnJac(t,u,params,vectors,matrices,flag)
 
 % Input parameters and arrays
 [chi, delta, R, lambda, lam2, Rr, Rl, N, Kn, Kp, NE, lamE2, KE, kE, rE, ...
-    NH, lamH2, KH, kH, rH, DI, atol, ARs, Rsp, nonlinear, lim, SEinv, ...
+    NH, lamH2, KH, kH, rH, DI, atol, ARs, Rsp, NonlinearFP, Pm, SEinv, ...
     omegE, omegH, SHinv] ...
     = struct2array(params,{'chi','delta','R','lambda','lam2','Rr','Rl', ...
                            'N','Kn','Kp','NE','lamE2','KE','kE','rE', ...
                            'NH','lamH2','KH','kH','rH','DI','atol', ...
-                           'ARs','Rsp','nonlinear','lim','SEinv',...
+                           'ARs','Rsp','NonlinearFP','Pm','SEinv',...
                            'omegE','omegH','SHinv'});
 [dx, dxE, dxH, xd, xdE, xdH] ...
     = struct2array(vectors,{'dx','dxE','dxH','xd','xdE','xdH'});
@@ -22,7 +22,7 @@ function JJJ = AnJac(t,u,params,vectors,matrices,flag)
 
 % Use the rtol parameter for the finite difference approximation
 % of the net generation and recombination rates (GR, Rr and Rl) and the
-% statistical functions
+% statistical functions (SEinv and SHinv)
 del = atol;
 
 % Assign variable names
@@ -40,14 +40,14 @@ mE = Dx*phi; % negative electric field
 mEE = DxE*phiE; % negative electric field in ETL
 mEH = DxH*phiH; % negative electric field in HTL
 AvP = Av*P; % averaged anion vacancy density
-if any(lim) && strcmp(nonlinear,'Drift')
-    PAP = lim*(2*Av*(P.^2)+P(1:N).*P(2:N+1))/3;
-    PA1 = lim*(2*P(1:N)+P(2:N+1))/3;
-    PA2 = lim*(P(1:N)+2*P(2:N+1))/3;
+if any(Pm) && strcmp(NonlinearFP,'Drift')
+    PAP = Pm*(2*Av*(P.^2)+P(1:N).*P(2:N+1))/3;
+    PA1 = Pm*(2*P(1:N)+P(2:N+1))/3;
+    PA2 = Pm*(P(1:N)+2*P(2:N+1))/3;
     pd = ones(N+1,1);
-elseif any(lim) && strcmp(nonlinear,'Diffusion')
+elseif any(Pm) && strcmp(NonlinearFP,'Diffusion')
     [PAP, PA1, PA2] = deal(zeros(N,1));
-    pd = 1-lim*P;
+    pd = 1-Pm*P;
 else
     [PAP, PA1, PA2] = deal(zeros(N,1));
     pd = ones(N+1,1);
@@ -64,10 +64,10 @@ EnE = SEinv(omegE*nE)-phiE; % ETL quasi-Fermi level
 dEnE = DxE*EnE; % derivative of ETL quasi-Fermi level
 EpH = SHinv(omegH*pH)+phiH; % HTL quasi-Fermi level
 dEpH = DxH*EpH; % derivative of HTL quasi-Fermi level
-
-% derivatives of inverse statistical functions
-dSEinvdnE = (SEinv(omegE*(nE*(1+del/2)))-SEinv(omegE*(nE*(1-del/2))))./(nE*del);% derivative of the inverse ETL statistical function
-dSHinvdpH = (SHinv(omegH*(pH*(1+del/2)))-SHinv(omegH*(pH*(1-del/2))))./(pH*del);% derivative of the inverse ETL statistical function
+dSEinvdnE = (SEinv(omegE*(nE*(1+del/2)))-SEinv(omegE*(nE*(1-del/2)))) ...
+            ./(nE*del); % derivative of inverse ETL statistical function
+dSHinvdpH = (SHinv(omegH*(pH*(1+del/2)))-SHinv(omegH*(pH*(1-del/2)))) ...
+            ./(pH*del); % derivative of inverse HTL statistical function
 
 % P equation depends on P
 JJJ(1:N+1,1:N+1) = nnz(DI)*lambda*gallery('tridiag',N+1, ...
@@ -91,6 +91,7 @@ JJJ(1:N+1,N+2:2*N+2) = nnz(DI)*lambda*gallery('tridiag',N+1, ...
 % P equation does not depend on nE
 % P equation does not depend on phiH
 % P equation does not depend on pH
+
 % phi equation depends on P
 JJJ(N+2,1:2) = dx(1)*[1/3, 1/6]/lam2;
 JJJ(N+3:2*N+1,1:N+1) = Lo/lam2;
@@ -117,6 +118,7 @@ JJJ(N+2,4*N+2*NE+4:4*N+2*NE+5) = -rE*dxE(end)*[1/6, 1/3]/lamE2;
 JJJ(2*N+2,4*N+2*NE+6) = rH./dxH(1);
 % phi equation depends on pH
 JJJ(2*N+2,4*N+2*NE+NH+6:4*N+2*NE+NH+7) = rH*dxH(1)*[1/3 1/6]/lamH2;
+
 % n equation can depend on P via GR
 JJJ(2*N+3:3*N+3,1:N+1) = -1/2*gallery('tridiag',N+1, ...
     dx.*(RRP-RR)/del, ...
@@ -288,7 +290,6 @@ JJJ(4*N+2*NE+NH+5,4*N+2*NE+2*NH+5:4*N+2*NE+2*NH+6) ...
     = KH*[-xdH(end)+mEH(end)/2,xdH(end)+mEH(end)/2]*ARs/(1+Rsp);
 
 % Perform any additional step requested by the optional input argument flag
-
 if nargin>5
     if strcmp(flag,'none')
         % Do nothing else
