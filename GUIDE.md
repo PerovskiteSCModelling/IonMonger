@@ -63,7 +63,7 @@ reset_path; load('Data/simulation.mat');
 
 The solution structure `sol` contains both the input (`params`, `vectors`) and output (`dstrbns`, `J`). To see the contents of a structure, enter e.g. `sol` or `sol.dstrbns` in the command window.
 
-e) To animate the solution and create an MP4 file, use the function `animate_sections`. This requires the arguments `sol`, a solution structure; `sections`, a vector of integers specifying which sections of the protocol to animate; `length`, the video length in seconds and `filename`, a string under which the video will be saved. Additional optional arguments can be given that determine the frame rate and resolution of the video. The defaults are 30fps and 1920x1080p. For example:
+e) To animate the solution and create an MP4 file, use the function `animate_sections`. This requires the arguments `sol`, a solution structure; `sections`, a vector of integers specifying which sections of the protocol to animate; `length`, the video length in seconds and `filename`, a string under which the video will be saved. Additional optional arguments can be given that determine the frame rate and resolution of the video. The defaults are 30fps and 1280x720p. For example:
 ```
 animate_sections(sol,[2,3],10,'Videos\example_video')
 ```
@@ -146,22 +146,24 @@ The sample frequencies will be logarithmically spaced between the minimum and ma
 
 It is recommended that users maintain a constant light intensity throughout impedance measurements. For example, `light_intensity = {1}` for 1 Sun equivalent light intensity throughout.
 
-For more information about how to analyse impedance spectra, see the section titled 'How to Analyse the Ouput'.
+For more information about how to analyse impedance spectra, see the section titled 'How to Analyse the Output'.
 
 
 ## How to Change the Statistical Models of Carriers in the Transport Layers
 
-Users have the option to choose parabolic or Gaussian bands in the ETL and/or HTL with either Boltzmann or Fermi-Dirac distributions. The `stats` structure in the parameters file contains all the information necessary to construct the statistical models. This structure has two fields, `ETL` and `HTL`. If either of these fields are missing, the statistical model in that region will be automatically set to be the Boltzmann in parabolic bands, as in previous versions of the model. To apply a specific statistical model in one of the transport layers, the corresponding field of `stats` must have the field `band` and the field `distribution`. `band` determines which band shape should be employed. The currently supported models are `'parabolic'` and `'Gaussian'`. `distribution` can be set to `Boltzmann` for a Boltzmann distribution or `FermiDirac` to use the Fermi-Dirac distribution. The Gaussian band model requires the additional field `s`, giving the Gaussian width in units of the thermal voltage. For example, to apply a Boltzmann distribution parabolic bands in the ETL and a Fermi-Dirac distribution in Gaussian bands of width 3kT in the HTL,
+Users have the option to choose parabolic or Gaussian bands in the ETL and/or HTL with either Boltzmann or Fermi-Dirac distributions. A third band model called the Blakemore model can be chosen by selecting Gaussian bands with width zero (`s=0`).
+
+The `stats` structure in the parameters file contains all the information necessary to construct the statistical models. This structure has two fields, `ETL` and `HTL`. If either of these fields are missing, the statistical model in that region will be automatically set to be Boltzmann in parabolic bands, as in previous versions of the model. To apply a specific statistical model in one of the transport layers, the corresponding field of `stats` must have the field `band` and the field `distribution`. `band` determines which band shape should be employed. The currently supported models are `'parabolic'` and `'Gaussian'`. `distribution` can be set to `Boltzmann` for a Boltzmann distribution or `FermiDirac` to use the Fermi-Dirac distribution. The Gaussian band model requires the additional field `s`, giving the Gaussian width in units of the thermal voltage. For example, to apply a Boltzmann distribution in parabolic bands in the ETL and a Fermi-Dirac distribution in Gaussian bands of width 3kT in the HTL,
 ```
 stats.ETL = struct('band', 'parabolic', 'distribution', 'Boltzmann');
 stats.HTL = struct('band', 'Gaussian','distribution', 'FermiDirac', 's', 3);
 ```
 Details of the statistical models can be found in the release paper.
 
-With the addition of non-Boltzmann statistical models, the conversion between carrier densities and quasi-Fermi levels is non longer trivial. For this reason, the `params` structure contains four functions (`nE2EfE`, `EfE2nE`, `pH2EfH`, and `EfH2pH`) that make the conversion between dimensional carrier densities and QFLs based on the statistical models used in the simulation. Also for this reason, users can set the doping levels of the transport layers by setting either effective doping densities (`dE`,`dH`) or equilibrium QFLs (`EfE`,`EfH`). Whichever value is not set will be calculated from the other according to the statistical model in that transport layer.
+With the addition of non-Boltzmann statistical models, the conversion between carrier densities and quasi-Fermi levels (QFLs) is no longer trivial. For this reason, the `params` structure contains four functions (`nE2EfE`, `EfE2nE`, `pH2EfH`, and `EfH2pH`) that make the conversion between dimensional carrier densities and QFLs based on the statistical models used in the simulation. Also for this reason, users can set the doping levels of the transport layers by setting either effective doping densities (`dE`,`dH`) or equilibrium QFLs (`EfE`,`EfH`). Whichever value is not set will be calculated from the other according to the statistical model in that transport layer.
 
 
-# How to Analyse the Ouput
+# How to Analyse the Output
 
 The solution is saved in dimensional form into one output file. This output .mat file takes the form of a structure called `sol`. There are three possible forms of the `sol` structure, depending on the simulation protocol.
 
@@ -174,16 +176,16 @@ The solution is saved in dimensional form into one output file. This output .mat
 
 2) For impedance spectroscopy simulations, `sol` is a structure array, where each structure is the full solution structure for a single frequency measurement, with the additional field `impedance_protocol`, the cell containing the parameters of the impedance protocol as `params.applied_voltage` will be replaced for each frequency with a sinusoidal voltage protocol. The frequency of the n-th simulation can be found by `1/sol(n).params.applied_voltage{2}`.
 
-When taking a large number of sample frequencies, the solution structure array can become a large file, with much of the data being unnecessary.
+When taking a large number of sample frequencies, the solution structure array can become a large file, with much of the data being unnecessary. To reduce the size of the solution, set `reduced_output` to `true` in the parameters file. In this case, `IS_solver.m` will perform the impedance analysis and discard most of the data before returning the solution.
 
-3) To reduce the size of the solution, set `reduced_output` to `true` in the parameters file. In this case, `IS_solver.m` will perform the impedance analysis and discard most of the data before returning the solution. In this case, `sol` is a single structure that contains:
+3) With `reduced_output = true`, `sol` is a single structure that contains:
   - the `vectors` structure, containing column vectors `x`, `dx`, `xE`, `dxE`, `xH` and `dxH`
   - the `params` structure, containing all input and calculated parameters
   - the `dstrbns` structure, containing the steady state solutions of `P`, `phi`, `n`, `p`, `phiE`, `nE`, `phiH` and `pH` at the DC voltage. (note that each variable is stored in the form P(x) and the command `plot(sol.vectors.x,sol.dstrbns.P);` plots the distribution)
   - the `J`, `Jl`, `Jr` values in steady state at the DC voltage.
   - the vectors `freqs`, `R`, and `X`, containing the frequency, and the real and imaginary parts of the impedance, respectively, for each sample frequency.
 
-The user must then choose how to analyse or plot the data. One example plotting function, called `plot_sections.m`, can be found in the Code/Plotting folder. Any solution of an impedance spectroscopy can be given to `plot_IS.m` to generate Nyquist and Bode plots as well as any user-defined plots. In order to perform an identical analysis at the end of every simulation, the user can add commands to the `completion_tasks.m` function, which can be found in the Code/Common folder. `FourierFit.m` is a function that can be used to fit a sinusoidal curve to a periodic signal. Example code is included in this function to analyse the phase of any variable from an impedance simulation.
+The user must then choose how to analyse or plot the data. One example plotting function, called `plot_sections.m`, can be found in the Code/Plotting folder. Any solution of an impedance spectroscopy simulation can be given to `plot_IS.m` to generate Nyquist and Bode plots as well as any user-defined plots. In order to perform an identical analysis at the end of every simulation, the user can add commands to the `completion_tasks.m` function, which can be found in the Code/Common folder. `FourierFit.m` is a function that can be used to fit a sinusoidal curve to a periodic signal. Example code is included in this function to analyse the phase of any variable from an impedance simulation.
 
 
 # Common Errors
@@ -205,12 +207,12 @@ Note that, by default, the code follows a routine in which the solution procedur
 
 When using degenerate statistical models, the relation between doping density and equilibrium Fermi levels in the transport layers becomes more complex. It is therefore easy to inadvertently set unphysical values for one of these parameters. If you encounter an error while using degenerate statistics, check these parameters in the command window,
 	
-	params.dE		:	ETL doping density (m-3)
-	params.dH		: 	HTL doping density (m-3)
-	params.omegE	:	ETL dimensionless doping density
-	params.omegH	:	HTL dimensionless doping density
-	params.EfE		:	ETL equilibrium Fermi level (eV)
-	params.EfH		:	HTL equilibrium Fermi level (eV)
+	params.dE       :    ETL doping density (m-3)
+	params.dH       :    HTL doping density (m-3)
+	params.omegE    :    ETL dimensionless doping density
+	params.omegH    :    HTL dimensionless doping density
+	params.EfE      :    ETL equilibrium Fermi level (eV)
+	params.EfH      :    HTL equilibrium Fermi level (eV)
 
 If you encounter a different problem, please create an Issue on the GitHub website, add details of the problem (including the error message and MATLAB version number) and attach the parameters.m file in use when the problem occurred. For other enquiries, please contact N.E.Courtier(at)soton.ac.uk.
 

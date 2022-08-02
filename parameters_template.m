@@ -89,7 +89,7 @@ epsH  = 3*eps0;  % permittivity of HTL (Fm-1)
 DH    = 1e-6;    % hole diffusion coefficient in HTL (m2s-1)
 % muH   = 3.8e-5;  % electron mobility in HTL (m2V-1s-1)
 % stats.HTL = struct('band','Gaussian',... % HTL band shape, choose 'parabolic' or 'Gaussian'
-%                    's',3, ... % HTL Gaussian width (only if Gaussian)
+%                    's',3, ... % HTL Gaussian width (only if Gaussian, can be zero)
 %                    'distribution','Boltzmann'); % HTL statistical distribution,
 %                                                 % choose 'Boltzmann' or 'FermiDirac'
 

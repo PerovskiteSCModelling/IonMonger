@@ -1,4 +1,4 @@
-# IonMonger
+# IonMonger 2.0
 
 A drift-diffusion model for ion migration and charge carrier transport across a planar perovskite solar cell (PSC).
 
