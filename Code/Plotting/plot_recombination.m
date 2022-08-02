@@ -14,20 +14,28 @@ elseif isfield(sol,'X') % received reduced solution structure from IS simulation
 end
 
 % Unpack the parameters and dimensional variables
-[G0, dE, dH, N0, brate, ni2, gamma, tor, tor3, Cn, Cp, R, SRH, Auger, ...
-    jay, kE, kH] = ...
-	struct2array(sol.params, {'G0','dE','dH','N0','brate','ni2','gamma', ...
-                              'tor','tor3','Cn','Cp','R','SRH','Auger', ...
-                              'jay', 'kE', 'kH'});
+[G0, n0, p0, N0, brate, ni2, gamma, tor, tor3, Cn, Cp, R, SRH, Auger, jay] = ...
+	struct2array(sol.params, {'G0','n0','p0','N0','brate','ni2','gamma', ...
+                              'tor','tor3','Cn','Cp','R','SRH','Auger','jay'});
 x = sol.vectors.x;
 [n, p, P] = struct2array(sol.dstrbns, {'n','p','P'});
 time = sol.time;
 
-% Compute the rates of recombination
-R_tot = G0*R(n/(dE*kE),p/(dH*kH),P/N0);
-R_bim = G0*brate*(n/(dE*kE).*p/(dH*kH)-ni2);
-R_Aug = G0*Auger(n/(dE*kE),p/(dH*kH),Cn,Cp,ni2);
-R_SRH = G0*SRH(n/(dE*kE),p/(dH*kH),gamma,ni2,tor,tor3);
+% Convert to dimensionless variables (see the scaling in numericalsolver.m)
+n = n/n0;
+p = p/p0;
+P = P/N0;
+
+% Calculate dimensional rates of recombination (see nondimensionalise.m)
+R_bim = G0*brate*(n.*p-ni2);
+R_Aug = G0*Auger(n,p,Cn,Cp,ni2);
+R_SRH = G0*SRH(n,p,gamma,ni2,tor,tor3);
+R_tot = G0*R(n,p,P); % using dimensionless variables
+
+% Rescale back to dimensional variables
+% n = n0*n;
+% p = p0*p;
+% P = N0*P;
 
 % Set default figure options
 set(0,'defaultAxesFontSize',10); % Make axes labels smaller

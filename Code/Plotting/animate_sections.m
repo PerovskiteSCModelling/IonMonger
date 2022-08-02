@@ -17,6 +17,8 @@ function animate_sections(sol,sections,vidlength,filename,NameValueArgs)
 % 'Videos', type `animate_sections(sol,[2,3],5,'Videos\sweep_animation')`
 % into the command window.
 
+%% Extract data and setup
+
 % Check optional Name-Value arguments
 arguments
     sol struct
@@ -44,13 +46,12 @@ tic;
 % Unpack parameters, vectors and dimensional solution variables
 [Size, FrameRate, Verbose] = ...
     struct2array(NameValueArgs, {'Size','FrameRate','Verbose'});
-[dE, dH, kE, kH, N0, G0, gamma, ni2, tor, tor3, Cn, Cp, brate, Tion, b, ...
-    gammaE, torE, torE3, gammaH, torH, torH3, brateE, brateH, G, R, SRH, ...
-    Auger, light] = ...
-    struct2array(sol.params, {'dE','dH','kE','kH','N0','G0','gamma', ...
-    'ni2','tor','tor3','Cn','Cp','brate','Tion','b','gammaE','torE', ...
-    'torE3','gammaH','torH','torH3','brateE','brateH','G','R','SRH', ...
-    'Auger','light'});
+[n0, p0, N0, G0, gamma, ni2, tor, tor3, Cn, Cp, brate, Tion, b, gammaE, ...
+    torE, torE3, gammaH, torH, torH3, brateE, brateH, G, R, SRH, Auger, ...
+    light] = ...
+    struct2array(sol.params, {'n0','p0','N0','G0','gamma','ni2','tor', ...
+    'tor3','Cn','Cp','brate','Tion','b','gammaE','torE','torE3','gammaH', ...
+    'torH','torH3','brateE','brateH','G','R','SRH','Auger','light'});
 [time, J, V, vectors] = struct2array(sol, {'time','J','V','vectors'});
 [x] = struct2array(vectors,{'x'});
 [P, phi, n, p, phiE, nE, phiH, pH] = ...
@@ -103,22 +104,41 @@ phiH = interp1(time,phiH,frame_times);
 J    = interp1(time,J,   frame_times);
 V    = interp1(time,V,   frame_times);
 
-% Calculate dimensional recombination rates
-R_tot = R(n/(dE*kE),p/(dH*kH),P/N0)*G0;
-R_bim = brate*(n/(dE*kE).*p/(dH*kH)-ni2)*G0;
-R_SRH = SRH(n/(dE*kE),p/(dH*kH),gamma,ni2,tor,tor3)*G0;
-R_Aug = Auger(n/(dE*kE),p/(dH*kH),Cn,Cp,ni2)*G0;
-[X,T] = meshgrid(x*1e-9/b,frame_times/Tion); % nondimensional time and space mesh
+
+%% Compute recombination and generation rates
+
+% Convert to dimensionless variables (see the scaling in numericalsolver.m)
+n = n/n0;
+p = p/p0;
+P = P/N0;
+
+% Calculate dimensional recombination rates (see nondimensionalise.m)
+R_tot = G0*R(n,p,P);
+R_bim = G0*brate*(n.*p-ni2);
+R_SRH = G0*SRH(n,p,gamma,ni2,tor,tor3);
+R_Aug = G0*Auger(n,p,Cn,Cp,ni2);
+
+% Compute dimensional generation rate on a nondimensional time and space
+% mesh (see the scaling in numericalsolver.m)
+[X,T] = meshgrid(x*1e-9/b,frame_times/Tion);
 G_tot = G(X,T)*G0;
 
 % Divide surface recombination rates by perovskite width to be 
 % dimensionally consistent with bulk recombination rates
-Rl_SRH = SRH(n(:,1)/(dE*kE),p(:,1)/(dH*kH),gammaE,ni2,torE,torE3)*G0;
-Rr_SRH = SRH(p(:,end)/(dH*kH),n(:,end)/(dE*kE),gammaH,ni2,torH,torH3)*G0;
-Rl_bim = brateE*(n(:,1)/(dE*kE).*p(:,1)/(dH*kH)-ni2/kE)*G0;
-Rr_bim = brateH*(n(:,end)/(dE*kE).*p(:,end)/(dH*kH)-ni2/kH)*G0;
+Rl_SRH = G0*SRH(n(:,1),p(:,1),gammaE,ni2,torE,torE3);
+Rr_SRH = G0*SRH(p(:,end),n(:,end),gammaH,ni2,torH,torH3);
+Rl_bim = G0*brateE*(n(:,1).*p(:,1)-ni2);
+Rr_bim = G0*brateH*(n(:,end).*p(:,end)-ni2);
 Rl_tot = Rl_SRH+Rl_bim;
 Rr_tot = Rr_SRH+Rr_bim;
+
+% Rescale back to dimensional variables
+n = n0*n;
+p = p0*p;
+P = N0*P;
+
+
+%% Package up data and generate frames
 
 % Create structure to contain frames
 F(Num) = struct('cdata',[],'colormap',[]);
