@@ -18,7 +18,7 @@ function regression_test(testCase)
 % https://doi.org/10.1007/s10825-019-01396-2.
 
 % Load the original data and parameters structure
-load('./Data/simulation_1.0.mat','sol');
+load('./Data/simulation_2.0.mat','sol');
 params = sol.params;
 
 % Update and import parameters
@@ -26,14 +26,11 @@ params.Verbose = false;
 VT = params.VT;
 jay = params.jay;
 
-% Update parameters structure with new parameters
-params = nondimensionalise(params);
-
 % Solve the equations
 newsol = numericalsolver(params);
 
 % Define absolute and relative difference functions
-abs_diff = @(new,old) max(abs(new-old));
+abs_diff = @(new,old) max(max(abs(new-old)));
 rel_diff = @(new,old) max(max(abs(new-old)./max(abs(old),abs(mean(old,2)))));
 
 % Compare the results
@@ -45,11 +42,11 @@ phiE_diff = abs_diff(newsol.dstrbns.phiE,sol.dstrbns.phiE)/VT;
 nE_diff   = rel_diff(newsol.dstrbns.nE  ,sol.dstrbns.nE  );
 phiH_diff = abs_diff(newsol.dstrbns.phiH,sol.dstrbns.phiH)/VT;
 pH_diff   = rel_diff(newsol.dstrbns.pH  ,sol.dstrbns.pH  );
-V_diff    = abs_diff(newsol.V ,sol.V )/max(VT ,abs(sol.V ));
-J_diff    = abs_diff(newsol.J ,sol.J )/max(jay,abs(sol.J ));
-Jl_diff   = abs_diff(newsol.Jl,sol.Jl)/max(jay,abs(sol.Jl));
-Jr_diff   = abs_diff(newsol.Jr,sol.Jr)/max(jay,abs(sol.Jr));
-max_diff  = max([P_diff, phi_diff, n_diff, p_diff, ...
+V_diff    = abs_diff(newsol.V ,sol.V )/max([VT , abs(sol.V' )]);
+J_diff    = abs_diff(newsol.J ,sol.J )/max([jay,abs(sol.J' )]);
+Jl_diff   = abs_diff(newsol.Jl,sol.Jl)/max([jay,abs(sol.Jl')]);
+Jr_diff   = abs_diff(newsol.Jr,sol.Jr)/max([jay,abs(sol.Jr')]);
+[max_diff,i]  = max([P_diff, phi_diff, n_diff, p_diff, ...
                  phiE_diff, nE_diff, phiH_diff, pH_diff, ...
                  V_diff, J_diff, Jl_diff, Jr_diff]);
 

@@ -14,7 +14,7 @@ warnon = warning('error','MATLAB:ode15s:IntegrationTolNotMet');
 
 % Compute the Jacobian, mass matrix and initial slope and add to options
 % Note that the mass matrix is adjusted so ions are as mobile as electrons
-if exist('AnJac.m','file')
+if exist('AnJac','file')
     options.Jacobian = @(t,u) AnJac(t,u,params,vectors,matrices);
 else
     options.JPattern = Jac(params);
@@ -22,6 +22,7 @@ end
 options.Mass = mass_matrix(params,vectors,'precondition');
 options.InitialSlope = RHS(0,sol_init,@(t) 0,params,vectors,matrices) ...
     \options.Mass;
+options.OutputFcn = []; % Surpress output during preconditioning
 
 % Fix the light in its initial state
 params.G = @(x,t) G(x,0);
@@ -35,7 +36,7 @@ sol_init = numsol(end,:)';
 warning(warnon);
 
 % Define the settings for the call to fsolve
-fsoptions = optimoptions('fsolve','MaxIterations',20);
+fsoptions = optimoptions('fsolve','MaxIterations',40);
 if Verbose, fsoptions.Display = 'iter'; else, fsoptions.Display = 'off'; end
 
 % Use the initial estimate to obtain an approximate steady-state solution

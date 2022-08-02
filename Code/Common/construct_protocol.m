@@ -16,9 +16,63 @@ function [light, psi, time, splits, findVoc] = ...
 % are specified, they must describe the same length of time. The outputs of
 % the function are two functions of time (light and psi), two vectors of
 % time points (time and splits) and the option whether to first findVoc.
+% To create an impedance protocol, begin the applied_voltage cell with the
+% string 'impedance', followed by the necessary protocol parameters (see
+% the GUIDE). In this case, the function will return a dummy protocol for
+% a 1Hz impedance measurement for plotting purposes.
 
 % Parameter input
 [Vbi, t2tstar, Vap2psi] = struct2array(params, {'Vbi','t2tstar','Vap2psi'});
+
+if strcmp(applied_voltage{1},'impedance')
+    % If the protocol is an impedance spectrum, create a dummy input for
+    % plotting if Verbose
+    
+    V0 = applied_voltage{4}; % DC voltage
+    Vp = applied_voltage{5}; % AC voltage amplitude
+    t = 5;                  % time spent in steady state (s)
+    n = applied_voltage{7};  % number of periods to simulate
+    applied_voltage = {V0,'tanh',t,V0}; % protocol for steady state
+    freq = 1; % example frequency (Hz)
+    for i = 1:n
+        % add n sin functions to the protocol
+        applied_voltage{end+1} = 'sin';
+        applied_voltage{end+1} = 1/freq;
+        applied_voltage{end+1} = V0+Vp;
+    end
+end
+    
+% check for initial voltage
+if length(applied_voltage)>1 && ~ischar(applied_voltage{2})
+    % If second entry is not a character vector, the initial voltage has
+    % been omitted
+    if isfield(params,'input_filename')
+        % check for specified initial conditions
+        load(params.input_filename)
+        
+        % add the saved voltage to the beginning of the protocol
+        applied_voltage = {sol.V(end), applied_voltage{:}}; 
+    else
+        error(['applied_voltage did not specify an initial voltage and '...
+            'no specified initial distribution has been found.'])
+    end
+else
+    if isfield(params,'input_filename')
+        if ~strcmp(applied_voltage{1},'open-circuit')
+            % initial voltage has been specified but an initial distribution
+            % has also been specified
+            warning(['Initial voltage was specified in applied_voltage but a ' ...
+            'saved initial distribution has also been specified. This ' ...
+            'value will override the initial voltage.'])
+            load(params.input_filename)
+            % replace initial voltage with saved voltage 
+            applied_voltage{1} = sol.V(end); % replace initial voltage with saved voltage 
+        else
+            % applied voltage is open-circuit and initial distributions
+            % have been requested. Do nothing
+        end
+    end
+end
 
 if length(light_intensity)==1
     
@@ -95,8 +149,8 @@ else
     
 end
 
-% Merge the split times into one vector (which includes the both the first
-%  and last time points)
+% Merge the split times into one vector (which includes both the first
+% and last time points)
 if length(G_splits)==1 && length(V_splits)==1
     error('One of the protocols must include a length of time.');
 elseif length(G_splits)>1 && length(V_splits)>1 && G_splits(end)~=V_splits(end)
@@ -136,6 +190,9 @@ for i = 1:length(splits)-1
         sprintf('out(idxs) = part_%s',compnts{i}),...
         '(t(idxs), splits(i), splits(i+1), values(i), values(i+1));' ...
         ]);
+    if strcmp(compnts{i},'sin')
+        values(i+1) = values(i);
+    end
 end
 % Afterwards, remain at the final value
 idxs = splits(end)<=t;
@@ -155,6 +212,14 @@ function out = part_cosine(t, t_start, t_end, V_start, V_end)
 % sigmoidal fashion between t_start and t_end
 out = V_start+(V_end-V_start).* ...
     (0.5-0.5.*cos(pi*(t-t_start)./(t_end-t_start)));
+end
+
+function out = part_sin(t, t_start, t_end, V_start, V_max)
+% Uses the sin function between V_max and V_start-(V_max-V_start) in a
+% single sinusoid between t_start and t_end.
+% Note that V_end has been replaced by V_max.
+out = V_start+(V_max-V_start).* ...
+    sin(2*pi*(t-t_start)/(t_end-t_start));
 end
 
 function out = part_tanh(t, t_start, t_end, V_start, V_end)

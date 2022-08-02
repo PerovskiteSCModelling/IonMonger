@@ -4,8 +4,16 @@ function plot_dstrbns(sol,plotindex)
 % desired points in sol.time (for example, plotindex = [1,101,201,301]),
 % and the current density and interfacial recombination losses over time.
 
-% Retrieve the nondimensional parameter values
-[kE, kH] = struct2array(sol.params, {'kE','kH'});
+% Check sol structure
+if size(sol,2)>1 % received structure array from IS simulation
+    error(['plot_dstrbns was given a solution structure array from an ' ...
+        'impedance spectroscopy simulation. To use plot_dstrbns for the '...
+        'n-th sample frequency solution, use `plot_dstrbns(sol(n),...)`'])
+elseif isfield(sol,'X') % received reduced solution structure from IS simulation
+    error(['plot_dstrbns was given a reduced solution structure from an ' ...
+        'impedance spectroscopy simulation. To use plot_dstrbns with an ' ...
+        'IS solution, ensure reduced_output=false'])
+end
 
 % Unpack the spatial vectors and dimensional solution variables
 [x, xE, xH] = struct2array(sol.vectors,{'x','xE','xH'});
@@ -15,9 +23,9 @@ function plot_dstrbns(sol,plotindex)
 
 % Set default figure options
 set(0,'defaultAxesFontSize',10); % Make axes labels smaller
-set(0,'defaultTextInterpreter','latex') % For latex axis labels
-set(0,'defaultAxesTickLabelInterpreter','latex') % For latex tick labels
-set(0,'defaultLegendInterpreter','latex') % For latex legends
+set(0,'defaultTextInterpreter','latex'); % For latex axis labels
+set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
+set(0,'defaultLegendInterpreter','latex'); % For latex legends
 
 % Shading
 if length(plotindex)>1
@@ -41,7 +49,7 @@ xlabel('Distance (nm)'); ylabel('Ion Vacancy Density (cm$^{-3}$)');
 subplot(2,2,2); hold on;
 for tt = plotindex
     plot(x,phi(tt,:),'color',shade(tt)*phi_colour);
-    plot([xE; x(1)],[phiE(tt,:) phi(tt,1)],'color',shade(tt)*phi_colour);
+    plot(xE,phiE(tt,:),'color',shade(tt)*phi_colour);
     plot([x(end); xH],[phi(tt,end) phiH(tt,:)],'color',shade(tt)*phi_colour);
 end
 xlim([xE(1),xH(end)]);
@@ -49,14 +57,14 @@ xlabel('Distance (nm)'); ylabel('Electric Potential (V)');
 subplot(2,2,3); hold on;
 for tt = plotindex
     plot(x,n(tt,:),'color',shade(tt)*n_colour);
-    plot([xE; x(1)],[nE(tt,:) n(tt,1)/kE],'color',shade(tt)*n_colour);
+    plot(xE,nE(tt,:),'color',shade(tt)*n_colour);
 end
 xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Electron Concentration (cm$^{-3}$)');
 subplot(2,2,4); hold on;
 for tt = plotindex
     plot(x,p(tt,:),'color',shade(tt)*p_colour);
-    plot([x(end); xH],[p(tt,end)/kH pH(tt,:)],'color',shade(tt)*p_colour);
+    plot(xH,pH(tt,:),'color',shade(tt)*p_colour);
 end
 xlim([xE(1),xH(end)]);
 xlabel('Distance (nm)'); ylabel('Hole Concentration (cm$^{-3}$)');

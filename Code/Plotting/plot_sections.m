@@ -7,21 +7,32 @@ function plot_sections(sol,sections)
 % If there is an odd number of sections, the first is assumed to correspond
 % to a preconditioning step.
 
+% Check sol structure
+if size(sol,2)>1 % received structure array from IS simulation
+    error(['plot_sections was given a solution structure array from an ' ...
+        'impedance spectroscopy simulation. To use plot_sections for the '...
+        'n-th sample frequency solution, use `plot_sections(sol(n),...)`'])
+elseif isfield(sol,'X') % received reduced solution structure from IS simulation
+    error(['plot_sections was given a reduced solution structure from an ' ...
+        'impedance spectroscopy simulation. To use plot_sections with an ' ...
+        'IS solution, ensure reduced_output=false'])
+end
+
 % Parameter input
 [J, V, Jl, Jr] = struct2array(sol,{'J','V','Jl','Jr'});
 
 % Set default figure options
 set(0,'defaultAxesFontSize',18); % Make axes labels larger
-set(0,'defaultTextInterpreter','latex') % For latex axis labels
-set(0,'defaultAxesTickLabelInterpreter','latex') % For latex tick labels
-set(0,'defaultLegendInterpreter','latex') % For latex legends
+set(0,'defaultTextInterpreter','latex'); % For latex axis labels
+set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
+set(0,'defaultLegendInterpreter','latex'); % For latex legends
 
 % Figure setup
 figure;
 hold on;
 ylim([-15, 30]);
 ylabel('Current density (mA$\cdot$cm$^{-2}$)');
-xlim([0, 1.2]);
+xlim([min([0 ; V]), max(V)]);
 xlabel('Voltage (V)');
 line([0,1.2],[0,0],'Color','k','HandleVisibility','off'); % x-axis, i.e. J=0
 set(gca,'Layer','top');

@@ -2,29 +2,46 @@ function plot_recombination(sol)
 % Plots the rates of different types of bulk recombination as functions of
 % time and space.
 
-% Retrieve the nondimensional parameter values and recombination functions
-[G0, dE, dH, N0, brate, ni2, gamma, tor, tor3, Cn, Cp, R, SRH, Auger, jay] = ...
-	struct2array(sol.params, {'G0','dE','dH','N0','brate','ni2','gamma', ...
+% Check sol structure
+if size(sol,2)>1 % received structure array from IS simulation
+    error(['plot_recombination was given a solution structure array from an ' ...
+        'impedance spectroscopy simulation. To use plot_recombination for the '...
+        'n-th sample frequency solution, use `plot_recombination(sol(n),...)`'])
+elseif isfield(sol,'X') % received reduced solution structure from IS simulation
+    error(['plot_recombination was given a reduced solution structure from an ' ...
+        'impedance spectroscopy simulation. To use plot_recombination with an ' ...
+        'IS solution, ensure reduced_output=false'])
+end
+
+% Unpack the parameters and dimensional variables
+[G0, n0, p0, N0, brate, ni2, gamma, tor, tor3, Cn, Cp, R, SRH, Auger, jay] = ...
+	struct2array(sol.params, {'G0','n0','p0','N0','brate','ni2','gamma', ...
                               'tor','tor3','Cn','Cp','R','SRH','Auger','jay'});
-
-% Unpack the dimensional charge concentrations
-[n, p, P] = struct2array(sol.dstrbns, {'n','p','P'});
-
-% Unpack the time and spatial dimension across the perovskite layer
-time = sol.time;
 x = sol.vectors.x;
+[n, p, P] = struct2array(sol.dstrbns, {'n','p','P'});
+time = sol.time;
 
-% Compute the rates of recombination
-R_tot = G0*R(n/dE,p/dH,P/N0);
-R_bim = G0*brate*(n/dE.*p/dH-ni2);
-R_Aug = G0*Auger(n/dE,p/dH,Cn,Cp,ni2);
-R_SRH = G0*SRH(n/dE,p/dH,gamma,ni2,tor,tor3);
+% Convert to dimensionless variables (see the scaling in numericalsolver.m)
+n = n/n0;
+p = p/p0;
+P = P/N0;
+
+% Calculate dimensional rates of recombination (see nondimensionalise.m)
+R_bim = G0*brate*(n.*p-ni2);
+R_Aug = G0*Auger(n,p,Cn,Cp,ni2);
+R_SRH = G0*SRH(n,p,gamma,ni2,tor,tor3);
+R_tot = G0*R(n,p,P); % using dimensionless variables
+
+% Rescale back to dimensional variables
+% n = n0*n;
+% p = p0*p;
+% P = N0*P;
 
 % Set default figure options
 set(0,'defaultAxesFontSize',10); % Make axes labels smaller
-set(0,'defaultTextInterpreter','latex') % For latex axis labels
-set(0,'defaultAxesTickLabelInterpreter','latex') % For latex tick labels
-set(0,'defaultLegendInterpreter','latex') % For latex legends
+set(0,'defaultTextInterpreter','latex'); % For latex axis labels
+set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
+set(0,'defaultLegendInterpreter','latex'); % For latex legends
 
 % Plot the rates of recombination in space and time
 figure;
