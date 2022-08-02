@@ -62,7 +62,7 @@ ax1 = nexttile;
 plot(ax1,freqs,X,'-ob','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','b');
 ax2 = nexttile;
 plot(freqs,R,'-ob','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','b');
-set(ax1,'XScale','log''YDir','reverse');
+set(ax1,'XScale','log','YDir','reverse');
 set(ax2,'XScale','log');
 ylabel(ax1,'X / $\Omega$cm$^2$');
 ylabel(ax2,'R / $\Omega$cm$^2$');

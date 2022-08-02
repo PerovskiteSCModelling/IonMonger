@@ -157,7 +157,7 @@ SRH = @(n,p,gamma,ni2,tor,tor3) ...
 R = @(n,p,P) brate*(n.*p-ni2) ... % bimolecular
            + Auger(n,p,Cn,Cp,ni2) ... % Auger recombination
            + SRH(n,p,gamma,ni2,tor,tor3); % SRH recombination via trap states
-       
+
 % Interface recombination parameters
 brateE = betaE*dE*p0/(b*G0); % rate constant for bimolecular recombination
 brateH = betaH*n0*dH/(b*G0); % rate constant for bimolecular recombination
