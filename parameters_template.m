@@ -35,7 +35,7 @@ phidisp = 100; % displacement factor for electric potential (VT) (optional)
 eps0  = 8.854187817e-12;  % permittivity of free space (Fm-1)
 q     = 1.6021766209e-19; % charge on a proton (C)
 Fph   = 1.4e21;           % incident photon flux (m-2s-1)
-kB    = 8.61733035e-5;    % Boltzmann constant (eVK-1)
+kB    = 8.61733035e-5;    % Boltzmann constant (VK-1)
 
 % Perovskite parameters
 T     = 298;       % temperature (K)
