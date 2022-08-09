@@ -48,6 +48,7 @@ if ~strcmp(base_params.workfolder(end),'/')
 end
 savestr = [base_params.workfolder, 'DC_sol'];
 save(savestr,'sol');
+addpath(genpath('./Data/'));
 
 if nf>1 ; base_params.Verbose = false; end % suppress output during measurements
 
