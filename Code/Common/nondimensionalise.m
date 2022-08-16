@@ -32,7 +32,7 @@ elseif any(Plim)
       error(['Enforcing a maximum vacancy density Plim requires a modified ' ...
           'ion flux. Choose from nonlinear ''Drift'' or ''Diffusion''.']);
     end
-    Pm = N0/Plim; % non-dim. maximum vacancy density
+    Pm = N0/Plim; % ratio of average to maximum vacancy density
 end
 
 % Create statistical functions
