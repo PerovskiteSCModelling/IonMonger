@@ -47,7 +47,7 @@ if any(Pm) && strcmp(NonlinearFP,'Drift')
     pd = ones(N+1,1);
 elseif any(Pm) && strcmp(NonlinearFP,'Diffusion')
     [PAP, PA1, PA2] = deal(zeros(N,1));
-    pd = 1-Pm*P;
+    pd = 1-Pm*P+Pm*1e-20; % small tolerance for stability
 else
     [PAP, PA1, PA2] = deal(zeros(N,1));
     pd = ones(N+1,1);

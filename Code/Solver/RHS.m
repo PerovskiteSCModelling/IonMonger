@@ -43,7 +43,7 @@ if any(Pm) && strcmp(NonlinearFP,'Drift')
     PD = Dx*P;
 elseif any(Pm) && strcmp(NonlinearFP,'Diffusion')
     PAP = 0;
-    PD = -1/Pm*Dx*log(1-Pm*P);
+    PD = -1/Pm*Dx*log(1-Pm*P+Pm*1e-20); % small tolerance for stability
 else
     PAP = 0;
 	PD = Dx*P;
