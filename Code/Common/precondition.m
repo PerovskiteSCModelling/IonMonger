@@ -22,14 +22,16 @@ end
 options.Mass = mass_matrix(params,vectors,'precondition');
 options.InitialSlope = RHS(0,sol_init,@(t) 0,params,vectors,matrices) ...
     \options.Mass;
-options.OutputFcn = []; % Surpress output during preconditioning
+options.OutputFcn = []; % Supress output during preconditioning
 
 % Fix the light in its initial state
 params.G = @(x,t) G(x,0);
 
 % Evolve the solution from Vbi to the preconditioning voltage
-[~,numsol] = ode15s(@(t,u) RHS(t,u,@(t) psi(0)*t/10,params,vectors,matrices), ...
-    [0 10],sol_init,options);
+precon_time = params.t2tstar(10);
+[~,numsol] = ode15s(@(t,u) RHS(t,u,@(t) ... psi(0)*t/precon_time, ...
+                psi(0)*(2-t/precon_time)*t/precon_time, ...
+                params,vectors,matrices),[0 precon_time],sol_init,options);
 sol_init = numsol(end,:)';
 
 % Reset error message to warning
