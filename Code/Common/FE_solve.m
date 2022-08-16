@@ -34,44 +34,8 @@ end
 matrices = create_matrices(params,vectors);
 
 if isfield(params,'input_filename')
-    if Verbose
-        disp(['Using initial distributions from the saved file ' ... 
-            params.input_filename])
-    end
-    load(params.input_filename)
-    
-    % unpack final step of solution
-    P    = sol.dstrbns.P(end,:);
-    phi  = sol.dstrbns.phi(end,:);
-    n    = sol.dstrbns.n(end,:);
-    p    = sol.dstrbns.p(end,:);
-    phiE = sol.dstrbns.phiE(end,:);
-    nE   = sol.dstrbns.nE(end,:);
-    phiH = sol.dstrbns.phiH(end,:);
-    pH   = sol.dstrbns.pH(end,:);
-    
-    % interpolate onto new spacial grid and nondimensionalise
-    [b, N0, VT, dE, dH, kE, kH] = ...
-        struct2array(params,{'b','N0','VT','dE','dH','kE','kH'});
-    P    = interp1(sol.vectors.x, P,   vectors.x*b*1e9)/N0;
-    phi  = interp1(sol.vectors.x, phi, vectors.x*b*1e9)/VT;
-    n    = interp1(sol.vectors.x, n,   vectors.x*b*1e9)/(kE*dE);
-    p    = interp1(sol.vectors.x, p,   vectors.x*b*1e9)/(kH*dH);
-    phiE = interp1(sol.vectors.xE,phiE,vectors.xE*b*1e9)/VT;
-    nE   = interp1(sol.vectors.xE,nE,  vectors.xE*b*1e9)/dE;
-    phiH = interp1(sol.vectors.xH,phiH,vectors.xH*b*1e9)/VT;
-    pH   = interp1(sol.vectors.xH,pH,  vectors.xH*b*1e9)/dH;
-    
-    % eliminate superfluous phi points
-    phiE = phiE(1:end-1);
-    phiH = phiH(2:end);
-    
-    sol_start = [P; phi; n; p; phiE; nE; phiH; pH];
-    
-    if any(isnan(sol_start))
-        error(['There was an error in interpolating the saved ' ... 
-            'distributions onto the new spatial grid.']);
-    end
+    % Load the distributions from a saved file
+    sol_start = load_saved_file(params,vectors);
 else
     % Compute consistent initial conditions for a cell preconditioned at Vbi
     sol_start = initial_conditions(@(t) 0, params,vectors,matrices);
@@ -81,7 +45,7 @@ end
 [count, err_count] = deal(0);
 while count == err_count
     try
-        % Always start the solution procedure from steady state at Vbi
+        % Start the solution procedure from the input or steady state at Vbi
         sol_init = sol_start;
         
         % Perform a preconditioning step if requested
