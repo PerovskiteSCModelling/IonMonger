@@ -29,19 +29,19 @@ end
 freqs = logspace(log10(min_f),log10(max_f),nf);
 
 % Compute the complex impedance
-Z = nan(nf,1)+1i*nan(nf,1); % preallocate Z
+order = 3;
+Z = nan(nf,order)+1i*nan(nf,order); % preallocate Z
 for j = 1:nf
     try % Extract the impedance from each measurement
         
-        % Get indices of the timesteps to be analysed
+        % Get times and current (= -photocurrent)
         ind = (length(sol(j).J)-nwaves*100):length(sol(j).J);
-        
-        J = sol(j).J(ind)*1e-3; % convert to units of Acm-2
         t = sol(j).time(ind)-sol(j).time(ind(1));
+        J = -sol(j).J(ind)*1e-3; % [Acm-2]
         
         % Perform sinusoidal fit via Fourier transform
         fit = FourierFit(t,J,freqs(j));
-        theta = fit.theta+pi; % add pi to account for negative current definition
+        theta = fit.theta;
         Jp = fit.Sp; % extract sinusoidal current amplitude
         
         if fit.err>1e-1
@@ -49,7 +49,20 @@ for j = 1:nf
                 num2str(j) ' may be inaccurate'])
         end
         
-        Z(j) = Vp/Jp*exp(-1i*theta); % output impedance in units of Ohm cm2
+        % Output impedance
+        Z(j,1) = Vp/Jp*exp(1i*theta); % [Ohm cm2]
+        
+        % Fit the second-order response
+        fit2 = FourierFit(t,J-transpose(fit.S(t)),2*freqs(j));
+        Jp2 = fit2.Sp;
+        theta2 = fit2.theta;                       
+        Z(j,2) = Vp/(Jp2*exp(-1i*theta2))^2;
+        
+        % Fit the third-order response
+        fit3 = FourierFit(t,J-transpose(fit.S(t)+fit2.S(t)),3*freqs(j));
+        Jp3 = fit3.Sp;
+        theta3 = fit3.theta;
+        Z(j,3) = Vp/(Jp3*exp(-1i*theta3))^3;
         
     catch me
         warning(['phase analysis of frequency ' num2str(j) ' was unsuccessful'])
