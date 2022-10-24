@@ -8,6 +8,7 @@ function sol_init = precondition(sol_init,params,vectors,matrices,options)
 
 % Parameter input
 [psi, G, Verbose] = struct2array(params, {'psi','G','Verbose'});
+brief_pause = true;
 
 % Temporarily turn the following warning into an error
 warnon = warning('error','MATLAB:ode15s:IntegrationTolNotMet');
@@ -19,13 +20,24 @@ if exist('AnJac','file')
 else
     options.JPattern = Jac(params);
 end
-options.Mass = mass_matrix(params,vectors,'precondition');
+options.Mass = @(t,u) mass_matrix(t,u,params,vectors,'precondition');
 options.InitialSlope = RHS(0,sol_init,@(t) 0,params,vectors,matrices) ...
-    \options.Mass;
-options.OutputFcn = []; % Supress output during preconditioning
+    \options.Mass(0,sol_init);
+options.OutputFcn = []; % Suppress output during preconditioning
+options.RelTol = 100*options.RelTol;
 
 % Fix the light in its initial state
 params.G = @(x,t) G(x,0);
+
+if brief_pause
+    % Briefly hold the solution at Vbi
+    precon_time = params.t2tstar(1);
+    [~,numsol] = ode15s(@(t,u) RHS(t,u,@(t) 0, ...
+                    params,vectors,matrices),[0 precon_time],sol_init,options);
+    sol_init = numsol(end,:)';
+    options.InitialSlope = RHS(0,sol_init,@(t) 0,params,vectors,matrices) ...
+        \options.Mass(0,sol_init);
+end
 
 % Evolve the solution from Vbi to the preconditioning voltage
 precon_time = params.t2tstar(10);
@@ -33,6 +45,16 @@ precon_time = params.t2tstar(10);
                 psi(0)*(2-t/precon_time)*t/precon_time, ...
                 params,vectors,matrices),[0 precon_time],sol_init,options);
 sol_init = numsol(end,:)';
+
+if brief_pause
+    % Briefly hold the solution at the preconditioning voltage
+    precon_time = params.t2tstar(10);
+    options.InitialSlope = RHS(0,sol_init,@(t) 0,params,vectors,matrices) ...
+        \options.Mass(0,sol_init);
+    [~,numsol] = ode15s(@(t,u) RHS(t,u,@(t) psi(0), ...
+                    params,vectors,matrices),[0 precon_time],sol_init,options);
+    sol_init = numsol(end,:)';
+end
 
 % Reset error message to warning
 warning(warnon);

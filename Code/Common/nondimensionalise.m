@@ -29,8 +29,10 @@ if Plim <= N0
     error('The limiting vacancy density Plim must be greater than N0.');
 elseif any(Plim)
     if ~any(strcmp(NonlinearFP,{'Drift','Diffusion'}))
-      error(['Enforcing a maximum vacancy density Plim requires a modified ' ...
-          'ion flux. Choose from nonlinear ''Drift'' or ''Diffusion''.']);
+        error(['Enforcing a maximum vacancy density Plim requires a modified ' ...
+            'ion flux. Choose from nonlinear ''Drift'' or ''Diffusion''.']);
+    elseif strcmp(NonlinearFP,'Diffusion')
+        Ptol = 1e-12; % small tolerance for numerical stability
     end
     Pm = N0/Plim; % ratio of average to maximum vacancy density
 end

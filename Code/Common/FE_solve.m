@@ -7,9 +7,9 @@ function dstrbns = FE_solve(params,vectors)
 
 % Parameter input
 [psi, time, rtol, atol, Verbose, findVoc, splits, ...
-    OutputFcn, MaxStep] ... % the options on this line may be []
+    OutputFcn, MaxStep, NonlinearFP] ... % the options on this line may be []
     = struct2array(params,{'psi','time','rtol','atol','Verbose', ...
-    'findVoc','splits','OutputFcn','MaxStep'});
+    'findVoc','splits','OutputFcn','MaxStep','NonlinearFP'});
 
 % Program settings
 options = odeset('RelTol',rtol,'AbsTol',atol);
@@ -21,7 +21,10 @@ if Verbose, options.OutputFcn = OutputFcn; end
 options.MaxStep = MaxStep;
 if Verbose, options.Stats = 'on'; else, options.Stats = 'off'; end
 options.MassSingular = 'yes';
-options.MStateDependence = 'none';
+options.MStateDependence = 'weak';
+if ~exist('AnJac.m','file')
+    warning('Could not locate an analytical Jacobian, will use numerical Jac instead.');
+end
 
 % Select 'flag' according to user-defined voltage protocol
 if isnan(psi(time(end))) % if psi ends with NaN, this means open-circuit
@@ -48,6 +51,10 @@ while count == err_count
         % Start the solution procedure from the input or steady state at Vbi
         sol_init = sol_start;
         
+        if strcmp(NonlinearFP,'Diffusion')
+            params.NonlinearFP = 'Drift'; % switch temporarily
+        end
+        
         % Perform a preconditioning step if requested
         if isfield(params,'input_filename')
             % do nothing
@@ -59,15 +66,19 @@ while count == err_count
             sol_init = precondition(sol_init,params,vectors,matrices,options);
         end
         
+        if strcmp(NonlinearFP,'Diffusion')
+            params.NonlinearFP = 'Diffusion'; % switch back
+        end
+        
         % Compute the Jacobian, mass matrix and initial slope and add to options
         if exist('AnJac.m','file')
             options.Jacobian = @(t,u) AnJac(t,u,params,vectors,matrices,flag);
         else
         	options.JPattern = Jac(params,flag);
         end
-        options.Mass = mass_matrix(params,vectors,flag);
+        options.Mass = @(t,u) mass_matrix(t,u,params,vectors,flag);
         options.InitialSlope = RHS(0,sol_init,psi,params,vectors,matrices,flag) ...
-                                    \options.Mass;
+                                    \options.Mass(0,sol_init);
         
         %% SOLVE
 
@@ -94,7 +105,7 @@ while count == err_count
             % Pass the final gradient dudt to the next call
             options.InitialSlope = ...
                 RHS(parttime(end),partsol(end,:)',psi,params,vectors,matrices,flag) ...
-                \options.Mass;
+                \options.Mass(parttime(end),partsol(end,:)');
         end
 
     catch ME % if no solution can be obtained, try again up to 2 more times

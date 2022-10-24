@@ -1,4 +1,4 @@
-function M = mass_matrix(params,vectors,flag)
+function M = mass_matrix(t,u,params,vectors,flag)
 % This function constructs the mass matrix M for the equation M.du/dt=f(u).
 % M is a diagonal matrix, where the values on the diagonal are the
 % prefactors of the time derivative in each DAE and zero when there is no
@@ -9,8 +9,9 @@ function M = mass_matrix(params,vectors,flag)
 % e.g. to simulate open-circuit conditions.
 
 % Parameter input
-[sigma, chi, N, NE, NH, kE, kH] = ...
-    struct2array(params,{'sigma','chi','N','NE','NH','kE','kH'});
+[sigma, chi, N, NE, NH, kE, kH, NonlinearFP, Pm, Ptol] = ...
+    struct2array(params,{'sigma','chi','N','NE','NH','kE','kH', ...
+                         'NonlinearFP','Pm','Ptol'});
 [dx, dxE, dxH] = struct2array(vectors,{'dx','dxE','dxH'});
 
 % Define the mass matrix block by block
@@ -59,6 +60,12 @@ M = sparse([ ...
     M71 M71 M71 M71 M75 M76 M77 M78; ... % phiH equation
     M81 M81 M81 M81 M85 M86 M87 M88; ... % pH equation
     ]);
+
+% Scale the P derivatives in the case of nonlinear diffusion
+if any(Pm) && strcmp(NonlinearFP,'Diffusion')
+    P = u(1:N+1,:);
+    M(1:N+1,:) = (1-Pm*P).*M(1:N+1,:);
+end
 
 % Perform any additional step requested by the optional input argument flag
 if nargin>2

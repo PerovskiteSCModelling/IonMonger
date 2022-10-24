@@ -7,12 +7,17 @@ function sol_init = apply_Poisson(sol_init,params,vectors,matrices)
 % computation.
 
 % Parameter input
-[delta, chi, lam2, lamE2, lamH2, N, NE, NH, rE, rH] ...
+[delta, chi, lam2, lamE2, lamH2, N, NE, NH, rE, rH, Pm, NonlinearFP] ...
     = struct2array(params, {'delta','chi','lam2','lamE2','lamH2', ...
-    'N','NE','NH','rE','rH'});
+    'N','NE','NH','rE','rH','Pm','NonlinearFP'});
 [dx, dxE, dxH] = struct2array(vectors, {'dx','dxE','dxH'});
 [Lo, LoE, LoH, NN, ddE, ddH] ...
     = struct2array(matrices,{'Lo','LoE','LoH','NN','ddE','ddH'});
+
+% Ensure that the vacancy density does not exceeed the maximum density
+if any(Pm) && strcmp(NonlinearFP,'Diffusion')
+    sol_init(1:N+1) = min(1/Pm,sol_init(1:N+1));
+end
 
 % Assign variable names
 P   = sol_init(1:N+1);
