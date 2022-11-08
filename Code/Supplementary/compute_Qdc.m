@@ -4,8 +4,8 @@ function [Qdc, Vs] = compute_Qdc(Vap,params)
 % reduced problem and neglecting series resistance.
 
 % Parameter input
-[Vap2psi, OmegaE, OmegaH, q, LD, N0, VT] = ...
-    struct2array(params,{'Vap2psi','OmegaE','OmegaH','q','LD','N0','VT'});
+[Vap2psi, OmegaE, OmegaH, q, N0, epsp, VT] = ...
+    struct2array(params,{'Vap2psi','OmegaE','OmegaH','q','N0','epsp','VT'});
 
 % Compute the vector of non-dimensional voltage points
 psit = Vap2psi(Vap);
@@ -37,7 +37,8 @@ for i = 1:length(psit)
 end
 
 % Re-dimensionalise
-Qdc = -q*LD*N0*1e3*Qdc; % check scaling
+Qdc = sqrt(q*N0*epsp*VT)*Qdc*1e3; % charge density (mC/m2)
 Vs = struct('V1',VT*VE, 'V2',-VT*Vm, 'V3',VT*Vp, 'V4',-VT*VH);
+% Negative values occur above Vbi, positive values below Vbi.
 
 end
