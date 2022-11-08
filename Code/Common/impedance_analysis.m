@@ -25,12 +25,12 @@ if nwaves > sol(1).impedance_protocol{7}
         num2str(sol(1).impedance_protocol{7}) ' complete periods.'])
 end
 
-% Define the frequency range
+% Define the frequency range and preallocate Z
 freqs = logspace(log10(min_f),log10(max_f),nf);
+order = 3;
+Z = nan(nf,order)+1i*nan(nf,order);
 
 % Compute the complex impedance
-order = 3;
-Z = nan(nf,order)+1i*nan(nf,order); % preallocate Z
 for j = 1:nf
     try % Extract the impedance from each measurement
         
@@ -63,6 +63,26 @@ for j = 1:nf
         Jp3 = fit3.Sp;
         theta3 = fit3.theta;
         Z(j,3) = Vp/(Jp3*exp(-1i*theta3))^3;
+        
+%         if j==1.5*64
+%             % Plot harmonic response using the discrete Fourier transform
+%             FTJ = fft(J-mean(J));
+%             P2 = abs(FTJ/length(J)); % two-sided spectrum
+%             P1 = P2(1:floor(length(J)/2)+1);
+%             P1(2:end-1) = 2*P1(2:end-1); % one-sided spectrum
+%             P1 = P1*1e3; % rescale to mAcm-2 for plotting
+%             Fs = 1/t(2); % sampling frequency
+%             f = Fs*(0:floor(length(J)/2))/length(J);
+%             figure; hold on;
+%             cut = 20;
+%             plot(f(1:cut),P1(1:cut));
+%             plot(freqs(j)*[1,1],[0,max(P1)],'--'); % fundamental frequency
+% %             title('Single-sided amplitude spectrum of J(t)');
+%             ylabel('Amplitude (mAcm$^{-2}$)');
+%             xlabel('Frequency (Hz)');
+%             legend('Amplitude spectrum of J(t)','Fundamental frequency');
+%             drawnow;
+%         end
         
     catch me
         warning(['phase analysis of frequency ' num2str(j) ' was unsuccessful'])
