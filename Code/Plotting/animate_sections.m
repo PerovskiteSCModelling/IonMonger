@@ -62,6 +62,12 @@ if isempty(sections)
     sections = [1:(length(time)-1)/100];
 end
 
+% Set default figure options
+set(0,'defaultAxesFontSize',18); % Make axes labels larger
+set(0,'defaultTextInterpreter','latex'); % For latex axis labels
+set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
+set(0,'defaultLegendInterpreter','latex'); % For latex legends
+
 % Create video object
 try
     vid = VideoWriter(filename,'MPEG-4');
@@ -187,7 +193,7 @@ ylim(Ys);
 set(gca,'FontSize',20,'YColor','b');
 ylabel('applied voltage');
 yyaxis right;
-plot(time,light(time),'-r','HandleVisibility','off','LineWidth',1.5);
+plot(time,light(time/Tion),'-r','HandleVisibility','off','LineWidth',1.5);
 set(gca,'FontSize',20,'YColor','r');
 ylim(Ys);
 ylabel({'light intensity (Sun equiv.)'});
@@ -271,12 +277,6 @@ function frame = create_frame(framedata,i)
     struct2array(framedata.dstrbns,{'P','phi','n','p','phiE','nE','phiH', ...
     'pH','R_tot','R_bim','R_SRH','R_Aug','G_tot','Rl_SRH','Rl_bim', ...
     'Rr_SRH','Rr_bim'});
-
-% Set default figure options
-set(0,'defaultAxesFontSize',18); % Make axes labels larger
-set(0,'defaultTextInterpreter','latex'); % For latex axis labels
-set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
-set(0,'defaultLegendInterpreter','latex'); % For latex legends
 
 % Create figure
 fig = figure('Position',[0 0 Size(1) Size(2)],'Visible','off');
