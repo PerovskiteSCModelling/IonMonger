@@ -112,7 +112,7 @@ if length(applied_voltage)==1
         psi = @(t) NaN; % value not used, just needs to be a function
         findVoc = true;
     else
-        V_value = applied_voltage{1};
+        V_value = Vap2psi(applied_voltage{1});
         psi = @(t) V_value*ones(size(t));
         findVoc = false;
     end
