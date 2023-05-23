@@ -49,7 +49,7 @@ plot(ax1,freqs,abs(R+1i*X),'-o','LineWidth',L,'MarkerSize',M, ...
     'MarkerFaceColor',col,'Color',col);
 ax2 = nexttile;
 arg = angle(R+1i*X);
-arg(arg<0) = arg(arg<0)+2*pi;
+arg(arg<0) = arg(arg<0);%+2*pi;
 plot(freqs,arg/pi,'-o','LineWidth',L,'MarkerSize',M, ...
     'MarkerFaceColor',col,'Color',col);
 set(ax1,'XScale','log');
@@ -63,7 +63,7 @@ T.TileSpacing = 'compact';
 figure('Name','Frequency plot');
 T = tiledlayout(2,1);
 ax1 = nexttile;
-plot(ax1,freqs,-X,'-ob','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','b');
+plot(ax1,freqs,X,'-ob','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','b');
 ax2 = nexttile;
 plot(freqs,R,'-ob','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','b');
 set(ax1,'XScale','log','YDir','reverse');
@@ -76,7 +76,7 @@ T.TileSpacing = 'compact';
 
 % Nyquist plot
 figure('Name','Nyquist plot');
-plot(R,-X,'-or','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','r');
+plot(R,X,'-or','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','r');
 grid on;
 set(gca,'DataAspectRatio',[1 1 1],'YDir','reverse');
 ylabel('-X / $\Omega$cm$^2$');
@@ -84,24 +84,24 @@ xlabel('R / $\Omega$cm$^2$');
 
 % 3D plot
 figure('Name','3D impedance plot');
-plot3(freqs,R,-X,'-o','LineWidth',L,'MarkerSize',M, ...
+plot3(freqs,R,X,'-o','LineWidth',L,'MarkerSize',M, ...
     'MarkerFaceColor','m','Color','m');
 hold on;
 ax = gca;
 xlim([min(freqs), max(freqs)]);
 ylim([min([R;0]), max([R;0])]);
-zlim([min([-X;0]), max([-X;0])]);
+zlim([min([X;0]), max([X;0])]);
 % projection onto R-X plane
-plot3(ax.XLim(2)*ones(size(R)),R,-X,'Color',0.6*[1,1,1],'LineWidth',1.5);
+plot3(ax.XLim(2)*ones(size(R)),R,X,'Color',0.6*[1,1,1],'LineWidth',1.5);
 % projection onto f-X plane
-plot3(freqs,ax.YLim(1)*ones(size(R)),-X,'Color',0.6*[1,1,1],'LineWidth',1.5);
+plot3(freqs,ax.YLim(1)*ones(size(R)),X,'Color',0.6*[1,1,1],'LineWidth',1.5);
 % projection onto f-R plane
 plot3(freqs,R,ax.ZLim(2)*ones(size(R)),'Color',0.6*[1,1,1],'LineWidth',1.5);
 patch([min(freqs)*1e-3 max(freqs)*1e3 max(freqs)*1e3 min(freqs)*1e-3],min([R;0])*[1,1,1,1],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
     'r','FaceAlpha',0.1,'EdgeColor','none');
 patch(max(freqs)*[1,1,1,1],[ax.YLim(1),ax.YLim(2),ax.YLim(2),ax.YLim(1)],[ax.ZLim(2),ax.ZLim(2),ax.ZLim(1),ax.ZLim(1)],...
     'b','FaceAlpha',0.1,'EdgeColor','none');
-patch([min(freqs) max(freqs) max(freqs) min(freqs)],[ax.YLim(1),ax.YLim(1),ax.YLim(2),ax.YLim(2)],max(-X)*[1,1,1,1],...
+patch([min(freqs) max(freqs) max(freqs) min(freqs)],[ax.YLim(1),ax.YLim(1),ax.YLim(2),ax.YLim(2)],max(X)*[1,1,1,1],...
     'g','FaceAlpha',0.1,'EdgeColor','none');
 set(gcf,'Renderer','painters');
 hold off;

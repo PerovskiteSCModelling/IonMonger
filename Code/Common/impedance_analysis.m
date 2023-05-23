@@ -38,31 +38,22 @@ for j = 1:nf
         ind = (length(sol(j).J)-nwaves*100):length(sol(j).J);
         t = sol(j).time(ind)-sol(j).time(ind(1));
         J = -sol(j).J(ind)*1e-3; % [Acm-2]
+        V = sol(j).V(ind);
+
+        % Use fft to get frequency information
+        L = nwaves*100; 
+        Jfft = 2*fft(J(1:end-1))/L;
+        Vfft = 2*fft(V(1:end-1))/L;
         
-        % Perform sinusoidal fit via Fourier transform
-        fit = FourierFit(t,J,freqs(j));
-        theta = fit.theta;
-        Jp = fit.Sp; % extract sinusoidal current amplitude
-        
-        if fit.err>1e-1
-            warning(['sinusoidal fit of current output for frequency '...
-                num2str(j) ' may be inaccurate'])
-        end
         
         % Output impedance
-        Z(j,1) = Vp/Jp*exp(1i*theta); % [Ohm cm2]
+        Z(j,1) = Vfft(3)/(Jfft(3)); % [Ohm cm2]
         
-        % Fit the second-order response
-        fit2 = FourierFit(t,J-transpose(fit.S(t)),2*freqs(j));
-        Jp2 = fit2.Sp;
-        theta2 = fit2.theta;                       
-        Z(j,2) = Vp/(Jp2*exp(-1i*theta2))^2;
+                  
+        Z(j,2) = Vfft(3)^2./(Jfft(5));
         
-        % Fit the third-order response
-        fit3 = FourierFit(t,J-transpose(fit.S(t)+fit2.S(t)),3*freqs(j));
-        Jp3 = fit3.Sp;
-        theta3 = fit3.theta;
-        Z(j,3) = Vp/(Jp3*exp(-1i*theta3))^3;
+
+        Z(j,3) = Vfft(3)^3./(Jfft(7));
         
 %         if j==1.5*64
 %             % Plot harmonic response using the discrete Fourier transform

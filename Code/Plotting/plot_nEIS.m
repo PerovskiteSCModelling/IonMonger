@@ -37,7 +37,7 @@ L = 0.5; % line width
 for j = 1:size(X,2)
     % Nyquist plot
     figure('Name',['Nyquist plot, order ' num2str(j)]);
-    plot(R(:,j),-X(:,j),'-or','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','r');
+    plot(R(:,j),X(:,j),'-or','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','r');
     grid on;
     set(gca,'DataAspectRatio',[1 1 1],'YDir','reverse');
     title(['Order ' num2str(j)]);
