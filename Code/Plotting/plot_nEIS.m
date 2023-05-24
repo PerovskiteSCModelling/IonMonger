@@ -41,8 +41,18 @@ for j = 1:size(X,2)
     grid on;
     set(gca,'DataAspectRatio',[1 1 1],'YDir','reverse');
     title(['Order ' num2str(j)]);
-    ylabel('-Im(Z) / $\Omega$cm$^2$');
-    xlabel('Re(Z) / $\Omega$cm$^2$');
+    if j==3
+        ylabel('-Im(Z) / $V^2\Omega$cm$^2$');
+        xlabel('Re(Z) / $V^2\Omega$cm$^2$');
+    elseif j==2
+        ylabel('-Im(Z) / $V\Omega$cm$^2$');
+        xlabel('Re(Z) / $V\Omega$cm$^2$');
+    else
+        ylabel('-Im(Z) / $\Omega$cm$^2$');
+        xlabel('Re(Z) / $\Omega$cm$^2$');
+    end
+
+
 end
 
 end
