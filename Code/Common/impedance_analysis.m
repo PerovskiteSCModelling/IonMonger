@@ -35,45 +35,19 @@ for j = 1:nf
     try % Extract the impedance from each measurement
         
         % Get times and current (= -photocurrent)
-        ind = (length(sol(j).J)-nwaves*100):length(sol(j).J);
-        t = sol(j).time(ind)-sol(j).time(ind(1));
+        ind = (length(sol(j).J)-nwaves*100):(length(sol(j).J)-1);
         J = -sol(j).J(ind)*1e-3; % [Acm-2]
         V = sol(j).V(ind);
 
         % Use fft to get frequency information
         L = nwaves*100; 
-        Jfft = 2*fft(J(1:end-1))/L;
-        Vfft = 2*fft(V(1:end-1))/L;
+        Jfft = 2*fft(J)/L;
+        Vfft = 2*fft(V)/L;
         
-        
-        % Output impedance
-        Z(j,1) = Vfft(3)/(Jfft(3)); % [Ohm cm2]
-        
-                  
-        Z(j,2) = Vfft(3)^2./(Jfft(5));
-        
-
-        Z(j,3) = Vfft(3)^3./(Jfft(7));
-        
-%         if j==1.5*64
-%             % Plot harmonic response using the discrete Fourier transform
-%             FTJ = fft(J-mean(J));
-%             P2 = abs(FTJ/length(J)); % two-sided spectrum
-%             P1 = P2(1:floor(length(J)/2)+1);
-%             P1(2:end-1) = 2*P1(2:end-1); % one-sided spectrum
-%             P1 = P1*1e3; % rescale to mAcm-2 for plotting
-%             Fs = 1/t(2); % sampling frequency
-%             f = Fs*(0:floor(length(J)/2))/length(J);
-%             figure; hold on;
-%             cut = 20;
-%             plot(f(1:cut),P1(1:cut));
-%             plot(freqs(j)*[1,1],[0,max(P1)],'--'); % fundamental frequency
-% %             title('Single-sided amplitude spectrum of J(t)');
-%             ylabel('Amplitude (mAcm$^{-2}$)');
-%             xlabel('Frequency (Hz)');
-%             legend('Amplitude spectrum of J(t)','Fundamental frequency');
-%             drawnow;
-%         end
+        % Output first, second and third-order impedance
+        Z(j,1) = Vfft(nwaves+1)/(Jfft(nwaves+1)); % [Ohm cm2]     
+        Z(j,2) = Vfft(nwaves+1)^2./(Jfft(2*nwaves+1));
+        Z(j,3) = Vfft(nwaves+1)^3./(Jfft(3*nwaves+1));
         
     catch me
         warning(['phase analysis of frequency ' num2str(j) ' was unsuccessful'])

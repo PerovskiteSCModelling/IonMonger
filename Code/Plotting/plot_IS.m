@@ -49,7 +49,7 @@ plot(ax1,freqs,abs(R+1i*X),'-o','LineWidth',L,'MarkerSize',M, ...
     'MarkerFaceColor',col,'Color',col);
 ax2 = nexttile;
 arg = angle(R+1i*X);
-arg(arg<0) = arg(arg<0);%+2*pi;
+arg(arg<0) = arg(arg<0)+2*pi;
 plot(freqs,arg/pi,'-o','LineWidth',L,'MarkerSize',M, ...
     'MarkerFaceColor',col,'Color',col);
 set(ax1,'XScale','log');
