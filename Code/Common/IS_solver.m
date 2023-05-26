@@ -17,7 +17,7 @@ t = 10; % time spent in steady state at DC voltage
 freqs = logspace(log10(fmin),log10(fmax),nf);
 
 % Find steady state at the DC voltage
-fprintf('solving for steady state conditions at DC voltage \n')
+fprintf('Solving for steady state conditions at DC voltage \n')
 params = base_params;
 params.Verbose = false; % suppress output during steady state
 [count, steadystate] = deal(0);
@@ -38,6 +38,10 @@ while ~steadystate
         t = t*10; % increase time for equilibration
     else
         steadystate = 1;
+    end
+    if count==4
+        error(['Could not find a steady state even after ' num2str(t/10) 's' ...
+            ' of equilibration time.']);
     end
 end
 

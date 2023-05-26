@@ -40,7 +40,7 @@ if isfield(params,'input_filename')
     end
     load(params.input_filename)
     
-    % unpack final step of solution
+    % Unpack final step of solution
     P    = sol.dstrbns.P(end,:);
     phi  = sol.dstrbns.phi(end,:);
     n    = sol.dstrbns.n(end,:);
@@ -50,19 +50,19 @@ if isfield(params,'input_filename')
     phiH = sol.dstrbns.phiH(end,:);
     pH   = sol.dstrbns.pH(end,:);
     
-    % interpolate onto new spacial grid and nondimensionalise
+    % Interpolate onto new spatial grid and nondimensionalise
     [b, N0, VT, dE, dH, kE, kH] = ...
         struct2array(params,{'b','N0','VT','dE','dH','kE','kH'});
-    P    = interp1(sol.vectors.x, P,   vectors.x*b*1e9)/N0;
-    phi  = interp1(sol.vectors.x, phi, vectors.x*b*1e9)/VT;
-    n    = interp1(sol.vectors.x, n,   vectors.x*b*1e9)/(kE*dE);
-    p    = interp1(sol.vectors.x, p,   vectors.x*b*1e9)/(kH*dH);
-    phiE = interp1(sol.vectors.xE,phiE,vectors.xE*b*1e9)/VT;
-    nE   = interp1(sol.vectors.xE,nE,  vectors.xE*b*1e9)/dE;
-    phiH = interp1(sol.vectors.xH,phiH,vectors.xH*b*1e9)/VT;
-    pH   = interp1(sol.vectors.xH,pH,  vectors.xH*b*1e9)/dH;
+    P    = interp1(sol.vectors.x, P,   vectors.x*b*1e9, 'linear','extrap')/N0;
+    phi  = interp1(sol.vectors.x, phi, vectors.x*b*1e9, 'linear','extrap')/VT;
+    n    = interp1(sol.vectors.x, n,   vectors.x*b*1e9, 'linear','extrap')/(kE*dE);
+    p    = interp1(sol.vectors.x, p,   vectors.x*b*1e9, 'linear','extrap')/(kH*dH);
+    phiE = interp1(sol.vectors.xE,phiE,vectors.xE*b*1e9,'linear','extrap')/VT;
+    nE   = interp1(sol.vectors.xE,nE,  vectors.xE*b*1e9,'linear','extrap')/dE;
+    phiH = interp1(sol.vectors.xH,phiH,vectors.xH*b*1e9,'linear','extrap')/VT;
+    pH   = interp1(sol.vectors.xH,pH,  vectors.xH*b*1e9,'linear','extrap')/dH;
     
-    % eliminate superfluous phi points
+    % Eliminate superfluous phi points
     phiE = phiE(1:end-1);
     phiH = phiH(2:end);
     
