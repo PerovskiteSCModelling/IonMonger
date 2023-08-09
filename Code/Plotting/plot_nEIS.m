@@ -11,10 +11,13 @@ function plot_nEIS(sol)
 if size(sol,2)>1
     % received full solution array
     [X,R] = impedance_analysis(sol);
+    for j = 1:size(sol,2)
+        freqs(j) = 1/sol(j).params.applied_voltage{2};
+    end
 else
     if ~isfield(sol,'V')
         % received reduced solution structure
-        [X,R] = struct2array(sol,{'X','R'});
+        [X, R, freqs] = struct2array(sol,{'X','R','freqs'});
     else
         % received non-impedance solution structure
         error(['plot_nEIS was given a solution structure that was ', ...
@@ -26,30 +29,39 @@ end
 %% Default plots
 
 % Set default figure options
-set(0,'defaultAxesFontSize',18); % Make axes labels larger
+set(0,'defaultAxesFontSize',14); % Make axes labels larger
 set(0,'defaultTextInterpreter','latex'); % For latex axis labels
 set(0,'defaultAxesTickLabelInterpreter','latex'); % For latex tick labels
 set(0,'defaultLegendInterpreter','latex'); % For latex legends
 M = 2; % marker size
 L = 0.5; % line width
 
+Rlabel = {'Re(Z$_{1}$) / $\Omega$cm$^2$', ...
+          'Re(Z$_{2}$) / V$\Omega$cm$^2$', ...
+          'Re(Z$_{3}$) / V$^2\Omega$cm$^2$'};
+Xlabel = {'-Im(Z$_{1}$) / $\Omega$cm$^2$', ...
+          '-Im(Z$_{2}$) / V$\Omega$cm$^2$', ...
+          '-Im(Z$_{3}$) / V$^2\Omega$cm$^2$'};
+
 for j = 1:size(X,2)
+    figure('Name',['Order ' num2str(j)]);
     % Nyquist plot
-    figure('Name',['Nyquist plot, order ' num2str(j)]);
+    subplot(2,1,1); hold on;
     plot(R(:,j),-X(:,j),'-or','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','r');
-    grid on;
     set(gca,'DataAspectRatio',[1 1 1]);
-    title(['Order ' num2str(j)]);
-    if j==3
-        ylabel('-Im(Z$_{3}$) / V$^2\Omega$cm$^2$');
-        xlabel('Re(Z$_{3}$) / V$^2\Omega$cm$^2$');
-    elseif j==2
-        ylabel('-Im(Z$_{2}$) / V$\Omega$cm$^2$');
-        xlabel('Re(Z$_{2}$) / V$\Omega$cm$^2$');
-    else
-        ylabel('-Im(Z$_{1}$) / $\Omega$cm$^2$');
-        xlabel('Re(Z$_{1}$) / $\Omega$cm$^2$');
-    end
+    ylabel(Xlabel{j});
+    xlabel(Rlabel{j});
+    % Frequency plots
+    subplot(2,2,3); hold on;
+    plot(freqs,R(:,j),'-or','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','r');
+    xlabel('Frequency (Hz)');
+    ylabel(Rlabel{j});
+    set(gca,'Xscale','log');
+    subplot(2,2,4); hold on;
+    plot(freqs,-X(:,j),'-or','LineWidth',L,'MarkerSize',M,'MarkerFaceColor','r');
+    xlabel('Frequency (Hz)');
+    ylabel(Xlabel{j});
+    set(gca,'Xscale','log');
 end
 
 end
