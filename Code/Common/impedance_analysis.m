@@ -28,20 +28,22 @@ Z = nan(nf,order)+1i*nan(nf,order);
 % Compute the complex impedance from each measurement
 for j = 1:nf
     try
+        % Define length of input
+        L = nwaves*100;
+
         % Get times and current (= negative photocurrent)
-        ind = (length(sol(j).J)-nwaves*100):(length(sol(j).J)-1);
+        ind = (length(sol(j).J)-L):(length(sol(j).J)-1);
         J = -sol(j).J(ind)*1e-3; % [Acm-2]
         V = sol(j).V(ind);       % [V]
-
-        % Use the fast Fourier transform to get frequency information
-        L = nwaves*100; 
-        Jfft = 2*fft(J)/L;
-        Vfft = 2*fft(V)/L;
         
-        % Output first, second and third-order impedance
-        Z(j,1) = Vfft(nwaves+1)/(Jfft(nwaves+1));      % [Ohm cm2]     
-        Z(j,2) = Vfft(nwaves+1)^2./(Jfft(2*nwaves+1)); % [Ohm V cm2]  
-        Z(j,3) = Vfft(nwaves+1)^3./(Jfft(3*nwaves+1)); % [Ohm V2 cm2]  
+        % Compute the Fourier coefficients 
+        Jfft = fft(J)/L;
+        Vfft = fft(V)/L;
+        
+        % Output the first, second and third-order impedance
+        Z(j,1) = Vfft(nwaves+1)/(Jfft(nwaves+1));      % [Ohm cm2]
+        Z(j,2) = Vfft(nwaves+1)^2./(Jfft(2*nwaves+1)); % [Ohm V cm2]
+        Z(j,3) = Vfft(nwaves+1)^3./(Jfft(3*nwaves+1)); % [Ohm V2 cm2]
         
     catch me
         warning(['Phase analysis of frequency ' num2str(j) ' was unsuccessful.']);
