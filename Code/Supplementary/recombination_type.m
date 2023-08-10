@@ -32,4 +32,9 @@ else
     error('Unrecognised choice of recombination.');
 end
 
+% Check output
+if isinf(Jd)
+    Jd = 0;
+end
+
 end

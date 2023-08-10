@@ -9,9 +9,9 @@ function solution = ectypal_diode(params)
 % end
 
 % Unpack parameters
-[time, tstar2t, jay, light, Vbi, psi2Vap, psi, VT, b, epsp] = ...
-    struct2array(params, {'time','tstar2t','jay','light','Vbi','psi2Vap', ...
-                          'psi','VT','b','epsp'});
+[time, tstar2t, jay, light, Vbi, psi2Vap, psi, VT, b, epsp, tor] = ...
+    struct2array(params, {'time','tstar2t','jay','light','Vbi', ...
+                          'psi2Vap','psi','VT','b','epsp','tor'});
 
 % Compute dimensional voltage and then the time
 V = psi2Vap(psi(time));
@@ -34,14 +34,14 @@ Jb = jr.*exp(-(Fi(Vs)+b*Ebulk/nid)/VT);
 
 % Compute current loss for bulk SRH recombination
 % Hole-dominated
-[jr, Fi, nid] = recombination_type('Rp',params);
-Jsrh = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*(1-x).*Ebulk/VT));
+[jr, Fi] = recombination_type('Rp',params);
+Jsrh(1,:) = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*(1-x).*Ebulk/VT));
 % Electron-dominated
-% [jr, Fi, nid] = recombination_type('Rn',params);
-% Jsrh = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*x.*Ebulk/VT));
+[jr, Fi] = recombination_type('Rn',params);
+Jsrh(2,:) = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*x.*Ebulk/VT));
 
 % Sum up bulk recombination
-Jb = Jb+Jsrh;
+Jb = Jb+(Jsrh(2,:)>=tor*Jsrh(1,:)).*Jsrh(1,:)+(tor*Jsrh(1,:)>Jsrh(2,:)).*Jsrh(2,:);
 
 % Compute current loss for ETL/perovskite interfacial recombination
 [jr, Fi, nid] = recombination_type('Rl',params);
