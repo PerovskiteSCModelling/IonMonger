@@ -28,22 +28,20 @@ dEdt = ([dEdt(1),dEdt]+[dEdt,dEdt(end)])/2;
 % Define a perovskite layer dimension
 x = linspace(0,1,101)';
 
-% Compute current loss for each bulk recombination mechanism
-Rbulk = {'Rb','Rp','Rn'};
-% Bimolecular
-Jb = NaN(length(Rbulk),length(time));
-[jr, Fi, nid] = recombination_type(Rbulk{1},params);
-Jb(1,:) = jr.*exp(-(Fi(Vs)+b*Ebulk/nid)/VT);
-% Hole-dominated SRH
-[jr, Fi, nid] = recombination_type(Rbulk{2},params);
-Jb(2,:) = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*(1-x).*Ebulk/VT));
-% Electron-dominated SRH
-[jr, Fi, nid] = recombination_type(Rbulk{3},params);
-Jb(3,:) = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*x.*Ebulk/VT));
+% Compute current loss for bimolecular recombination
+[jr, Fi, nid] = recombination_type('Rb',params);
+Jb = jr.*exp(-(Fi(Vs)+b*Ebulk/nid)/VT);
 
-% Select dominant bulk mechanism
-Jb(isinf(Jb)) = 0;
-Jb = max(Jb);
+% Compute current loss for bulk SRH recombination
+% Hole-dominated
+[jr, Fi, nid] = recombination_type('Rp',params);
+Jsrh = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*(1-x).*Ebulk/VT));
+% Electron-dominated
+% [jr, Fi, nid] = recombination_type('Rn',params);
+% Jsrh = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*x.*Ebulk/VT));
+
+% Sum up bulk recombination
+Jb = Jb+Jsrh;
 
 % Compute current loss for ETL/perovskite interfacial recombination
 [jr, Fi, nid] = recombination_type('Rl',params);
