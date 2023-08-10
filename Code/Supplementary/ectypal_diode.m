@@ -25,13 +25,25 @@ Ebulk = (Vbi-V-Vs.V1-Vs.V2-Vs.V3-Vs.V4)/b;
 dEdt = diff(Ebulk)./diff(time);
 dEdt = ([dEdt(1),dEdt]+[dEdt,dEdt(end)])/2;
 
+% Define a perovskite layer dimension
+x = linspace(0,1,101)';
+
 % Compute current loss for each bulk recombination mechanism
 Rbulk = {'Rb','Rp','Rn'};
+% Bimolecular
 Jb = NaN(length(Rbulk),length(time));
-for i = 1:length(Rbulk)
-    [jr, Fi, nid] = recombination_type(Rbulk{1},params);
-    Jb(i,:) = jr.*exp(-(Fi(Vs)+b*Ebulk/nid)/VT);
-end
+[jr, Fi, nid] = recombination_type(Rbulk{1},params);
+Jb(1,:) = jr.*exp(-(Fi(Vs)+b*Ebulk/nid)/VT);
+% Hole-dominated SRH
+[jr, Fi, nid] = recombination_type(Rbulk{2},params);
+Jb(2,:) = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*(1-x).*Ebulk/VT));
+% Electron-dominated SRH
+[jr, Fi, nid] = recombination_type(Rbulk{3},params);
+Jb(3,:) = jr.*exp(-Fi(Vs)/VT).*trapz(x,exp(-b*x.*Ebulk/VT));
+
+% Select dominant bulk mechanism
+Jb(isinf(Jb)) = 0;
+Jb = max(Jb);
 
 % Compute current loss for ETL/perovskite interfacial recombination
 [jr, Fi, nid] = recombination_type('Rl',params);
@@ -42,7 +54,7 @@ Jl = -jr.*exp(-(Fi(Vs)+b*Ebulk/nid)/VT);
 Jr = -jr.*exp(-(Fi(Vs)+b*Ebulk/nid)/VT);
     
 % Compute the current densities
-Jrec = max(Jb)-Jl-Jr;        % total recombination current density [mA cm-2]
+Jrec = Jb-Jl-Jr;        % total recombination current density [mA cm-2]
 Jd = epsp*dEdt/10;           % displacement current density [mA cm-2]
 J = jay*light(time)-Jrec+Jd; % total current density [mA cm-2]
 
